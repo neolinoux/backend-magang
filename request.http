@@ -1,0 +1,19 @@
+###
+
+POST http://localhost:3000/users/create
+Content-Type: application/json
+
+{
+  "email": "tyo@stis.ac.id",
+  "password": "hahaha"
+}
+
+###
+
+PUT http://localhost:3000/users/update/2
+Content-Type: application/json
+
+{
+  "email": "tyo@stis.ac.id",
+  "password": "uhuy"
+}
