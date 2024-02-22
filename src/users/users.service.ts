@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class UsersService{
@@ -33,6 +34,13 @@ export class UsersService{
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (user) throw new HttpException('User already exists', 409);
+
     const saltOrRounds = 10;
 
     const password = data.password;
@@ -53,6 +61,20 @@ export class UsersService{
     data: Prisma.UserUpdateInput;
   }): Promise<User> {
     const { data, where } = params;
+
+    const user = await this.prisma.user.findUnique({
+      where,
+    });
+    
+    if (!user) throw new NotFoundException('User not found');
+    
+    if (data.password) {
+      const saltOrRounds = 10;
+      const password = data.password;
+      const hashedPassword = await bcrypt.hash(password.toString(), saltOrRounds);
+      data.password = hashedPassword.toString();
+    }
+
     return this.prisma.user.update({
       data,
       where,
@@ -60,6 +82,10 @@ export class UsersService{
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where });
+
+    if (!user) throw new NotFoundException('User not found');
+
     return this.prisma.user.delete({
       where,
     });

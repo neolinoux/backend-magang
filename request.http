@@ -1,11 +1,20 @@
 ###
 
-POST http://localhost:3000/users/create
+POST http://localhost:3000/auth/signup
 Content-Type: application/json
 
 {
-  "email": "tyo@stis.ac.id",
-  "password": "hahaha"
+  "email": "lala@stis.ac.id",
+  "password": "lalala"
+}
+
+###
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "lala@stis.ac.id",
+  "password": "lalala"
 }
 
 ###
@@ -15,5 +24,11 @@ Content-Type: application/json
 
 {
   "email": "tyo@stis.ac.id",
-  "password": "uhuy"
+  "password": "qwqwqw"
 }
+
+###
+GET http://localhost:3000/users
+
+###
+DELETE http://localhost:3000/users/delete/3
