@@ -4,8 +4,9 @@ POST http://localhost:3000/auth/signup
 Content-Type: application/json
 
 {
-  "email": "lala@stis.ac.id",
-  "password": "lalala"
+  "email": "admin@stis.ac.id",
+  "password": "lalala",
+  "userRole": "admin"
 }
 
 ###
@@ -13,8 +14,8 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "lala@stis.ac.id",
-  "password": "lalala"
+  "email": "admin@admin.com",
+  "password": "admin"
 }
 
 ###
@@ -28,7 +29,10 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/users
+GET http://localhost:3000/users 
 
 ###
 DELETE http://localhost:3000/users/delete/3
+
+###
+GET http://localhost:3000/users/pemlap

@@ -1,6 +1,6 @@
 import { HttpCode, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, UserRoles } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
@@ -25,6 +25,21 @@ export class UsersService{
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy } = params;
     return this.prisma.user.findMany({
+      select: {
+        userId: true,
+        email: true,
+        password: true,
+        userRoles: {
+          select: {
+            roleId: true,
+            role: {
+              select: {
+                roleName: true,
+              },
+            },
+          }
+        },
+      },
       skip,
       take,
       cursor,
@@ -50,6 +65,8 @@ export class UsersService{
     // console.log(hashedPassword);
 
     data.password = hashedPassword;
+
+    console.log(data);
 
     return this.prisma.user.create({
       data,

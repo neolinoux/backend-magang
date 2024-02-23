@@ -13,10 +13,10 @@ datasource db {
 model User{
   userId Int @id @default(autoincrement())
   email String @unique
-  password String
-  userRoles UserRoles[]
+  password String @db.VarChar(255) 
+  userRoles UserRoles[] 
   userPermissions UserPermissions[]
-  mahasiswa Mahasiswa?
+  mahasiswa Mahasiswa? 
   dosenPembimbingMagang DosenPembimbingMagang?
   pembimbingLapangan PembimbingLapangan?
   adminProvinsi AdminProvinsi?
@@ -25,14 +25,14 @@ model User{
 
 model Roles{
   roleId Int @id @default(autoincrement())
-  roleName String
+  roleName String @unique
   userRoles UserRoles[]
   permissionRoles PermissionRoles[]
 }
 
 model Permissions{
   permissionId Int @id @default(autoincrement())
-  permissionName String
+  permissionName String @unique
   permissionRoles PermissionRoles[]
   userPermissions UserPermissions[]
 }
@@ -66,9 +66,9 @@ model Mahasiswa {
   user User @relation(fields: [userId], references: [userId])
   userId Int @unique
   dosenPembimbingMagang DosenPembimbingMagang @relation(fields: [nipDosen], references: [nip])
-  nipDosen String
+  nipDosen String @unique
   pembimbingLapangan PembimbingLapangan @relation(fields: [nipPemlap], references: [nip])
-  nipPemlap String
+  nipPemlap String @unique
   nama String?
   alamat String?
   prodi String?
@@ -81,10 +81,10 @@ model Mahasiswa {
   tipeKegiatan TipeKegiatan[]
   rekapKegiatanBulanan RekapKegiatanBulanan[]
   penilaianBimbingan PenilaianBimbingan?
-  penilaianLaporanDosen penilaianLaporanDosen?
-  penilaianKinerja penilaianKinerja?
-  penilaianLaporanPemlap penilaianLaporanPemlap?
-  izinPresensi izinPresensi[]
+  penilaianLaporanDosen PenilaianLaporanDosen?
+  penilaianKinerja PenilaianKinerja?
+  penilaianLaporanPemlap PenilaianLaporanPemlap?
+  izinPresensi IzinPresensi[]
   satker Satker @relation(fields: [satkerId], references: [satkerId])
   satkerId Int
 }
@@ -198,7 +198,7 @@ model PenilaianBimbingan {
   updatedAt DateTime @updatedAt
 }
 
-model penilaianLaporanDosen {
+model PenilaianLaporanDosen {
   penilaianId Int @id @default(autoincrement())
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
   nim String @unique
@@ -206,7 +206,7 @@ model penilaianLaporanDosen {
   updatedAt DateTime @updatedAt
 }
 
-model penilaianKinerja {
+model PenilaianKinerja {
   penilaianId Int @id @default(autoincrement())
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
   nim String @unique
@@ -214,7 +214,7 @@ model penilaianKinerja {
   updatedAt DateTime @updatedAt
 }
 
-model penilaianLaporanPemlap {
+model PenilaianLaporanPemlap {
   penilaianId Int @id @default(autoincrement())
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
   nim String @unique
@@ -222,7 +222,7 @@ model penilaianLaporanPemlap {
   updatedAt DateTime @updatedAt
 }
 
-model izinPresensi {
+model IzinPresensi {
   izinId Int @id @default(autoincrement())
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
   nim String

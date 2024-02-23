@@ -16,7 +16,10 @@ export class AuthController {
   
   @Post('signup')
   async signupUser(
-    @Body() userData: { email: string; password: string },
+    @Body() userData: {
+      email: string;
+      password: string;
+    },
   ): Promise<UserModel> {
     return this.usersService.createUser(userData);
   }

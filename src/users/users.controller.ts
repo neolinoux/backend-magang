@@ -1,9 +1,18 @@
-import { Controller, Post, Body, Put, Get, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Put,
+  Get,
+  Delete,
+  Param,
+  UseGuards
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User as UserModel } from '@prisma/client';
-import { ApiBasicAuth, ApiBearerAuth, ApiBody, ApiOAuth2 } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBearerAuth, ApiBody, ApiOAuth2, ApiTags } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -13,6 +22,19 @@ export class UsersController {
     return this.usersService.users({});
   }
 
+  @Get('pemlap')
+  async getAllPemlap(): Promise<UserModel[]> {
+    return this.usersService.users({
+      where: {
+        userRoles: {
+          some: {
+            roleId: 2
+          }
+        }
+      }
+    });
+  }
+  
   @Put('update/:id')
   async updateUser(
     @Param('id') id: string,
@@ -28,4 +50,5 @@ export class UsersController {
   async deleteUser(@Param('id') id: string): Promise<UserModel> {
     return this.usersService.deleteUser({ userId: Number(id) });
   }
+
 }

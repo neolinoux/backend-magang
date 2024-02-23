@@ -1,4 +1,7 @@
 {
+  "prisma": {
+    "seed": "ts-node ./prisma/seed.ts"
+  },
   "name": "backend-magang",
   "version": "0.0.1",
   "description": "",
@@ -71,7 +74,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.1",
+    "@faker-js/faker": "^8.4.1",
     "@nestjs/schematics": "^9.0.4",
     "@nestjs/testing": "^9.2.1",
     "@types/bcrypt": "^5.0.2",
@@ -118,4 +121,6 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
+
+  
 }

@@ -1,6 +1,5 @@
 import { HttpCode, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { NotFoundError } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -13,22 +12,41 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
+      select: {
+        userId: true,
+        email: true,
+        userRoles: {
+          select: {
+            roleId: true,
+            role: {
+              select: {
+                roleName: true,
+              },
+            },
+          }
+        },
+      },
       where: {
         email: email
-      }
+      },
     });
 
     if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
+      throw new NotFoundException(`email ${email} not registered`);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    // if (!isPasswordValid) {
+    //   throw new UnauthorizedException('Invalid password');
+    // }
 
-    const payload = { email: email, id: user.userId };
+    const payload = {
+      id: user.userId,
+      email: email,
+      role: user.userRoles[0].role.roleName
+    };
+
     return {
       access_token: this.jwtService.sign(payload)
     }
