@@ -12,6 +12,21 @@ export class UsersService{
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {
     return this.prisma.user.findUnique({
+      select: {
+        userId: true,
+        email: true,
+        password: true,
+        userRoles: {
+          select: {
+            roleId: true,
+            role: {
+              select: {
+                roleName: true,
+              },
+            },
+          }
+        },
+      },
       where: userWhereUniqueInput,
     });
   }
@@ -65,8 +80,6 @@ export class UsersService{
     // console.log(hashedPassword);
 
     data.password = hashedPassword;
-
-    console.log(data);
 
     return this.prisma.user.create({
       data,

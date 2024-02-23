@@ -1,4 +1,8 @@
-import { HttpCode, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -15,6 +19,7 @@ export class AuthService {
       select: {
         userId: true,
         email: true,
+        password: true,
         userRoles: {
           select: {
             roleId: true,
@@ -35,11 +40,11 @@ export class AuthService {
       throw new NotFoundException(`email ${email} not registered`);
     }
 
-    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    // if (!isPasswordValid) {
-    //   throw new UnauthorizedException('Invalid password');
-    // }
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
 
     const payload = {
       id: user.userId,
@@ -49,6 +54,18 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload)
+    }
+  }
+
+  async logout(token: string) {
+    await this.prisma.invalidToken.create({
+      data: {
+        token: token
+      }
+    });
+
+    return {
+      message: 'Logout success'
     }
   }
 }
