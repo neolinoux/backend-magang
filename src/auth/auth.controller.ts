@@ -31,13 +31,20 @@ export class AuthController {
 
   @Post('login')
   async loginUser(
-    @Body() {email, password}: LoginDto,
+    @Body() { email, password }: LoginDto,
+    @Request() req: any
   ) {
-    return this.authService.login(email, password);
+    //check if there is no token in the header
+    if (!req.headers['authorization']) {
+      return this.authService.login(email, password, null);
+    }
+
+    //if there is a token in the header, pass it to the login method
+    return this.authService.login(email, password, req.headers['authorization'].split(' ')[1].toString());
   }
 
   @Post('logout')
   async logoutUser(@Request() req: any) {
-    return this.authService.logout(req.headers['authorization'].split(' ')[1].toString());
+    return this.authService.logout(req.headers['authorization']);
   }
 }

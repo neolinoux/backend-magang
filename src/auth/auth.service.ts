@@ -14,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, token: string) {
     const user = await this.prisma.user.findUnique({
       select: {
         userId: true,
@@ -46,6 +46,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password');
     }
 
+    //if there is a token, add it to the invalidToken table
+    //this will keep every user using only one token at a time
+    if (token) {
+      this.prisma.invalidToken.create({
+        data: {
+          token: token
+        }
+      });
+    }
+
     const payload = {
       id: user.userId,
       email: email,
@@ -58,14 +68,21 @@ export class AuthService {
   }
 
   async logout(token: string) {
+    const targetToken = token.split(' ')[1];
+
+    if (!targetToken) {
+      throw await new UnauthorizedException('User not logged in');
+    }
+
     await this.prisma.invalidToken.create({
       data: {
-        token: token
+        token: targetToken
       }
     });
 
     return {
-      message: 'Logout success'
+      message: 'Logout success',
+      token: targetToken
     }
   }
 }

@@ -1,8 +1,7 @@
-import { HttpCode, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User, Prisma, UserRoles } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class UsersService{
@@ -11,22 +10,8 @@ export class UsersService{
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {
+    console.log('user service, method user');
     return this.prisma.user.findUnique({
-      select: {
-        userId: true,
-        email: true,
-        password: true,
-        userRoles: {
-          select: {
-            roleId: true,
-            role: {
-              select: {
-                roleName: true,
-              },
-            },
-          }
-        },
-      },
       where: userWhereUniqueInput,
     });
   }
@@ -64,7 +49,6 @@ export class UsersService{
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-
     const user = await this.prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -92,12 +76,15 @@ export class UsersService{
   }): Promise<User> {
     const { data, where } = params;
 
+    // find user
     const user = await this.prisma.user.findUnique({
       where,
     });
     
+    // if user not found, throw exception
     if (!user) throw new NotFoundException('User not found');
     
+    // hash password
     if (data.password) {
       const saltOrRounds = 10;
       const password = data.password;
@@ -105,6 +92,7 @@ export class UsersService{
       data.password = hashedPassword.toString();
     }
 
+    // update user
     return this.prisma.user.update({
       data,
       where,
@@ -123,7 +111,9 @@ export class UsersService{
 
   async findOne(email: string): Promise<User | undefined> {
     return this.prisma.user.findUnique({
-      where: { email },
+      where: {
+        email: email,
+      },
     });
   }
 

@@ -1,8 +1,6 @@
 import {
-  Headers,
   Injectable,
-  UnauthorizedException,
-  Request,
+  UnauthorizedException
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -19,22 +17,37 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: jwtSecret,
+      passReqToCallback: true
     });
   }
 
-  async validate(payload: { email: string }, @Request() req: any){
-    const user = await this.usersService.findOne(payload.email);
+  async validate(req: Request, payload: { email: string }) {
+    // get token from header
+    const rawToken = req.headers['authorization'].split(' ')[1];
+    // console.log(rawToken);
+    
+    // check if token is invalid
+    const invalidToken = await this.prisma.invalidToken.findUnique({
+      where: {
+        token: rawToken
+      }
+    });
+    
+    // if token is invalid, return unauthorized
+    if (invalidToken) {
+      throw await new UnauthorizedException('token expired or invalid');
+    }
+    
+    // check if user is valid
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: payload.email
+      }
+    });
 
-    // const token = req.headers['authorization'].split(' ')[1];
-
-    // const invalidToken = await this.prisma.invalidToken.findUnique({
-    //   where: {
-    //     token: token
-    //   }
-    // });
-
+    // if user is not valid, return unauthorized
     if (!user) {
-      throw new UnauthorizedException();
+      throw await new UnauthorizedException('user not found');
     }
 
     return user;
