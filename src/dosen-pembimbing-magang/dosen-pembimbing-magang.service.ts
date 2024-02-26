@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/create-dosenPembimbingMagang.dto';
 import { DosenPembimbingMagang } from 'src/generated/nestjs-dto/dosenPembimbingMagang.entity';
-import { User } from 'src/generated/nestjs-dto/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -12,7 +10,7 @@ export class DosenPembimbingMagangService {
   ) {}
 
   async findAll() {
-    return this.prisma.dosenPembimbingMagang.findMany({
+    const allDosen = await this.prisma.dosenPembimbingMagang.findMany({
       select: {
         userId: true,
         nip: true,
@@ -27,10 +25,12 @@ export class DosenPembimbingMagangService {
         userId: 'asc',
       },
     });
-  }
 
-  findOne(id: string) {
-    return `This action returns a #${id} dosenPembimbingMagang`;
+    return {
+      status: 'success',
+      message: 'Data Dosen Pembimbing Berhasil Diambil',
+      data: allDosen,
+    };
   }
 
   async update(nip: string, dosenPembimbingMagang: DosenPembimbingMagang) {
@@ -84,6 +84,16 @@ export class DosenPembimbingMagangService {
       where: {
         nip: nip,
       },
+      select: {
+        userId: true,
+        nip: true,
+        nama: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
     });
 
     if(!dosen){
@@ -101,7 +111,8 @@ export class DosenPembimbingMagangService {
 
     return {
       status: 'success',
-      message: 'Data Dosen Berhasil Dihapus',
+      message: 'Data Dosen Pembimbing Berhasil Dihapus',
+      data: dosen,
     };
   }
 
@@ -147,7 +158,7 @@ export class DosenPembimbingMagangService {
 
     return {
       status: 'success',
-      message: 'Data Dosen Berhasil Ditambahkan',
+      message: 'Data Dosen Pembimbing Berhasil Ditambahkan',
       data: dosenBaru,
     };
   }

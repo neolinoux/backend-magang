@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
 import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pembimbing-magang.module';
+import { PembimbingLapanganModule } from './pembimbing-lapangan/pembimbing-lapangan.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pem
     JwtModule,
     PassportModule,
     MahasiswaModule,
-    DosenPembimbingMagangModule
+    DosenPembimbingMagangModule,
+    PembimbingLapanganModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

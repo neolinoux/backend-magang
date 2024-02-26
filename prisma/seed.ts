@@ -121,20 +121,37 @@ async function main() {
   //   }
   // }
   
-  const hashedDosPemPassword = await bcrypt.hash('dosen', 10);
+  // const hashedDosPemPassword = await bcrypt.hash('dosen', 10);
+
+  // for (let i = 0; i < prodi.length; i++){
+  //   const dosen = await prisma.dosenPembimbingMagang.create({
+  //     data: {
+  //       nip: faker.string.numeric(9),
+  //       user: {
+  //         create: {
+  //           email: faker.internet.email(),
+  //           password: hashedDosPemPassword,
+  //         },
+  //       },
+  //       nama: faker.person.firstName(),
+  //       prodi: prodi[i],
+  //     },
+  //   });
+  // }
+
+  const hashedPemlapPassword = await bcrypt.hash('pemlap', 10);
 
   for (let i = 0; i < prodi.length; i++){
-    const dosen = await prisma.dosenPembimbingMagang.create({
+    const dosen = await prisma.pembimbingLapangan.create({
       data: {
         nip: faker.string.numeric(9),
         user: {
           create: {
             email: faker.internet.email(),
-            password: hashedDosPemPassword,
+            password: hashedPemlapPassword,
           },
         },
         nama: faker.person.firstName(),
-        prodi: prodi[i],
       },
     });
   }

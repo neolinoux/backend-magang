@@ -104,3 +104,6 @@ Content-Type:  application/json
 
 ###
 Get http://localhost:3000/dosen-pembimbing/455768196/mahasiswa
+
+###
+GET http://localhost:3000/pembimbing-lapangan/353757282/mahasiswa
