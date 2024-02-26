@@ -9,6 +9,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
+import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pembimbing-magang.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
     PrismaModule,
     JwtModule,
     PassportModule,
-    MahasiswaModule
+    MahasiswaModule,
+    DosenPembimbingMagangModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

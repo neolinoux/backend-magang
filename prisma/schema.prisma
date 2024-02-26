@@ -80,12 +80,12 @@ model UserPermissions {
 
 model Mahasiswa {
   nim                    String                   @id @unique
-  user                   User                    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId                 Int                     @unique
+  user                   User                     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId                 Int                      @unique
   dosenPembimbingMagang  DosenPembimbingMagang?   @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
-  nipDosen               String?                  @unique
+  nipDosen               String?                  
   pembimbingLapangan     PembimbingLapangan?      @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
-  nipPemlap              String?                  @unique
+  nipPemlap              String?                  
   satker                 Satker?                  @relation(fields: [kodeSatker], references: [kode], onDelete: SetNull)
   kodeSatker             String?
   nama                   String?

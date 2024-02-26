@@ -52,7 +52,7 @@ DELETE http://localhost:3000/api/users/delete/3
 GET http://localhost:3000/mahasiswa
 
 ###
-GET http://localhost:3000/mahasiswa/031074752
+GET http://localhost:3000/mahasiswa/091708548
 
 ###
 PUT http://localhost:3000/mahasiswa/889887838
@@ -72,3 +72,35 @@ Content-Type: multipart/form-data
 {
   "file": "C:/Users/Rahmad Setiya Budi/Documents/app/backend-magang/test-mahasiswa.xlsx"
 }
+
+###
+GET http://localhost:3000/dosen-pembimbing
+
+###
+Put http://localhost:3000/dosen-pembimbing/455768196
+Content-Type: application/json
+
+{
+  "email": "dosenksss@gmail.com",
+  "user": {
+    "email": "ganti@gmail.com"
+  }
+}
+
+###
+POST  http://localhost:3000/dosen-pembimbing
+Content-Type:  application/json
+
+{
+  "nip": "091708548",
+  "nama": "Bebas",
+  "prodi": "DIV Komputasi Statistik",
+  "user" : {
+    "email": "bebas@gmail.com",
+    "password": "bebas"
+  }
+}
+
+
+###
+Get http://localhost:3000/dosen-pembimbing/455768196/mahasiswa

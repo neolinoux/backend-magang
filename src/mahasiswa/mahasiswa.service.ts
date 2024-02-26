@@ -42,7 +42,6 @@ export class MahasiswaService {
   }
 
   async findOne(nim: string) {
-    console.log(nim);
     const user = await this.prisma.mahasiswa.findUnique({
       where: {
         nim: nim,
@@ -55,6 +54,9 @@ export class MahasiswaService {
         message: 'Data Mahasiswa Tidak Ditemukan',
       };
     }
+
+    let returnData = [];
+    returnData.push(user);
 
     return {
       status: 'success',
@@ -84,7 +86,23 @@ export class MahasiswaService {
         },
         data: {
           nama: mahasiswa.nama,
-          alamat: mahasiswa.alamat
+          alamat: mahasiswa.alamat,
+          kelas: mahasiswa.kelas,
+          pembimbingLapangan: {
+            update: {
+              nama: mahasiswa.pembimbingLapangan.nama,
+            },
+          },
+          dosenPembimbingMagang: {
+            update: {
+              nama: mahasiswa.dosenPembimbingMagang.nama,
+            },
+          },
+          satker: {
+            update: {
+              nama: mahasiswa.satker.nama,
+            },
+          },
         },
         select: {
           nim: true,
@@ -120,7 +138,7 @@ export class MahasiswaService {
   }
 
   async remove(nim: string) {
-    const user = await this.prisma.mahasiswa.findUnique({
+    const mahasiswa = await this.prisma.mahasiswa.findUnique({
       where: {
         nim: nim,
       },
@@ -147,7 +165,7 @@ export class MahasiswaService {
       },
     });
 
-    if(!user){
+    if(!mahasiswa){
       return {
         status: 'error',
         message: 'Data Mahasiswa Tidak Ditemukan',
@@ -155,6 +173,7 @@ export class MahasiswaService {
     }
 
     try {
+      //find user mahasiswa by nim
       const userId = await this.prisma.mahasiswa.findUnique({
         where: {
           nim: nim,
@@ -164,12 +183,14 @@ export class MahasiswaService {
         },
       });
 
+      //delete user mahasiswa by userId
       await this.prisma.mahasiswa.delete({
         where: {
           nim: nim,
         },
       });
 
+      //delete user by userId (cascade) but manually
       await this.prisma.user.delete({
         where: {
           userId: userId.userId,
@@ -179,7 +200,7 @@ export class MahasiswaService {
       return {
         status: 'success',
         message: 'Data Mahasiswa Berhasil Dihapus',
-        data: user,
+        data: mahasiswa,
       };
     } catch (error) {
       throw new InternalServerErrorException('Gagal Menghapus Data Mahasiswa');
@@ -250,7 +271,7 @@ export class MahasiswaService {
       }).then((res) => res.userId);
 
       mahasiswa.userId = userId;
-      mahasiswa.nim = row.getCell(1).value.toString();
+      mahasiswa.nim = row.getCell(1).value;
       mahasiswa.nama = row.getCell(2).value;
       mahasiswa.prodi = row.getCell(3).value;
       mahasiswa.kelas = row.getCell(4).value;
@@ -260,11 +281,11 @@ export class MahasiswaService {
       const errors = await validate(mahasiswa);
       if(errors.length > 0){
         error.push({
-          row: i,
+          row: i-2,
           message: errors,
         });
       } else {
-        data.push(mahasiswa);
+        data[i-2] = mahasiswa;
       }
     }
 
@@ -275,59 +296,74 @@ export class MahasiswaService {
         error: error,
       };
     }
+    
+    // create user mahasiswa, not working (read findMany docs?)
+    // this.prisma.mahasiswa.createMany({
+    //   data: data,
+    // });
 
-    // insert data
-    try {
-      this.prisma.mahasiswa.createMany({
-        data: data,
-        skipDuplicates: true,
+    // create user mahasiswa, working
+    for (let i = 0; i < data.length; i++) {
+      await this.prisma.mahasiswa.create({
+        data: {
+          userId: data[i].userId,
+          nim: data[i].nim.toString(),
+          nama: data[i].nama,
+          prodi: data[i].prodi,
+          kelas: data[i].kelas,
+          nipDosen: data[i].nipDosen,
+          alamat: data[i].alamat,
+        },
+      });
+    }
+
+    // return data with modified properties
+    let returnData = [];
+    for (let i = 0; i < data.length; i++) {
+      console.log(data[i].userId);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userId: data[i].userId,
+        },
+        select: {
+          userId: true,
+          mahasiswa: { 
+            select: {
+              nim: true,
+              nama: true,
+              kelas: true,
+              pembimbingLapangan: {
+                select: {
+                  nama: true,
+                }
+              },
+              dosenPembimbingMagang: {
+                select: {
+                  nama: true,
+                }
+              },
+              satker: {
+                select: {
+                  nama: true,
+                }
+              },
+              alamat: true,
+            }
+          },
+        },
       });
 
-
-      let returnData = [];
-      for (let i = 0; i < data.length; i++) {
-        const mahasiswa = await this.prisma.mahasiswa.findUnique({
-          where: {
-            userId: data[i].userId,
-          },
-          select: {
-            userId: true,
-            nim: true,
-            nama: true,
-            kelas: true,
-            pembimbingLapangan: {
-              select: {
-                nama: true,
-              }
-            },
-            dosenPembimbingMagang: {
-              select: {
-                nama: true,
-              }
-            },
-            satker: {
-              select: {
-                nama: true,
-              }
-            },
-            alamat: true,
-          },
-        });
-
-        returnData.push({
-          status: 'success',
-          message: 'Data Mahasiswa Berhasil Ditambahkan',
-          data: mahasiswa,
-        });
-      }
-
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Ditambahkan',
-        data: data,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException('Gagal Menambahkan Data Mahasiswa', error);
+      returnData.push(user);
     }
+
+    console.log(returnData);
+
+    return {
+      status: 'success',
+      message: 'Data Mahasiswa Berhasil Ditambahkan',
+      data: returnData,
+    };
+  } catch (error) {
+    throw new InternalServerErrorException('Gagal Menambahkan Data Mahasiswa');
   }
 }
