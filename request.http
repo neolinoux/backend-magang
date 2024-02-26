@@ -1,10 +1,10 @@
 ###
 
-POST http://localhost:3000/auth/signup
+POST http://localhost:3000/api/auth/signup
 Content-Type: application/json
 
 {
-  "email": "admin@stis.ac.id",
+  "email": "lala@stis.ac.id",
   "password": "lalala",
   "userRole": "admin"
 }
@@ -19,35 +19,56 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3000/auth/logout
+POST http://localhost:3000/api/auth/logout
 Authorization: Bearer 
 
 ###
 GET http://localhost:3000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg4ODQ2OTIsImV4cCI6MTcwODk3MTA5Mn0.AvGhbp-d8HnIaibHrGxSrpNErsKu2wrj5RZhfo--XiU
+
+###
+GET http://localhost:3000/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3OTI4NDIsImV4cCI6MTcwODg3OTI0Mn0.CnsttFzMtQ0n6ZPKA9BHFEBllMbXblBeOO6pA_K1HOE
+
+###
+GET http://localhost:3000/api/users/4
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3NjE3MzksImV4cCI6MTcwODg0ODEzOX0.z61SDdOby882_QmcY048rwguoXF_uTbdywfQjbFyQYk
 
 ###
-PUT http://localhost:3000/users/update/2
+PUT http://localhost:3000/api/users/update/3
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3NjE3MzksImV4cCI6MTcwODg0ODEzOX0.z61SDdOby882_QmcY048rwguoXF_uTbdywfQjbFyQYk
 
 {
   "email": "tyo@stis.ac.id",
-  "password": "qwqwqw"
+  "password": "password"
+}
+ 
+###
+DELETE http://localhost:3000/api/users/delete/3
+
+
+###
+GET http://localhost:3000/mahasiswa
+
+###
+GET http://localhost:3000/mahasiswa/031074752
+
+###
+PUT http://localhost:3000/mahasiswa/889887838
+Content-Type: application/json
+
+{
+  "nama": "Tyoo"
 }
 
 ###
-GET http://localhost:3000/users/4
-Authorization: Bearer 
- 
-###
-DELETE http://localhost:3000/users/delete/3
+DELETE http://localhost:3000/mahasiswa/889887838
 
 ###
-GET http://localhost:3000/users/pemlap
-Authorization: Bearer 
+POST http://localhost:3000/mahasiswa/excel
+Content-Type: multipart/form-data
 
-###
-GET http://localhost:3000/users/me
-Authorization: Bearer 
-
-
+{
+  "file": "C:/Users/Rahmad Setiya Budi/Documents/app/backend-magang/test-mahasiswa.xlsx"
+}

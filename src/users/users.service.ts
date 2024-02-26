@@ -9,8 +9,7 @@ export class UsersService{
   
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    console.log('user service, method user');
+  ) {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
     });
@@ -39,6 +38,9 @@ export class UsersService{
             },
           }
         },
+        createdAt: true,
+        updatedAt: true,
+        deleted: true,
       },
       skip,
       take,
@@ -107,21 +109,5 @@ export class UsersService{
     return this.prisma.user.delete({
       where,
     });
-  }
-
-  async findOne(email: string): Promise<User | undefined> {
-    return this.prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
-  }
-
-  async validateUser(email: string, pass: string): Promise<User | undefined> {
-    const user = await this.findOne(email);
-    if (user && user.password === pass) {
-      return user;
-    }
-    return undefined;
   }
 }

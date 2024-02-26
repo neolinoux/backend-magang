@@ -85,4 +85,30 @@ export class AuthService {
       token: targetToken
     }
   }
+
+  async me(token: string) {
+    const targetToken = token.split(' ')[1];
+
+    if (!targetToken) {
+      throw await new UnauthorizedException('User not logged in');
+    }
+
+    const invalidToken = await this.prisma.invalidToken.findUnique({
+      where: {
+        token: targetToken
+      }
+    });
+
+    if (invalidToken) {
+      throw await new UnauthorizedException('User not logged in');
+    }
+
+    const payload = this.jwtService.decode(targetToken);
+
+    return {
+      id: payload['id'],
+      email: payload['email'],
+      role: payload['role']
+    }
+  }
 }

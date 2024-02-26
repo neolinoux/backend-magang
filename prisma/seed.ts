@@ -43,7 +43,7 @@ async function main() {
     },
   });
 
-  const userPassword = 'admin';
+  const userPassword = 'user';
   const hashedUserPassword = await bcrypt.hash(userPassword, saltOrRounds);
   const amountOfUsers = 9;
 
@@ -65,13 +65,61 @@ async function main() {
     });
   }
 
-  // await prisma.pembimbingLapangan.create({
-  //   data: {
-  //     nip: faker.string.numeric(18),
-  //     nama: faker.person.firstName(),
-  //     userId: 4,
-  //   },
-  // });
+  const kelas = [
+    '4SI1',
+    '4SI2',
+    '4SI3',
+    '4SD1',
+    '4SD2',
+    '4SK1',
+    '4SK2',
+    '4SK3',
+    '4SK4',
+    '4SK5',
+    '4SE1',
+    '4SE2',
+    '4SE3',
+    '4SE4',
+    '4SE5',
+  ]
+
+  const prodi = [
+    'DIV Komputasi Statistik',
+    'DIV Statistik',
+    'DIII Statistik',
+  ]
+
+  for (let i = 0; i < prodi.length; i++) {
+    for (let j = 0; j < kelas.length; j++) {
+      const mahasiswa = await prisma.user.create({
+        data: {
+          email: faker.internet.email({ 
+            firstName: `mahasiswa`,
+            lastName: `${i}${j}`,
+            provider:'gmail.com'
+          }),
+          password: 'mahasiswa',
+        },
+      });
+
+      const id = Number(mahasiswa.userId);
+
+      await prisma.mahasiswa.create({
+        data: {
+          nama: faker.person.firstName(),
+          nim : faker.string.numeric(9),
+          kelas: kelas[j],
+          alamat: faker.location.streetAddress(),
+          prodi: prodi[i],
+          user: {
+            connect: {
+              userId: id,
+            },
+          },
+        },
+      });
+    }
+  }
 }
 
 main()

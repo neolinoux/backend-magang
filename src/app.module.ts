@@ -1,27 +1,30 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { JWTMiddleware } from './auth/middleware/jwt.middleware';
 import { PrismaService } from './prisma/prisma.service';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot(
+      {
+        isGlobal: true,
+      }
+    ),
     UsersModule,
     AuthModule,
     PrismaModule,
+    JwtModule,
+    PassportModule,
+    MahasiswaModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule{
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer
-  //     .apply(JWTMiddleware)
-  //     .forRoutes('users', 'users/*');
-  // }
-}
+export class AppModule{}

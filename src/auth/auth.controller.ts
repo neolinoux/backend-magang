@@ -3,13 +3,16 @@ import {
   Post,
   Body,
   Request,
-  Headers
+  Headers,
+  Get
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User as UserModel } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from './dto/create-user.dto'
+import { AuthEntity } from './entity/auth.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -21,17 +24,21 @@ export class AuthController {
   
   @Post('signup')
   async signupUser(
-    @Body() userData: {
-      email: string;
-      password: string;
-    },
+    @Body() {
+      email,
+      password
+    }: CreateUserDto,
   ): Promise<UserModel> {
-    return this.usersService.createUser(userData);
+    return this.usersService.createUser({ email, password });
   }
 
   @Post('login')
+  @ApiOkResponse({ type: AuthEntity })
   async loginUser(
-    @Body() { email, password }: LoginDto,
+    @Body() {
+      email,
+      password
+    }: LoginDto,
     @Request() req: any
   ) {
     //check if there is no token in the header
@@ -46,5 +53,10 @@ export class AuthController {
   @Post('logout')
   async logoutUser(@Request() req: any) {
     return this.authService.logout(req.headers['authorization']);
+  }
+
+  @Get('me')
+  async getCurrentUser(@Request() req: any) {
+    return this.authService.me(req.headers['authorization']);
   }
 }
