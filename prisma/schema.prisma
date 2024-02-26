@@ -25,7 +25,7 @@ generator nestjsDto {
 }
 
 model User {
-  userId                Int                    @id @default(autoincrement()) @unique
+  userId                Int                    @id @unique @default(autoincrement())
   email                 String                 @unique
   password              String                 @db.VarChar(255)
   userRoles             UserRoles[]
@@ -35,9 +35,9 @@ model User {
   pembimbingLapangan    PembimbingLapangan?
   adminProvinsi         AdminProvinsi?
   adminSatker           AdminSatker?
-  createdAt             DateTime?               @default(now())
-  updatedAt             DateTime?               @updatedAt
-  deleted               Boolean?                @default(false)
+  createdAt             DateTime?              @default(now())
+  updatedAt             DateTime?              @updatedAt
+  deleted               Boolean?               @default(false)
 }
 
 model Roles {
@@ -79,15 +79,15 @@ model UserPermissions {
 }
 
 model Mahasiswa {
-  nim                    String                   @id @unique
-  user                   User                     @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId                 Int                      @unique
-  dosenPembimbingMagang  DosenPembimbingMagang?   @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
-  nipDosen               String?                  
-  pembimbingLapangan     PembimbingLapangan?      @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
-  nipPemlap              String?                  
-  satker                 Satker?                  @relation(fields: [kodeSatker], references: [kode], onDelete: SetNull)
-  kodeSatker             String?
+  nim                    String                  @id @unique
+  user                   User                    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId                 Int                     @unique
+  dosenPembimbingMagang  DosenPembimbingMagang?  @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
+  nipDosen               String?
+  pembimbingLapangan     PembimbingLapangan?     @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
+  nipPemlap              String?
+  satker                 Satker?                 @relation(fields: [satkerId], references: [satkerId], onDelete: SetNull)
+  satkerId               Int?
   nama                   String?
   alamat                 String?
   prodi                  String?
@@ -104,7 +104,7 @@ model Mahasiswa {
   penilaianKinerja       PenilaianKinerja?
   penilaianLaporanPemlap PenilaianLaporanPemlap?
   izinPresensi           IzinPresensi[]
-  deleted                Boolean                  @default(false)
+  deleted                Boolean                 @default(false)
 }
 
 model DosenPembimbingMagang {
@@ -136,22 +136,43 @@ model AdminProvinsi {
 }
 
 model AdminSatker {
-  adminSatkerId Int  @id @default(autoincrement())
-  user          User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId        Int  @unique
+  adminSatkerId Int     @id @default(autoincrement())
+  user          User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId        Int     @unique
   deleted       Boolean @default(false)
 }
 
+model Provinsi {
+  provinsiId    Int             @id @unique @default(autoincrement())
+  kodePriovinsi String?          
+  kabupatenKota KabupatenKota[]
+  nama          String          @unique
+  deleted       Boolean         @default(false)
+}
+
+model KabupatenKota {
+  kabupatenKotaId   Int      @id @unique @default(autoincrement())
+  kodeKabupatenKota String?   
+  provinsi          Provinsi? @relation(fields: [provinsiId], references: [provinsiId], onDelete: Cascade)
+  provinsiId        Int?
+  nama              String   @unique
+  satker            Satker[]
+  deleted           Boolean  @default(false)
+}
+
 model Satker {
-  satkerId        Int           @id @default(autoincrement())
+  satkerId        Int            @id @unique @default(autoincrement())
+  kode            String         @unique         
+  adminProvinsi   AdminProvinsi? @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade)
+  adminProvinsiId Int?
+  kabupatenKota   KabupatenKota? @relation(fields: [kabupatenKotaId], references: [kabupatenKotaId], onDelete: Cascade)
+  kabupatenKotaId Int
   nama            String
-  kode            String        @unique
-  alamat          String
   email           String
-  adminProvinsi   AdminProvinsi @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: SetNull)
-  adminProvinsiId Int
+  alamat          String?
   mahasiswa       Mahasiswa[]
-  deleted         Boolean       @default(false)
+  kapasitas       Int?
+  deleted         Boolean        @default(false)
 }
 
 model IzinBimbinganSkripsi {
@@ -162,8 +183,8 @@ model IzinBimbinganSkripsi {
   keterangan      String
   status          Boolean
   deleted         Boolean   @default(false)
-  createdAt       DateTime?  @default(now())
-  updatedAt       DateTime?  @updatedAt
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
 }
 
 model BimbinganDosen {
@@ -174,8 +195,8 @@ model BimbinganDosen {
   nipDosen    String
   tanggal     DateTime
   keterangan  String
-  createdAt   DateTime?              @default(now())
-  updatedAt   DateTime?              @updatedAt
+  createdAt   DateTime?             @default(now())
+  updatedAt   DateTime?             @updatedAt
   deleted     Boolean               @default(false)
 }
 
@@ -188,8 +209,8 @@ model KegiatanHarian {
   deskripsi      String
   kuantitas      Int
   kualitas       Int
-  createdAt      DateTime?     @default(now())
-  updatedAt      DateTime?     @updatedAt
+  createdAt      DateTime?    @default(now())
+  updatedAt      DateTime?    @updatedAt
   tipeKegiatan   TipeKegiatan @relation(fields: [tipeKegiatanId], references: [tipeKegiatanId], onDelete: SetNull)
   tipeKegiatanId Int
   deleted        Boolean      @default(false)
@@ -202,8 +223,8 @@ model Presensi {
   tanggal    DateTime
   waktu      DateTime
   keterangan String
-  createdAt  DateTime?  @default(now())
-  updatedAt  DateTime?  @updatedAt
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
   deleted    Boolean   @default(false)
 }
 
@@ -214,16 +235,16 @@ model TipeKegiatan {
   nama           String
   kegiatanHarian KegiatanHarian[]
   deleted        Boolean          @default(false)
-  createdAt      DateTime?         @default(now())
-  updatedAt      DateTime?         @updatedAt
+  createdAt      DateTime?        @default(now())
+  updatedAt      DateTime?        @updatedAt
 }
 
 model RekapKegiatanBulanan {
   rekapId   Int       @id @default(autoincrement())
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
   nim       String
-  createdAt DateTime?  @default(now())
-  updatedAt DateTime?  @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
   deleted   Boolean   @default(false)
 }
 
@@ -231,8 +252,8 @@ model PenilaianBimbingan {
   penilaianId Int       @id @default(autoincrement())
   mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
   nim         String    @unique
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?  @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
   deleted     Boolean   @default(false)
 }
 
@@ -240,8 +261,8 @@ model PenilaianLaporanDosen {
   penilaianId Int       @id @default(autoincrement())
   mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
   nim         String    @unique
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?  @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
   deleted     Boolean   @default(false)
 }
 
@@ -249,8 +270,8 @@ model PenilaianKinerja {
   penilaianId Int       @id @default(autoincrement())
   mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
   nim         String    @unique
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?  @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
   deleted     Boolean   @default(false)
 }
 
@@ -258,8 +279,8 @@ model PenilaianLaporanPemlap {
   penilaianId Int       @id @default(autoincrement())
   mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
   nim         String    @unique
-  createdAt   DateTime?  @default(now())
-  updatedAt   DateTime?  @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
   deleted     Boolean   @default(false)
 }
 
@@ -270,14 +291,14 @@ model IzinPresensi {
   tanggal    DateTime
   waktu      DateTime
   keterangan String
-  createdAt  DateTime?  @default(now())
-  updatedAt  DateTime?  @updatedAt
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
   deleted    Boolean   @default(false)
 }
 
 model InvalidToken {
-  id        Int      @id @unique @default(autoincrement())
-  token     String   @unique
+  id        Int       @id @unique @default(autoincrement())
+  token     String    @unique
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 }

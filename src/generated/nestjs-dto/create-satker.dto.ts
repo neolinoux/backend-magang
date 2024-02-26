@@ -5,8 +5,9 @@
 
 
 export class CreateSatkerDto {
-  nama: string;
-kode: string;
-alamat: string;
+  kode: string;
+nama: string;
 email: string;
+alamat?: string;
+kapasitas?: number;
 }

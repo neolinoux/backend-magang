@@ -25,7 +25,7 @@ nipDosen: string  | null;
 pembimbingLapangan?: PembimbingLapangan  | null;
 nipPemlap: string  | null;
 satker?: Satker  | null;
-kodeSatker: string  | null;
+satkerId: number  | null;
 nama: string  | null;
 alamat: string  | null;
 prodi: string  | null;

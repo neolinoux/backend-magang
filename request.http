@@ -107,3 +107,21 @@ Get http://localhost:3000/dosen-pembimbing/455768196/mahasiswa
 
 ###
 GET http://localhost:3000/pembimbing-lapangan/353757282/mahasiswa
+
+###
+POST http://localhost:3000/satker
+Content-Type:  application/json
+
+{
+  "nama": "BPS Kabupaten Kediri",
+  "alamat": "Jl. Raya Kediri, Kediri, Jawa Timur, Indonesia",
+  "email": "bps5604@bps.go.id",
+  "kabupatenKota": {
+    "nama": "Kediri",
+    "provinsi": {
+      "nama": "Jawa Timur"
+    }
+  },
+  "kode": "5604",
+  "kapasitas": 5
+}

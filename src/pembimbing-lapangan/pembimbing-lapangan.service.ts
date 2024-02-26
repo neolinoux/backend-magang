@@ -23,7 +23,7 @@ export class PembimbingLapanganService {
 
     const hashedPassword = await bcrypt.hash(pembimbingLapangan.user.password, 10);
 
-    const dosenBaru = await this.prisma.pembimbingLapangan.create({
+    const pembimbingLapanganBaru = await this.prisma.pembimbingLapangan.create({
       data: {
         nip: pembimbingLapangan.nip,
         nama: pembimbingLapangan.nama,
@@ -48,8 +48,8 @@ export class PembimbingLapanganService {
 
     return {
       status: 'success',
-      message: 'Data Dosen Pembimbing Berhasil Ditambahkan',
-      data: dosenBaru,
+      message: 'Data Pembimbing Lapangan Berhasil Ditambahkan',
+      data: pembimbingLapanganBaru,
     };
   }
 

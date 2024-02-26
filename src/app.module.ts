@@ -11,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
 import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
 import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pembimbing-magang.module';
 import { PembimbingLapanganModule } from './pembimbing-lapangan/pembimbing-lapangan.module';
+import { SatkerModule } from './satker/satker.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { PembimbingLapanganModule } from './pembimbing-lapangan/pembimbing-lapan
     PassportModule,
     MahasiswaModule,
     DosenPembimbingMagangModule,
-    PembimbingLapanganModule
+    PembimbingLapanganModule,
+    SatkerModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
