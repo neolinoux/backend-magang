@@ -1,6 +1,7 @@
 
   export class ConnectMahasiswaDto {
-    nim?: string;
+    mahasiswaId?: number;
+nim?: string;
 userId?: number;
   }
   

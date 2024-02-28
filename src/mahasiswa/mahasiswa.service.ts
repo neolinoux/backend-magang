@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { validate } from 'class-validator';
-import { Mahasiswa } from 'src/generated/nestjs-dto/mahasiswa.entity';
+import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
+import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
 
 @Injectable()
 export class MahasiswaService {
@@ -32,6 +33,11 @@ export class MahasiswaService {
           }
         },
         alamat: true,
+        tahunAjaran: {
+          select: {
+            tahunAjaran: true,
+          }
+        },
       },
       orderBy: {
         user: {
@@ -41,66 +47,314 @@ export class MahasiswaService {
     });
   }
 
-  async findOne(nim: string) {
-    const user = await this.prisma.mahasiswa.findUnique({
-      where: {
-        nim: nim,
-      },
-    });
-
-    if(!user){
+  async importExcel(files: Array<Express.Multer.File>) {
+    //validate file
+    const file = files[0];
+    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       return {
         status: 'error',
-        message: 'Data Mahasiswa Tidak Ditemukan',
+        message: 'File yang diupload bukan file excel',
       };
     }
 
-    let returnData = [];
-    returnData.push(user);
+    //parse file
+    const excel = require('exceljs');
+    const workbook = new excel.Workbook();
+    await workbook.xlsx.load(file.buffer);
+    const worksheet = workbook.getWorksheet(1);
 
+    // loop through each row
+    let data = [];
+    let error = [];
+
+    try {
+      for (let i = 2; i <= worksheet.rowCount; i++) {
+        const row = worksheet.getRow(i);
+  
+        // check if user already exists
+        const mahasiswa = await this.prisma.mahasiswa.findUnique({
+          where: {
+            nim: row.getCell(1).value,
+          },
+        });
+  
+        if (mahasiswa) {
+          error.push({
+            row: i,
+            message: 'Mahasiswa dengan NIM ' + row.getCell(1).value + ' sudah ada',
+          });
+        }
+      }
+      
+      if (error.length > 0) {
+        return {
+          status: 'error',
+          message: 'Data Mahasiswa Gagal Ditambahkan',
+          error: error,
+        };
+      }
+
+      error = [];
+      // loop through each row
+      for (let i = 2; i <= worksheet.rowCount; i++) {
+        const row = worksheet.getRow(i);
+        const mahasiswa = new CreateMahasiswaDto();
+  
+        mahasiswa.nim = row.getCell(1).value;
+        mahasiswa.nama = row.getCell(2).value;
+        mahasiswa.prodi = row.getCell(3).value;
+        mahasiswa.kelas = row.getCell(4).value;
+        mahasiswa.alamat = row.getCell(5).value;
+        const tahunAjaran = row.getCell(6).value;
+        const nipDosen = row.getCell(7).value;
+
+        // create user mahasiswa
+        // user mahasiswa will be login using oauth2, but for now we will create user manually
+        const userMahasiswa = await this.prisma.user.create({
+          data: {
+            email: row.getCell(1).value + '@gmail.com',
+            password: 'password',
+            userRoles: {
+              create: {
+                roleId: 9,
+              },
+            },
+            mahasiswa: {
+              create: {
+                nim: row.getCell(1).value,
+                nama: row.getCell(2).value,
+                kelas: row.getCell(4).value,
+                prodi: row.getCell(3).value,
+                alamat: row.getCell(5).value,
+                tahunAjaran: {
+                  connect: {
+                    tahunAjaran: tahunAjaran,
+                  },
+                },
+                dosenPembimbingMagang: {
+                  connect: {
+                    nip: nipDosen,
+                  },
+                },
+              },
+            },
+          },
+          select: {
+            mahasiswa: {
+              select: {
+                nim: true,
+                nama: true,
+                kelas: true,
+                pembimbingLapangan: {
+                  select: {
+                    nama: true,
+                  }
+                },
+                dosenPembimbingMagang: {
+                  select: {
+                    nama: true,
+                  }
+                },
+                satker: {
+                  select: {
+                    nama: true,
+                  }
+                },
+                alamat: true,
+                tahunAjaran: {
+                  select: {
+                    tahunAjaran: true,
+                  }
+                },
+              },
+            },
+          },
+        });
+
+        const errors = await validate(userMahasiswa);
+        if (errors.length > 0) {
+          error.push({
+            row: i - 2,
+            message: errors,
+          });
+        } else {
+          data[i - 2] = userMahasiswa;
+        }
+      }
+  
+      if (error.length > 0) {
+        return {
+          status: 'error',
+          message: 'Data Mahasiswa Gagal Ditambahkan',
+          error: error,
+        };
+      }
+  
+      return {
+        status: 'success',
+        message: 'Data Mahasiswa Berhasil Ditambahkan',
+        data: data,
+      };
+
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Internal Server Error',
+      };
+    }
+
+  } catch(error) {
     return {
-      status: 'success',
-      message: 'Data Mahasiswa Berhasil Diambil',
-      data: user,
+      status: 'error',
+      message: 'Internal Server Error',
     };
   }
 
-  async update(nim: string, mahasiswa: Mahasiswa) {
-    const user = await this.prisma.mahasiswa.findUnique({
-      where: {
-        nim: nim,
-      },
-    });
+  async findOne(nim: string) {
+    try {
+      const mahasiswa = await this.prisma.mahasiswa.findUnique({
+        where: {
+          nim: nim,
+        },
+        select: {
+          nim: true,
+          nama: true,
+          kelas: true,
+          pembimbingLapangan: {
+            select: {
+              nama: true,
+            }
+          },
+          dosenPembimbingMagang: {
+            select: {
+              nama: true,
+            }
+          },
+          satker: {
+            select: {
+              nama: true,
+            }
+          },
+          alamat: true,
+          tahunAjaran: {
+            select: {
+              tahunAjaran: true,
+            }
+          },
+        },
+      });
 
-    if(!user){
+      if(!mahasiswa){
+        return {
+          status: 'error',
+          message: 'Data Mahasiswa Tidak Ditemukan',
+        };
+      }
+
+      return {
+        status: 'success',
+        message: 'Data Mahasiswa Berhasil Diambil',
+        data: mahasiswa,
+      };
+      
+    } catch (error) {
       return {
         status: 'error',
-        message: 'Data Mahasiswa Tidak Ditemukan',
+        message: 'request failed',
       };
     }
+  }
 
+  async findByTahunAjaran(tahunAjaran: string) {
     try {
-      const updatedUser = await this.prisma.mahasiswa.update({
+      const mahasiswa = await this.prisma.mahasiswa.findMany({
+        where: {
+          tahunAjaran: {
+            tahunAjaran: tahunAjaran,
+          },
+        },
+        select: {
+          nim: true,
+          nama: true,
+          kelas: true,
+          pembimbingLapangan: {
+            select: {
+              nama: true,
+            }
+          },
+          dosenPembimbingMagang: {
+            select: {
+              nama: true,
+            }
+          },
+          satker: {
+            select: {
+              nama: true,
+            }
+          },
+          alamat: true,
+          tahunAjaran: {
+            select: {
+              tahunAjaran: true,
+            }
+          },
+        },
+      });
+
+      if(mahasiswa.length === 0){
+        return {
+          status: 'error',
+          message: 'Data Mahasiswa Tidak Ditemukan',
+        };
+      }
+
+      return {
+        status: 'success',
+        message: 'Data Mahasiswa Berhasil Diambil',
+        data: mahasiswa,
+      };
+      
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'request failed',
+      };
+    }
+  }
+
+  async update(nim: string, updateMahasiswaDto: UpdateMahasiswaDto) {
+    try {
+      const cekMahasiswa = await this.prisma.mahasiswa.findUnique({
+        where: {
+          nim: nim,
+        },
+      });
+  
+      if(!cekMahasiswa){
+        return {
+          status: 'error',
+          message: 'Data Mahasiswa Tidak Ditemukan',
+        };
+      }
+
+      const updatedMahasiswa = await this.prisma.mahasiswa.update({
         where: {
           nim: nim,
         },
         data: {
-          nama: mahasiswa.nama,
-          alamat: mahasiswa.alamat,
-          kelas: mahasiswa.kelas,
-          pembimbingLapangan: {
-            update: {
-              nama: mahasiswa.pembimbingLapangan.nama,
+          dosenPembimbingMagang: {
+            connect: {
+              nip: updateMahasiswaDto.dosenPembimbingMagang.nip,
             },
           },
-          dosenPembimbingMagang: {
-            update: {
-              nama: mahasiswa.dosenPembimbingMagang.nama,
+          pembimbingLapangan: {
+            connect: {
+              nip: updateMahasiswaDto.pembimbingLapangan.nip,
             },
           },
           satker: {
-            update: {
-              nama: mahasiswa.satker.nama,
+            connect: {
+              kode: updateMahasiswaDto.satker.kode,
             },
           },
         },
@@ -124,246 +378,24 @@ export class MahasiswaService {
             }
           },
           alamat: true,
-        },
-      });
-
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Diubah',
-        data: updatedUser,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException('Gagal Memperbarui Data Mahasiswa');
-    }
-  }
-
-  async remove(nim: string) {
-    const mahasiswa = await this.prisma.mahasiswa.findUnique({
-      where: {
-        nim: nim,
-      },
-      select: {
-        nim: true,
-        nama: true,
-        kelas: true,
-        pembimbingLapangan: {
-          select: {
-            nama: true,
-          }
-        },
-        dosenPembimbingMagang: {
-          select: {
-            nama: true,
-          }
-        },
-        satker: {
-          select: {
-            nama: true,
-          }
-        },
-        alamat: true,
-      },
-    });
-
-    if(!mahasiswa){
-      return {
-        status: 'error',
-        message: 'Data Mahasiswa Tidak Ditemukan',
-      };
-    }
-
-    try {
-      //find user mahasiswa by nim
-      const userId = await this.prisma.mahasiswa.findUnique({
-        where: {
-          nim: nim,
-        },
-        select: {
-          userId: true,
-        },
-      });
-
-      //delete user mahasiswa by userId
-      await this.prisma.mahasiswa.delete({
-        where: {
-          nim: nim,
-        },
-      });
-
-      //delete user by userId (cascade) but manually
-      await this.prisma.user.delete({
-        where: {
-          userId: userId.userId,
-        },
-      });
-
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Dihapus',
-        data: mahasiswa,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException('Gagal Menghapus Data Mahasiswa');
-    }
-  }
-
-  async importExcel(files: Array<Express.Multer.File>) {
-    //validate file
-    const file = files[0];
-    if(file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-      return {
-        status: 'error',
-        message: 'File yang diupload bukan file excel',
-      };
-    }
-
-    //parse file
-    const excel = require('exceljs');
-    const workbook = new excel.Workbook();
-    await workbook.xlsx.load(file.buffer);
-    const worksheet = workbook.getWorksheet(1);
-
-    // loop through each row
-    let data = [];
-    let error = [];
-
-    for (let i = 2; i <= worksheet.rowCount; i++) {
-      const row = worksheet.getRow(i);
-
-      // check if user already exists
-      const user = await this.prisma.user.findUnique({
-        where: {
-          email: row.getCell(1).value + '@stis.ac.id',
-        },
-      });
-
-      if(user){
-        error.push({
-          row: i,
-          message: 'Mahasiswa dengan NIM ' + row.getCell(1).value + ' sudah ada',
-        });
-      }
-    }
-
-    if(error.length > 0){
-      return {
-        status: 'error',
-        message: 'Data Mahasiswa Gagal Ditambahkan',
-        error: error,
-      };
-    }
-
-    error = [];
-    // loop through each row
-    for (let i = 2; i <= worksheet.rowCount; i++) {
-      const row = worksheet.getRow(i);
-      const mahasiswa = new Mahasiswa();
-
-      // user mahasiswa will be login using oauth2, but for now we will create user manually
-      const userId = await this.prisma.user.create({
-        data: {
-          email: row.getCell(1).value + '@stis.ac.id',
-          password: 'mahasiswa',
-        },
-        select: {
-          userId: true,
-        },
-      }).then((res) => res.userId);
-
-      mahasiswa.userId = userId;
-      mahasiswa.nim = row.getCell(1).value;
-      mahasiswa.nama = row.getCell(2).value;
-      mahasiswa.prodi = row.getCell(3).value;
-      mahasiswa.kelas = row.getCell(4).value;
-      mahasiswa.nipDosen = row.getCell(5).value;
-      mahasiswa.alamat = row.getCell(6).value;
-
-      const errors = await validate(mahasiswa);
-      if(errors.length > 0){
-        error.push({
-          row: i-2,
-          message: errors,
-        });
-      } else {
-        data[i-2] = mahasiswa;
-      }
-    }
-
-    if(error.length > 0){
-      return {
-        status: 'error',
-        message: 'Data Mahasiswa Gagal Ditambahkan',
-        error: error,
-      };
-    }
-    
-    // create user mahasiswa, not working (read findMany docs?)
-    // this.prisma.mahasiswa.createMany({
-    //   data: data,
-    // });
-
-    // create user mahasiswa, working
-    for (let i = 0; i < data.length; i++) {
-      await this.prisma.mahasiswa.create({
-        data: {
-          userId: data[i].userId,
-          nim: data[i].nim.toString(),
-          nama: data[i].nama,
-          prodi: data[i].prodi,
-          kelas: data[i].kelas,
-          nipDosen: data[i].nipDosen,
-          alamat: data[i].alamat,
-        },
-      });
-    }
-
-    // return data with modified properties
-    let returnData = [];
-    for (let i = 0; i < data.length; i++) {
-      console.log(data[i].userId);
-      const user = await this.prisma.user.findUnique({
-        where: {
-          userId: data[i].userId,
-        },
-        select: {
-          userId: true,
-          mahasiswa: { 
+          tahunAjaran: {
             select: {
-              nim: true,
-              nama: true,
-              kelas: true,
-              pembimbingLapangan: {
-                select: {
-                  nama: true,
-                }
-              },
-              dosenPembimbingMagang: {
-                select: {
-                  nama: true,
-                }
-              },
-              satker: {
-                select: {
-                  nama: true,
-                }
-              },
-              alamat: true,
+              tahunAjaran: true,
             }
           },
         },
       });
 
-      returnData.push(user);
+      return {
+        status: 'success',
+        message: 'Data Mahasiswa Berhasil Diupdate',
+        data: updatedMahasiswa,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'request failed',
+      };
     }
-
-    console.log(returnData);
-
-    return {
-      status: 'success',
-      message: 'Data Mahasiswa Berhasil Ditambahkan',
-      data: returnData,
-    };
-  } catch (error) {
-    throw new InternalServerErrorException('Gagal Menambahkan Data Mahasiswa');
   }
 }

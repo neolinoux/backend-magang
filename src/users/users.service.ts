@@ -40,7 +40,6 @@ export class UsersService{
         },
         createdAt: true,
         updatedAt: true,
-        deleted: true,
       },
       skip,
       take,
