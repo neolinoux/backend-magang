@@ -16,5 +16,4 @@ createdAt: Date  | null;
 updatedAt: Date  | null;
 tipeKegiatan?: TipeKegiatan ;
 tipeKegiatanId: number ;
-deleted: boolean ;
 }

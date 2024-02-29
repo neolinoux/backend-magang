@@ -5,10 +5,9 @@ import {Satker} from './satker.entity'
 
 export class KabupatenKota {
   kabupatenKotaId: number ;
-kodeKabupatenKota: string  | null;
+kodeKabupatenKota: string ;
 provinsi?: Provinsi  | null;
-provinsiId: number  | null;
+kodePriovinsi: string  | null;
+satker?: Satker  | null;
 nama: string ;
-satker?: Satker[] ;
-deleted: boolean ;
 }

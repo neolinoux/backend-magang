@@ -21,5 +21,4 @@ adminProvinsi?: AdminProvinsi  | null;
 adminSatker?: AdminSatker  | null;
 createdAt: Date  | null;
 updatedAt: Date  | null;
-deleted: boolean  | null;
 }

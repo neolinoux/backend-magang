@@ -5,6 +5,6 @@
 
 
 export class CreateProvinsiDto {
-  kodePriovinsi?: string;
+  kodePriovinsi: string;
 nama: string;
 }

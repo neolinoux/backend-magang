@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
   "email": "admin@admin.com",
-  "password": "admin"
+  "password": "makanenak"
 }
 
 ###
@@ -43,23 +43,27 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiO
   "email": "tyo@stis.ac.id",
   "password": "password"
 }
- 
-###
-DELETE http://localhost:3000/api/users/delete/3
-
 
 ###
-GET http://localhost:3000/mahasiswa
-
-###
-GET http://localhost:3000/mahasiswa/091708548
+GET http://localhost:3000/mahasiswa?tahun=2023%2F2024&nim=741146864
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzA5MTkwNDIyLCJleHAiOjE3MDkyNzY4MjJ9.lQBheMikGKJ8R2MaLhxkmh_qXvr6ElypIIxrfJmcNTE
 
 ###
 PUT http://localhost:3000/mahasiswa/889887838
 Content-Type: application/json
 
 {
-  "nama": "Tyoo"
+  "dosenPembimbingMagang": {
+    "nip": "091708548"
+  },
+  "pembimbingLapangan": {
+    "nip": "353757282"
+  },
+  "satker": {
+    "kode": "5604"
+  },
+  "alamat": "Jl. Raya Bogor, Bogor, Jawa Barat, Indonesia",
 }
 
 ###
@@ -109,6 +113,9 @@ Get http://localhost:3000/dosen-pembimbing/455768196/mahasiswa
 GET http://localhost:3000/pembimbing-lapangan/353757282/mahasiswa
 
 ###
+GET http://localhost:3000/satker?kodeProvinsi=63&internalBPS=1
+
+###
 POST http://localhost:3000/satker
 Content-Type:  application/json
 
@@ -123,5 +130,24 @@ Content-Type:  application/json
     }
   },
   "kode": "5604",
-  "kapasitas": 5
+  "kapasitas": 5,
+  "internalBPS": true
+}
+
+###
+POST http://localhost:3000/pemilihan-penempatan
+Content-Type:  application/json
+
+{
+  "mahasiswa": {
+    "nama": "John Doe",
+    "nim": 123,
+    "alamat": "Jl. Raya Pajajaran No. 1, Bogor"
+  },
+  "satker": {
+    "kodeSatker1": "1234",
+    "kodeSatker2": "5678",
+    "kodeSatker3": "9101"
+  },
+  "status": "Menunggu"
 }

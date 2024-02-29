@@ -1,6 +1,7 @@
 
   export class ConnectPembimbingLapanganDto {
-    nip?: string;
+    pemlapId?: number;
+nip?: string;
 userId?: number;
   }
   

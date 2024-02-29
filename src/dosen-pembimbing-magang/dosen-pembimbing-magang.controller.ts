@@ -1,33 +1,34 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { DosenPembimbingMagangService } from './dosen-pembimbing-magang.service';
 import { DosenPembimbingMagang } from 'src/generated/nestjs-dto/dosenPembimbingMagang.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
+import { CreateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/create-dosenPembimbingMagang.dto';
+import { UpdateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/update-dosenPembimbingMagang.dto';
 
+@ApiTags('Dosen Pembimbing Magang')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('dosen-pembimbing')
 export class DosenPembimbingMagangController {
-  constructor(private readonly dosenPembimbingMagangService: DosenPembimbingMagangService) {}
+  constructor(
+    private readonly dosenPembimbingMagangService: DosenPembimbingMagangService,
+    private jwtService: JwtService
+  ) { }
 
   @Get()
-  async findAll() {
-    return this.dosenPembimbingMagangService.findAll();
-  }
-
-  @Get(':nip/mahasiswa')
-  async findMahasiswa(@Param('nip') nip: string) {
-    return this.dosenPembimbingMagangService.findAllMahasiswaBimbingan(nip);
-  }
-
-  @Put(':nip')
-  async update(@Param('nip') nip: string, @Body() dosenPembimbingMagang: DosenPembimbingMagang) {
-    return this.dosenPembimbingMagangService.update(nip, dosenPembimbingMagang);
+  async findAllDosenBy(@Param() params: any){
+    return this.dosenPembimbingMagangService.findAllDosenBy(params);
   }
 
   @Post()
-  async addDosenPembimbingMagang(@Body() dosenPembimbingMagang: DosenPembimbingMagang) {
-    return this.dosenPembimbingMagangService.create(dosenPembimbingMagang);
+  async addDosenPembimbingMagang(@Body() createDosenPembimbingMagang: CreateDosenPembimbingMagangDto) {
+    return this.dosenPembimbingMagangService.create(createDosenPembimbingMagang);
   }
-
-  @Delete(':nip')
-  remove(@Param('nip') nip: string) {
-    return this.dosenPembimbingMagangService.remove(nip);
+  
+  @Put(':nip')
+  async update(@Param('nip') nip: string, @Body() updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
+    return this.dosenPembimbingMagangService.update(nip, updateDosenPembimbingMagang);
   }
 }

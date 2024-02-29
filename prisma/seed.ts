@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Roles as RolesEnum } from '../src/enum/roles.enum';
 import { Permissions as PermissionsEnum } from '../src/enum/permissions.enum';
+import UniqeEnforcer from 'enforce-unique'
 
 const prisma = new PrismaClient();
 
@@ -86,11 +87,9 @@ async function main() {
   ]
 
   await prisma.tahunAjaran.createMany({
-    data: tahunAjaran.map((tahun) => {
-      return {
-        tahunAjaran: tahun,
-      }
-    }),
+    data: tahunAjaran.map((tahun) => ({
+      tahun: tahun,
+    })),
   });
   
   const hashedDosPemPassword = await bcrypt.hash('makanenak', 10);
@@ -103,7 +102,7 @@ async function main() {
           email: faker.internet.email({
             allowSpecialCharacters: false,
             firstName: 'dosen',
-            lastName: `${i + 1}`,
+            lastName: `${k+1}${i + 1}`,
           }),
           password: hashedDosPemPassword,
           userRoles: {
@@ -118,7 +117,7 @@ async function main() {
               prodi: prodi[i],
               tahunAjaran: {
                 connect: {
-                  tahunAjaran: tahunAjaran[k],
+                  tahun: tahunAjaran[k],
                 },
               },
             },
@@ -148,7 +147,7 @@ async function main() {
                 alamat: faker.location.streetAddress(),
                 tahunAjaran: {
                   connect: {
-                    tahunAjaran: tahunAjaran[k],
+                    tahun: tahunAjaran[k],
                   },
                 },
                 dosenPembimbingMagang: {
@@ -239,13 +238,14 @@ async function main() {
   ]
 
   for (let i = 0; i < provinsi.length; i++) {
+
     const prov = await prisma.provinsi.create({
       data: {
         nama: provinsi[i],
-        kodePriovinsi: kodeProvinsi[i],
+        kodePriovinsi: kodeProvinsi[i]
       },
     });
-
+    
     const adminProv = await prisma.user.create({
       data: {
         email: faker.internet.email({
@@ -256,7 +256,7 @@ async function main() {
         password: hashedPassword,
         userRoles: {
           create: {
-            roleId: 7,
+            roleId: 2,
           },
         },
         adminProvinsi: {
@@ -273,13 +273,12 @@ async function main() {
         adminProvinsi: true,
       },
     });
-      
 
     for (let j = 0; j < 10; j++) {
       const kabkot = await prisma.kabupatenKota.create({
         data: {
-          nama: faker.location.city(),
-          kodeKabupatenKota: faker.string.numeric(4),
+          nama: 'kabkot ' + `${provinsi[i]}${j + 1}`,
+          kodeKabupatenKota: faker.string.numeric(100),
           provinsi: {
             connect: {
               kodePriovinsi: kodeProvinsi[i],
@@ -290,12 +289,12 @@ async function main() {
 
       const satker = await prisma.satker.create({
         data: {
-          nama: 'satker ' + `${prov.nama}${j + 1}`,
-          kode: faker.string.numeric(4),
+          nama: 'satker ' + `${provinsi[i]}${j + 1}`,
+          kode: faker.string.numeric(100),
           email: faker.internet.email({
             allowSpecialCharacters: false,
             firstName: 'satker',
-            lastName: `${prov.nama}${j + 1}`,
+            lastName: `${provinsi[i]}${j + 1}`,
           }),
           adminProvinsi: {
             connect: {
@@ -321,7 +320,7 @@ async function main() {
           email: faker.internet.email({
             allowSpecialCharacters: false,
             firstName: 'adminSatker',
-            lastName: `${prov.nama}${j + 1}`,
+            lastName: `${i + 1}${j + 1}`,
           }),
           password: hashedPassword,
           userRoles: {

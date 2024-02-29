@@ -79,7 +79,7 @@ model UserPermissions {
 
 model TahunAjaran {
   tahunAjaranId         Int                     @id @default(autoincrement())
-  tahunAjaran           String                  @unique
+  tahun                 String                  @unique
   mahasiswa             Mahasiswa[]
   dosenPembimbingMagang DosenPembimbingMagang[]
   pembimbingLapangan    PembimbingLapangan[]
@@ -91,6 +91,7 @@ model SatkerPilihan {
   satkerId        Int
   mahasiswa       Mahasiswa @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade)
   mahasiswaId     Int
+  status          String    @default("Menunggu")
 }
 
 model DosenPembimbingMagang {
@@ -113,6 +114,8 @@ model PembimbingLapangan {
   userId        Int         @unique
   tahunAjaran   TahunAjaran @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
   tahunAjaranId Int
+  satker        Satker      @relation(fields: [kodeSatker], references: [kode])
+  kodeSatker    String
   mahasiswa     Mahasiswa[]
   nama          String
 }
@@ -185,8 +188,8 @@ model AdminProvinsi {
   adminProvinsiId Int             @id @default(autoincrement())
   user            User            @relation(fields: [userId], references: [userId])
   userId          Int             @unique
-  provinsi        Provinsi        @relation(fields: [provinsiId], references: [provinsiId])
-  provinsiId      Int             @unique
+  provinsi        Provinsi       @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
+  kodeProvinsi    String          @unique
   satker          Satker[]
 }
 
@@ -218,8 +221,8 @@ model KabupatenKota {
 model Satker {
   satkerId          Int             @id @unique @default(autoincrement())
   internalBPS       Boolean         @default(true)
-  adminProvinsi     AdminProvinsi   @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade)
-  adminProvinsiId   Int
+  adminProvinsi     AdminProvinsi?  @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade)
+  adminProvinsiId   Int?
   adminSatker       AdminSatker?    @relation(fields: [adminSatkerId], references: [adminSatkerId])
   adminSatkerId     Int?            @unique
   provinsi          Provinsi        @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
@@ -232,6 +235,7 @@ model Satker {
   alamat            String
   kapasitas         Int?
   mahasiswa         Mahasiswa[]
+  pembimbingLapangan PembimbingLapangan[]
   satkerPilihan     SatkerPilihan[]
 }
 

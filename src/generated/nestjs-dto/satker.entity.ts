@@ -1,20 +1,30 @@
 
 import {AdminProvinsi} from './adminProvinsi.entity'
+import {AdminSatker} from './adminSatker.entity'
+import {Provinsi} from './provinsi.entity'
 import {KabupatenKota} from './kabupatenKota.entity'
 import {Mahasiswa} from './mahasiswa.entity'
+import {PembimbingLapangan} from './pembimbingLapangan.entity'
+import {SatkerPilihan} from './satkerPilihan.entity'
 
 
 export class Satker {
   satkerId: number ;
-kode: string ;
+internalBPS: boolean ;
 adminProvinsi?: AdminProvinsi  | null;
 adminProvinsiId: number  | null;
-kabupatenKota?: KabupatenKota  | null;
-kabupatenKotaId: number  | null;
+adminSatker?: AdminSatker  | null;
+adminSatkerId: number  | null;
+provinsi?: Provinsi ;
+kodeProvinsi: string ;
+kabupatenKota?: KabupatenKota ;
+kodeKabupatenKota: string ;
 nama: string ;
+kode: string ;
 email: string ;
-alamat: string  | null;
-mahasiswa?: Mahasiswa[] ;
+alamat: string ;
 kapasitas: number  | null;
-deleted: boolean ;
+mahasiswa?: Mahasiswa[] ;
+pembimbingLapangan?: PembimbingLapangan[] ;
+satkerPilihan?: SatkerPilihan[] ;
 }

@@ -5,8 +5,8 @@
 
 
 export class UpdateSatkerDto {
-  kode?: string;
-nama?: string;
+  nama?: string;
+kode?: string;
 email?: string;
 alamat?: string;
 kapasitas?: number;

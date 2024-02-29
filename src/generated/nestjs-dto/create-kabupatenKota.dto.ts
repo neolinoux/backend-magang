@@ -5,6 +5,6 @@
 
 
 export class CreateKabupatenKotaDto {
-  kodeKabupatenKota?: string;
+  kodeKabupatenKota: string;
 nama: string;
 }

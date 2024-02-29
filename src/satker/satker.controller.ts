@@ -1,24 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SatkerService } from './satker.service';
 import { Satker } from 'src/generated/nestjs-dto/satker.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Satker')
 @Controller('satker')
 export class SatkerController {
   constructor(private readonly satkerService: SatkerService) {}
 
+  @Get()
+  async findAllSatkerBy(@Query() params: any) {
+    return this.satkerService.findAllSatkerBy(params);
+  }
+
   @Post()
   create(@Body() satker: Satker) {
     return this.satkerService.create(satker);
-  }
-
-  @Get()
-  findAll() {
-    return this.satkerService.findAll();
-  }
-
-  @Get(':kode')
-  findOne(@Param('kode') kode: string) {
-    return this.satkerService.findOne(kode);
   }
 
   @Patch(':kode')
@@ -30,10 +27,4 @@ export class SatkerController {
   remove(@Param('kode') kode: string) {
     return this.satkerService.remove(kode);
   }
-
-  @Get('provinsi/:kodeProvinsi')
-  findByProvinsi(@Param('kodeProvinsi') kodeProvinsi: string) {
-    return this.satkerService.findByProvinsi(kodeProvinsi);
-  }
-
 }

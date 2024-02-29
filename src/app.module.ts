@@ -12,6 +12,9 @@ import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
 import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pembimbing-magang.module';
 import { PembimbingLapanganModule } from './pembimbing-lapangan/pembimbing-lapangan.module';
 import { SatkerModule } from './satker/satker.module';
+import { PemilihanPenempatanController } from './pemilihan-penempatan/pemilihan-penempatan.controller';
+import { PemilihanPenempatanService } from './pemilihan-penempatan/pemilihan-penempatan.service';
+import { PemilihanPenempatanModule } from './pemilihan-penempatan/pemilihan-penempatan.module';
 
 @Module({
   imports: [
@@ -28,9 +31,10 @@ import { SatkerModule } from './satker/satker.module';
     MahasiswaModule,
     DosenPembimbingMagangModule,
     PembimbingLapanganModule,
-    SatkerModule
+    SatkerModule,
+    PemilihanPenempatanModule
   ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+  controllers: [AppController, PemilihanPenempatanController],
+  providers: [AppService, PrismaService, PemilihanPenempatanService],
 })
 export class AppModule{}

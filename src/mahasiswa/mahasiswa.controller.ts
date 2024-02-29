@@ -4,24 +4,29 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   Put,
   UseInterceptors,
-  UploadedFiles
+  UploadedFiles,
+  UseGuards,
+  Query
 } from '@nestjs/common';
 import { MahasiswaService } from './mahasiswa.service';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Mahasiswa } from 'src/generated/nestjs-dto/mahasiswa.entity';
+import { ApiConsumes, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('mahasiswa')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('mahasiswa')
 export class MahasiswaController {
   constructor(private readonly mahasiswaService: MahasiswaService) {}
 
   @Get()
-  async findAll() {
-    const data = await this.mahasiswaService.findAll();
+  async getMahasiswa(@Query() params: any) {
+    const data = await this.mahasiswaService.findAll(params);
 
     return {
       status: 'success',
@@ -34,24 +39,13 @@ export class MahasiswaController {
   @UseInterceptors(FilesInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   async importExcel(@UploadedFiles() files: Array<Express.Multer.File>) {
-    // console.log(files);
     const response = await this.mahasiswaService.importExcel(files);
 
     return response;
   }
 
-  @Get(':nim')
-  findOne(@Param('nim') nim: string) {
-    return this.mahasiswaService.findOne(nim);
-  }
-
   @Put(':nim')
-  update(@Param('nim') nim: string, @Body() mahasiswa: Mahasiswa) {
-    return this.mahasiswaService.update(nim, mahasiswa);
-  }
-
-  @Delete(':nim')
-  remove(@Param('nim') nim: string) {
-    return this.mahasiswaService.remove(nim);
+  update(@Param('nim') nim: string, @Body() updateMahasiswaDto: UpdateMahasiswaDto) {
+    return this.mahasiswaService.update(nim, updateMahasiswaDto);
   }
 }

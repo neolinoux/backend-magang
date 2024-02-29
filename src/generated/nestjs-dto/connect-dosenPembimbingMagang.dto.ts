@@ -1,6 +1,7 @@
 
   export class ConnectDosenPembimbingMagangDto {
-    nip?: string;
+    dosenId?: number;
+nip?: string;
 userId?: number;
   }
   

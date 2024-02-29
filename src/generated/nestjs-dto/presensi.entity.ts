@@ -11,5 +11,4 @@ waktu: Date ;
 keterangan: string ;
 createdAt: Date  | null;
 updatedAt: Date  | null;
-deleted: boolean ;
 }

@@ -1,35 +1,31 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PembimbingLapanganService } from './pembimbing-lapangan.service';
-import { PembimbingLapangan } from 'src/generated/nestjs-dto/pembimbingLapangan.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
+import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
 
 @ApiTags('Pembimbing Lapangan')
 @Controller('pembimbing-lapangan')
 export class PembimbingLapanganController {
   constructor(private readonly pembimbingLapanganService: PembimbingLapanganService) {}
 
-  @Post()
-  create(@Body() pembimbingLapangan: PembimbingLapangan) {
-    return this.pembimbingLapanganService.create(pembimbingLapangan);
+  @Get()
+  findAll(@Param() params: any) {
+    return this.pembimbingLapanganService.findAllPemlapBy(params);
   }
 
-  @Get()
-  findAll() {
-    return this.pembimbingLapanganService.findAll();
+  @Post()
+  create(@Body() createPembimbingLapangan: CreatePembimbingLapanganDto) {
+    return this.pembimbingLapanganService.create(createPembimbingLapangan);
   }
 
   @Patch(':nip')
-  update(@Param('nip') nip: string, @Body() pembimbingLapangan: PembimbingLapangan) {
-    return this.pembimbingLapanganService.update(nip, pembimbingLapangan);
+  update(@Param('nip') nip: string, @Body() updatePembimbingLapangan: UpdatePembimbingLapanganDto) {
+    return this.pembimbingLapanganService.update(nip, updatePembimbingLapangan);
   }
 
   @Delete(':nip')
   remove(@Param('nip') nip: string) {
     return this.pembimbingLapanganService.remove(nip);
-  }
-
-  @Get(':nip/mahasiswa')
-  findMahasiswaBimbinganPemlap(@Param('nip') nip: string) {
-    return this.pembimbingLapanganService.findAllMahasiswaBimbingan(nip);
   }
 }

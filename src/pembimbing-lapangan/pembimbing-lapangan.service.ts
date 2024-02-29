@@ -2,15 +2,45 @@ import { Injectable } from '@nestjs/common';
 import { PembimbingLapangan } from 'src/generated/nestjs-dto/pembimbingLapangan.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
+import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
 
 @Injectable()
 export class PembimbingLapanganService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(pembimbingLapangan: PembimbingLapangan) {
+  async findAllPemlapBy(params: any) {
+    const allPembimbingLapangan = await this.prisma.pembimbingLapangan.findMany({
+      select: {
+        userId: true,
+        nip: true,
+        nama: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+      where: {
+        nip: params.nip,
+        tahunAjaran: {
+          tahun: params.tahunAjaran,
+        },
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Pembimbing Lapangan Berhasil Diambil',
+      data: allPembimbingLapangan,
+    };
+  }
+
+  
+  async create(createPembimbingLapangan: CreatePembimbingLapanganDto) {
     const cekPembimbingLapangan = await this.prisma.pembimbingLapangan.findUnique({
       where: {
-        nip: pembimbingLapangan.nip,
+        nip: createPembimbingLapangan.nip,
       },
     });
 
@@ -21,16 +51,26 @@ export class PembimbingLapanganService {
       };
     }
 
-    const hashedPassword = await bcrypt.hash(pembimbingLapangan.user.password, 10);
+    const hashedPassword = await bcrypt.hash(createPembimbingLapangan.user.password, 10);
 
     const pembimbingLapanganBaru = await this.prisma.pembimbingLapangan.create({
       data: {
-        nip: pembimbingLapangan.nip,
-        nama: pembimbingLapangan.nama,
+        nip: createPembimbingLapangan.nip,
+        nama: createPembimbingLapangan.nama,
         user: {
           create: {
-            email: pembimbingLapangan.user.email,
+            email: createPembimbingLapangan.user.email,
             password: hashedPassword,
+          },
+        },
+        tahunAjaran: {
+          connect: {
+            tahun: createPembimbingLapangan.tahunAjaran.tahun,
+          },
+        },
+        satker: {
+          connect: {
+            kode: createPembimbingLapangan.satker.kode,
           },
         },
       },
@@ -53,28 +93,7 @@ export class PembimbingLapanganService {
     };
   }
 
-  async findAll() {
-    const allPembimbingLapangan = await this.prisma.pembimbingLapangan.findMany({
-      select: {
-        userId: true,
-        nip: true,
-        nama: true,
-        user: {
-          select: {
-            email: true,
-          },
-        },
-      },
-    });
-
-    return {
-      status: 'success',
-      message: 'Data Pembimbing Lapangan Berhasil Diambil',
-      data: allPembimbingLapangan,
-    };
-  }
-
-  async update(nip: string, pembimbingLapangan: PembimbingLapangan) {
+  async update(nip: string, updatePembimbingLapangan: UpdatePembimbingLapanganDto) {
     const cekPembimbingLapangan = await this.prisma.pembimbingLapangan.findUnique({
       where: {
         nip: nip,
@@ -89,16 +108,23 @@ export class PembimbingLapanganService {
     }
 
     try {
-      const updatePembimbingLapangan = await this.prisma.pembimbingLapangan.update({
+      let hashedPassword = '';
+      if (updatePembimbingLapangan.user.password) {
+        hashedPassword = await bcrypt.hash(updatePembimbingLapangan.user.password, 10);
+        updatePembimbingLapangan.user.password = hashedPassword;
+      }
+
+      const data  = await this.prisma.pembimbingLapangan.update({
         where: {
           nip: nip,
         },
         data: {
-          nip: pembimbingLapangan.nip,
-          nama: pembimbingLapangan.nama,
+          nip: updatePembimbingLapangan.nip,
+          nama: updatePembimbingLapangan.nama,
           user: {
             update: {
-              email: pembimbingLapangan.user.email,
+              email: updatePembimbingLapangan.user.email,
+              password: hashedPassword,
             },
           }
         },
@@ -117,7 +143,7 @@ export class PembimbingLapanganService {
       return {
         status: 'success',
         message: 'Data Pembimbing Lapangan Berhasil Diubah',
-        data: updatePembimbingLapangan,
+        data: data,
       };
     } catch (error) {
       
@@ -158,60 +184,6 @@ export class PembimbingLapanganService {
       status: 'success',
       message: 'Data Pembimbing Lapangan Berhasil Dihapus',
       data: pemimbingLapangan,
-    };
-  }
-
-  async findAllMahasiswaBimbingan(nip: string) {
-    const cekPemlap = await this.prisma.pembimbingLapangan.findUnique({
-      where: {
-        nip: nip,
-      },
-    });
-
-    if (!cekPemlap) {
-      return {
-        status: 'error',
-        message: 'Data Pembimbing Lapangan Tidak Ditemukan',
-      };
-    }
-    
-    const datarMahasiswa = await this.prisma.mahasiswa.findMany({
-      where: {
-        pembimbingLapangan: {
-          nip: nip,
-        },
-      },
-      select: {
-        userId: true,
-        nim: true,
-        nama: true,
-        kelas: true,
-        pembimbingLapangan: {
-          select: {
-            nama: true,
-          },
-        },
-        dosenPembimbingMagang: {
-          select: {
-            nama: true,
-          },
-        },
-        satker: {
-          select: {
-            nama: true,
-          },
-        },
-        alamat: true,
-      },
-      orderBy: {
-        userId: 'asc',
-      },
-    });
-
-    return {
-      status: 'success',
-      message: 'Data Mahasiswa Berhasil Diambil',
-      data: datarMahasiswa,
     };
   }
 }

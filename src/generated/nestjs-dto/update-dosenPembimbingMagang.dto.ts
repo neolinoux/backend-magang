@@ -1,3 +1,4 @@
+import { User } from "./user.entity";
 
 
 
@@ -5,6 +6,8 @@
 
 
 export class UpdateDosenPembimbingMagangDto {
-  nama?: string;
-prodi?: string;
+  nip?: string;
+nama?: string;
+  prodi?: string;
+  user: User;
 }

@@ -9,7 +9,6 @@ mahaasiswa?: Mahasiswa ;
 nim: string ;
 nama: string ;
 kegiatanHarian?: KegiatanHarian[] ;
-deleted: boolean ;
 createdAt: Date  | null;
 updatedAt: Date  | null;
 }

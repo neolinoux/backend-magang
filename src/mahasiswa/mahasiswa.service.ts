@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validate } from 'class-validator';
 import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
+import { Mahasiswa } from 'src/generated/nestjs-dto/mahasiswa.entity';
 
 @Injectable()
 export class MahasiswaService {
@@ -10,19 +11,20 @@ export class MahasiswaService {
     private readonly prisma: PrismaService,
   ) { }
 
-  async findAll(){
+  async findAll(params: any) {
     return this.prisma.mahasiswa.findMany({
       select: {
         userId: true,
         nim: true,
         nama: true,
         kelas: true,
-        pembimbingLapangan: {
+        prodi: true,
+        dosenPembimbingMagang: {
           select: {
             nama: true,
           }
         },
-        dosenPembimbingMagang: {
+        pembimbingLapangan: {
           select: {
             nama: true,
           }
@@ -35,7 +37,7 @@ export class MahasiswaService {
         alamat: true,
         tahunAjaran: {
           select: {
-            tahunAjaran: true,
+            tahun: true,
           }
         },
       },
@@ -44,6 +46,24 @@ export class MahasiswaService {
           userId: 'asc',
         }
       },
+      where: {
+        nim: params.nim,
+        nama: params.nama,
+        kelas: params.kelas,
+        prodi: params.prodi,
+        dosenPembimbingMagang: {
+          nip: params.nipDosen,
+        },
+        pembimbingLapangan: {
+          nip: params.nipPemlap,
+        },
+        satker: {
+          kode: params.kodeSatker,
+        },
+        tahunAjaran: {
+          tahun: params.tahun,
+        },
+      }
     });
   }
 
@@ -128,7 +148,7 @@ export class MahasiswaService {
                 alamat: row.getCell(5).value,
                 tahunAjaran: {
                   connect: {
-                    tahunAjaran: tahunAjaran,
+                    tahun: tahunAjaran,
                   },
                 },
                 dosenPembimbingMagang: {
@@ -163,7 +183,7 @@ export class MahasiswaService {
                 alamat: true,
                 tahunAjaran: {
                   select: {
-                    tahunAjaran: true,
+                    tahun: true,
                   }
                 },
               },
@@ -208,118 +228,6 @@ export class MahasiswaService {
       status: 'error',
       message: 'Internal Server Error',
     };
-  }
-
-  async findOne(nim: string) {
-    try {
-      const mahasiswa = await this.prisma.mahasiswa.findUnique({
-        where: {
-          nim: nim,
-        },
-        select: {
-          nim: true,
-          nama: true,
-          kelas: true,
-          pembimbingLapangan: {
-            select: {
-              nama: true,
-            }
-          },
-          dosenPembimbingMagang: {
-            select: {
-              nama: true,
-            }
-          },
-          satker: {
-            select: {
-              nama: true,
-            }
-          },
-          alamat: true,
-          tahunAjaran: {
-            select: {
-              tahunAjaran: true,
-            }
-          },
-        },
-      });
-
-      if(!mahasiswa){
-        return {
-          status: 'error',
-          message: 'Data Mahasiswa Tidak Ditemukan',
-        };
-      }
-
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Diambil',
-        data: mahasiswa,
-      };
-      
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'request failed',
-      };
-    }
-  }
-
-  async findByTahunAjaran(tahunAjaran: string) {
-    try {
-      const mahasiswa = await this.prisma.mahasiswa.findMany({
-        where: {
-          tahunAjaran: {
-            tahunAjaran: tahunAjaran,
-          },
-        },
-        select: {
-          nim: true,
-          nama: true,
-          kelas: true,
-          pembimbingLapangan: {
-            select: {
-              nama: true,
-            }
-          },
-          dosenPembimbingMagang: {
-            select: {
-              nama: true,
-            }
-          },
-          satker: {
-            select: {
-              nama: true,
-            }
-          },
-          alamat: true,
-          tahunAjaran: {
-            select: {
-              tahunAjaran: true,
-            }
-          },
-        },
-      });
-
-      if(mahasiswa.length === 0){
-        return {
-          status: 'error',
-          message: 'Data Mahasiswa Tidak Ditemukan',
-        };
-      }
-
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Diambil',
-        data: mahasiswa,
-      };
-      
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'request failed',
-      };
-    }
   }
 
   async update(nim: string, updateMahasiswaDto: UpdateMahasiswaDto) {
@@ -380,7 +288,7 @@ export class MahasiswaService {
           alamat: true,
           tahunAjaran: {
             select: {
-              tahunAjaran: true,
+              tahun: true,
             }
           },
         },
