@@ -64,7 +64,7 @@ export class BimbinganMagangService {
         return {
           status: "success",
           message: "Bimbingan Magang Berhasil Ditambahkan",
-          data: data
+          // data: data
         }
       }
 
@@ -110,7 +110,7 @@ export class BimbinganMagangService {
       return {
         status: "success",
         message: "Bimbingan Magang Berhasil Ditambahkan",
-        data: data
+        // data: data
       }
 
     } catch (error) {
@@ -131,8 +131,8 @@ export class BimbinganMagangService {
               mahasiswa: {
                 nim: nim
               }
-            }
-          }
+            },
+          },
         },
         orderBy: {
           tanggal: "asc"
@@ -153,7 +153,7 @@ export class BimbinganMagangService {
     }
   }
 
-  async findAllBimbinganMagangDosenPembimbingBy(nip: string) {
+  async findAllBimbinganMagangDosenPembimbingBy(nip: string, query: any) {
     try {
       const data = await this.prismaService.bimbinganMagang.findMany({
         where: {
@@ -161,8 +161,17 @@ export class BimbinganMagangService {
             some: {
               dosen: {
                 nip: nip
-              }
+              },
+              mahasiswa: {
+                nim: {
+                  contains: query.nim
+                }
+              },
             }
+          },
+          status: query.status,
+          tanggal: {
+            equals: new Date(query.tanggal)
           }
         },
         select: {
@@ -200,15 +209,99 @@ export class BimbinganMagangService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bimbinganMagang`;
+  async update(id: number, updateBimbinganMagangDto: UpdateBimbinganMagangDto, req: any) {
+    try {
+      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
+      const mahasiswa = await this.prismaService.mahasiswa.findUnique({
+        where: {
+          userId: userId
+        },
+      });
+
+      const cekBimbingan = await this.prismaService.kelompokBimbinganMagang.findFirst({
+        where: {
+          bimbinganId: id,
+          mahasiswa: {
+            nim: mahasiswa.nim,
+          }
+        },
+      });
+
+      if (!cekBimbingan) {
+        return {
+          status: "error",
+          message: "Bimbingan Magang Tidak Ditemukan",
+        }
+      }
+
+      const data = await this.prismaService.bimbinganMagang.update({
+        where: {
+          bimbinganId: id
+        },
+        data: {
+          tanggal: new Date(updateBimbinganMagangDto.tanggal),
+          status: updateBimbinganMagangDto.status,
+          tempat: updateBimbinganMagangDto.tempat
+        }
+      });
+
+      return {
+        status: "success",
+        message: "Bimbingan Magang Berhasil Diubah",
+        data: data
+      }
+    } catch (error) {
+      return {
+        status: "error",
+        message: "Gagal Mengubah Bimbingan Magang",
+      }
+    }
   }
 
-  update(id: number, updateBimbinganMagangDto: UpdateBimbinganMagangDto) {
-    return `This action updates a #${id} bimbinganMagang`;
-  }
+  async confirm(id: number, req: any) {
+    try {
+      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
+      const dosen = await this.prismaService.dosenPembimbingMagang.findUnique({
+        where: {
+          userId: userId
+        },
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} bimbinganMagang`;
+      const cekBimbingan = await this.prismaService.kelompokBimbinganMagang.findFirst({
+        where: {
+          bimbinganId: id,
+          dosen: {
+            nip: dosen.nip,
+          }
+        },
+      });
+
+      if (!cekBimbingan) {
+        return {
+          status: "error",
+          message: "Bimbingan Magang Tidak Ditemukan",
+        }
+      }
+
+      const data = await this.prismaService.bimbinganMagang.update({
+        where: {
+          bimbinganId: id
+        },
+        data: {
+          status: "Disetujui",
+        }
+      });
+
+      return {
+        status: "success",
+        message: "Bimbingan Magang Berhasil Disetujui",
+        data: data
+      }
+    } catch (error) {
+      return {
+        status: "error",
+        message: "Gagal Menyetujui Bimbingan Magang",
+      }
+    }
   }
 }

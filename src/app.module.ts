@@ -16,6 +16,7 @@ import { PemilihanPenempatanController } from './pemilihan-penempatan/pemilihan-
 import { PemilihanPenempatanService } from './pemilihan-penempatan/pemilihan-penempatan.service';
 import { PemilihanPenempatanModule } from './pemilihan-penempatan/pemilihan-penempatan.module';
 import { BimbinganMagangModule } from './bimbingan-magang/bimbingan-magang.module';
+import { KegiatanHarianModule } from './kegiatan-harian/kegiatan-harian.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { BimbinganMagangModule } from './bimbingan-magang/bimbingan-magang.modul
     PembimbingLapanganModule,
     SatkerModule,
     PemilihanPenempatanModule,
-    BimbinganMagangModule
+    BimbinganMagangModule,
+    KegiatanHarianModule
   ],
   controllers: [AppController, PemilihanPenempatanController],
   providers: [AppService, PrismaService, PemilihanPenempatanService],

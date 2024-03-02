@@ -1,14 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, Put, Query } from '@nestjs/common';
 import { BimbinganMagangService } from './bimbingan-magang.service';
 import { CreateBimbinganMagangDto } from 'src/generated/nestjs-dto/create-bimbinganMagang.dto';
 import { UpdateBimbinganMagangDto } from 'src/generated/nestjs-dto/update-bimbinganMagang.dto';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('bimbingan-magang')
 export class BimbinganMagangController {
   constructor(
     private readonly bimbinganMagangService: BimbinganMagangService,
-    private readonly jwtService: JwtService
   ) { }
 
   @Post()
@@ -22,22 +20,17 @@ export class BimbinganMagangController {
   }
 
   @Get('dosen-pembimbing/:nip')
-  findAllBimbinganMagangDosenPembimbingBy(@Param('nip') nip: string) {
-    return this.bimbinganMagangService.findAllBimbinganMagangDosenPembimbingBy(nip);
+  findAllBimbinganMagangDosenPembimbingBy(@Param('nip') nip: string,@Query() query: any) {
+    return this.bimbinganMagangService.findAllBimbinganMagangDosenPembimbingBy(nip, query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bimbinganMagangService.findOne(+id);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateBimbinganMagangDto: UpdateBimbinganMagangDto, @Req() req: any){
+    return this.bimbinganMagangService.update(+id, updateBimbinganMagangDto, req);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBimbinganMagangDto: UpdateBimbinganMagangDto) {
-    return this.bimbinganMagangService.update(+id, updateBimbinganMagangDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bimbinganMagangService.remove(+id);
+  @Put('confirm/:id')
+  confirm(@Param('id') id: string, @Req() req: any){
+    return this.bimbinganMagangService.confirm(+id, req);
   }
 }

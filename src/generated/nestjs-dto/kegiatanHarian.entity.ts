@@ -7,13 +7,15 @@ export class KegiatanHarian {
   kegiatanId: number ;
 mahasiswa?: Mahasiswa ;
 nim: string ;
-judul: string ;
 tanggal: Date ;
 deskripsi: string ;
-kuantitas: number ;
-kualitas: number ;
+volume: number ;
+satuan: number ;
+durasi: number ;
+pemberiTugas: string ;
+statusPenyelesaian: number ;
 createdAt: Date  | null;
 updatedAt: Date  | null;
-tipeKegiatan?: TipeKegiatan ;
-tipeKegiatanId: number ;
+tipeKegiatan?: TipeKegiatan  | null;
+tipeKegiatanId: number  | null;
 }

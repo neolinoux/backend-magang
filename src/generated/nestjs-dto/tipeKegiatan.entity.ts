@@ -5,7 +5,7 @@ import {KegiatanHarian} from './kegiatanHarian.entity'
 
 export class TipeKegiatan {
   tipeKegiatanId: number ;
-mahaasiswa?: Mahasiswa ;
+mahasiswa?: Mahasiswa ;
 nim: string ;
 nama: string ;
 kegiatanHarian?: KegiatanHarian[] ;

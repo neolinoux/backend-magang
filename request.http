@@ -14,7 +14,7 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "Chyna.Shanahan71@hotmail.com",
+  "email": "dosen.11@gmail.com",
   "password": "makanenak"
 }
 
@@ -157,23 +157,35 @@ POST http://localhost:3000/bimbingan-magang
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA5Mzk3MjQ5LCJleHAiOjE3MDk0ODM2NDl9.cY0diflxJqvWcK4lsbb22JZ1gKdIKow09gBumz_WmHg
 
+# created by mahasiswa
+{
+  "tanggal": "2021-08-01",
+  "tempat": "link zoom"
+}
+
+# cretaed by dosen
 # {
 #   "tanggal": "2021-08-01",
-#   "tempat": "link zoom"
+#   "tempat": "banyak mahasiswa",
+#   "peserta": [
+#     {
+#       "nim": "073256633"
+#     },
+#     {
+#       "nim": "834867542"
+#     }
+#   ]
+
 # }
+
+###
+PUT http://localhost:3000/bimbingan-magang/4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA5Mzk3MjQ5LCJleHAiOjE3MDk0ODM2NDl9.cY0diflxJqvWcK4lsbb22JZ1gKdIKow09gBumz_WmHg
 
 {
   "tanggal": "2021-08-01",
-  "tempat": "banyak mahasiswa",
-  "peserta": [
-    {
-      "nim": "073256633"
-    },
-    {
-      "nim": "834867542"
-    }
-  ]
-
+  "tempat": "link zoom dong"
 }
 
 ###
