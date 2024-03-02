@@ -14,7 +14,7 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@admin.com",
+  "email": "Chyna.Shanahan71@hotmail.com",
   "password": "makanenak"
 }
 
@@ -151,3 +151,33 @@ Content-Type:  application/json
   },
   "status": "Menunggu"
 }
+
+###
+POST http://localhost:3000/bimbingan-magang
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA5Mzk3MjQ5LCJleHAiOjE3MDk0ODM2NDl9.cY0diflxJqvWcK4lsbb22JZ1gKdIKow09gBumz_WmHg
+
+# {
+#   "tanggal": "2021-08-01",
+#   "tempat": "link zoom"
+# }
+
+{
+  "tanggal": "2021-08-01",
+  "tempat": "banyak mahasiswa",
+  "peserta": [
+    {
+      "nim": "073256633"
+    },
+    {
+      "nim": "834867542"
+    }
+  ]
+
+}
+
+###
+GET http://localhost:3000/bimbingan-magang/dosen-pembimbing/491718953
+
+###
+GET http://localhost:3000/bimbingan-magang/mahasiswa/586531010

@@ -2,7 +2,7 @@
 import {User} from './user.entity'
 import {TahunAjaran} from './tahunAjaran.entity'
 import {Mahasiswa} from './mahasiswa.entity'
-import {BimbinganDosen} from './bimbinganDosen.entity'
+import {KelompokBimbinganMagang} from './kelompokBimbinganMagang.entity'
 
 
 export class DosenPembimbingMagang {
@@ -15,5 +15,5 @@ tahunAjaranId: number ;
 mahasiswa?: Mahasiswa[] ;
 nama: string ;
 prodi: string ;
-bimbinganDosen?: BimbinganDosen[] ;
+kelompokBimbinganMagang?: KelompokBimbinganMagang[] ;
 }

@@ -10,4 +10,5 @@ export class UpdateDosenPembimbingMagangDto {
 nama?: string;
   prodi?: string;
   user: User;
+  
 }

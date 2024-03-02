@@ -15,6 +15,7 @@ import { SatkerModule } from './satker/satker.module';
 import { PemilihanPenempatanController } from './pemilihan-penempatan/pemilihan-penempatan.controller';
 import { PemilihanPenempatanService } from './pemilihan-penempatan/pemilihan-penempatan.service';
 import { PemilihanPenempatanModule } from './pemilihan-penempatan/pemilihan-penempatan.module';
+import { BimbinganMagangModule } from './bimbingan-magang/bimbingan-magang.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { PemilihanPenempatanModule } from './pemilihan-penempatan/pemilihan-pene
     DosenPembimbingMagangModule,
     PembimbingLapanganModule,
     SatkerModule,
-    PemilihanPenempatanModule
+    PemilihanPenempatanModule,
+    BimbinganMagangModule
   ],
   controllers: [AppController, PemilihanPenempatanController],
   providers: [AppService, PrismaService, PemilihanPenempatanService],

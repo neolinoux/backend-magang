@@ -95,16 +95,16 @@ model SatkerPilihan {
 }
 
 model DosenPembimbingMagang {
-  dosenId        Int              @id @default(autoincrement())
-  nip            String           @unique
-  user           User             @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId         Int              @unique
-  tahunAjaran    TahunAjaran      @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
-  tahunAjaranId  Int
-  mahasiswa      Mahasiswa[]
-  nama           String
-  prodi          String
-  bimbinganDosen BimbinganDosen[]
+  dosenId                 Int                       @id @default(autoincrement())
+  nip                     String                    @unique
+  user                    User                      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId                  Int                       @unique
+  tahunAjaran             TahunAjaran               @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
+  tahunAjaranId           Int
+  mahasiswa               Mahasiswa[]
+  nama                    String
+  prodi                   String
+  kelompokBimbinganMagang KelompokBimbinganMagang[]
 }
 
 model PembimbingLapangan {
@@ -153,51 +153,51 @@ model PenilaianLaporanPemlap {
 }
 
 model Mahasiswa {
-  mahasiswaId            Int                     @id @default(autoincrement())
-  nim                    String                  @unique
-  user                   User                    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId                 Int                     @unique
-  dosenPembimbingMagang  DosenPembimbingMagang?  @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
-  nipDosen               String?
-  pembimbingLapangan     PembimbingLapangan?     @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
-  nipPemlap              String?
-  satker                 Satker?                 @relation(fields: [satkerId], references: [satkerId], onDelete: SetNull)
-  tahunAjaran            TahunAjaran             @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
-  tahunAjaranId          Int
-  satkerId               Int?
-  nama                   String
-  alamat                 String
-  prodi                  String
-  kelas                  String
-  nomorRekening          String?
-  penilaianBimbingan     PenilaianBimbingan?
-  penilaianLaporanDosen  PenilaianLaporanDosen?
-  penilaianKinerja       PenilaianKinerja?
-  penilaianLaporanPemlap PenilaianLaporanPemlap?
-  izinBimbinganSkripsi   IzinBimbinganSkripsi[]
-  bimbinganDosen         BimbinganDosen[]
-  kegiatanHarian         KegiatanHarian[]
-  presensi               Presensi[]
-  tipeKegiatan           TipeKegiatan[]
-  rekapKegiatanBulanan   RekapKegiatanBulanan[]
-  izinPresensi           IzinPresensi[]
-  satkerPilihan          SatkerPilihan[]
+  mahasiswaId             Int                       @id @default(autoincrement())
+  nim                     String                    @unique
+  user                    User                      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId                  Int                       @unique
+  dosenPembimbingMagang   DosenPembimbingMagang?    @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
+  nipDosen                String?
+  pembimbingLapangan      PembimbingLapangan?       @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
+  nipPemlap               String?
+  satker                  Satker?                   @relation(fields: [satkerId], references: [satkerId], onDelete: SetNull)
+  tahunAjaran             TahunAjaran               @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
+  tahunAjaranId           Int
+  satkerId                Int?
+  nama                    String
+  alamat                  String
+  prodi                   String
+  kelas                   String
+  nomorRekening           String?
+  penilaianBimbingan      PenilaianBimbingan?
+  penilaianLaporanDosen   PenilaianLaporanDosen?
+  penilaianKinerja        PenilaianKinerja?
+  penilaianLaporanPemlap  PenilaianLaporanPemlap?
+  izinBimbinganSkripsi    IzinBimbinganSkripsi[]
+  kelompokBimbinganMagang KelompokBimbinganMagang[]
+  kegiatanHarian          KegiatanHarian[]
+  presensi                Presensi[]
+  tipeKegiatan            TipeKegiatan[]
+  rekapKegiatanBulanan    RekapKegiatanBulanan[]
+  izinPresensi            IzinPresensi[]
+  satkerPilihan           SatkerPilihan[]
 }
 
 model AdminProvinsi {
-  adminProvinsiId Int             @id @default(autoincrement())
-  user            User            @relation(fields: [userId], references: [userId])
-  userId          Int             @unique
-  provinsi        Provinsi       @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
-  kodeProvinsi    String          @unique
+  adminProvinsiId Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [userId])
+  userId          Int      @unique
+  provinsi        Provinsi @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
+  kodeProvinsi    String   @unique
   satker          Satker[]
 }
 
 model AdminSatker {
-  adminSatkerId   Int           @id @default(autoincrement())
-  user            User          @relation(fields: [userId], references: [userId])
-  userId          Int           @unique
-  satker          Satker?
+  adminSatkerId Int     @id @default(autoincrement())
+  user          User    @relation(fields: [userId], references: [userId])
+  userId        Int     @unique
+  satker        Satker?
 }
 
 model Provinsi {
@@ -210,33 +210,33 @@ model Provinsi {
 }
 
 model KabupatenKota {
-  kabupatenKotaId   Int           @id @unique @default(autoincrement())
-  kodeKabupatenKota String        @unique
-  provinsi          Provinsi?     @relation(fields: [kodePriovinsi], references: [kodePriovinsi])
+  kabupatenKotaId   Int       @id @unique @default(autoincrement())
+  kodeKabupatenKota String    @unique
+  provinsi          Provinsi? @relation(fields: [kodePriovinsi], references: [kodePriovinsi])
   kodePriovinsi     String
   satker            Satker?
-  nama              String        @unique
+  nama              String    @unique
 }
 
 model Satker {
-  satkerId          Int             @id @unique @default(autoincrement())
-  internalBPS       Boolean         @default(true)
-  adminProvinsi     AdminProvinsi?  @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade)
-  adminProvinsiId   Int?
-  adminSatker       AdminSatker?    @relation(fields: [adminSatkerId], references: [adminSatkerId])
-  adminSatkerId     Int?            @unique
-  provinsi          Provinsi        @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
-  kodeProvinsi      String
-  kabupatenKota     KabupatenKota   @relation(fields: [kodeKabupatenKota], references: [kodeKabupatenKota])
-  kodeKabupatenKota String          @unique
-  nama              String
-  kode              String          @unique
-  email             String
-  alamat            String
-  kapasitas         Int?
-  mahasiswa         Mahasiswa[]
+  satkerId           Int                  @id @unique @default(autoincrement())
+  internalBPS        Boolean              @default(true)
+  adminProvinsi      AdminProvinsi?       @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade)
+  adminProvinsiId    Int?
+  adminSatker        AdminSatker?         @relation(fields: [adminSatkerId], references: [adminSatkerId])
+  adminSatkerId      Int?                 @unique
+  provinsi           Provinsi             @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
+  kodeProvinsi       String
+  kabupatenKota      KabupatenKota        @relation(fields: [kodeKabupatenKota], references: [kodeKabupatenKota])
+  kodeKabupatenKota  String               @unique
+  nama               String
+  kode               String               @unique
+  email              String
+  alamat             String
+  kapasitas          Int?
+  mahasiswa          Mahasiswa[]
   pembimbingLapangan PembimbingLapangan[]
-  satkerPilihan     SatkerPilihan[]
+  satkerPilihan      SatkerPilihan[]
 }
 
 model IzinBimbinganSkripsi {
@@ -250,14 +250,26 @@ model IzinBimbinganSkripsi {
   updatedAt       DateTime? @updatedAt
 }
 
-model BimbinganDosen {
-  bimbinganId Int                   @id @default(autoincrement())
+model BimbinganMagang {
+  bimbinganId             Int                       @id @default(autoincrement())
+  tanggal                 DateTime
+  status                  String
+  tempat                  String?
+  createdAt               DateTime?                 @default(now())
+  updatedAt               DateTime?                 @updatedAt
+  nomorKelompok           Int                       @default(autoincrement())
+  KelompokBimbinganMagang KelompokBimbinganMagang[]
+}
+
+model KelompokBimbinganMagang {
+  kelompokId  Int                   @id @default(autoincrement())
+  bimbingan   BimbinganMagang       @relation(fields: [bimbinganId], references: [bimbinganId])
+  bimbinganId Int
   mahasiswa   Mahasiswa             @relation(fields: [nim], references: [nim])
   nim         String
   dosen       DosenPembimbingMagang @relation(fields: [nipDosen], references: [nip])
   nipDosen    String
-  tanggal     DateTime
-  keterangan  String
+  deskripsi   String?
   createdAt   DateTime?             @default(now())
   updatedAt   DateTime?             @updatedAt
 }

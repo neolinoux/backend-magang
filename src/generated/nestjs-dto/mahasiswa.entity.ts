@@ -9,7 +9,7 @@ import {PenilaianLaporanDosen} from './penilaianLaporanDosen.entity'
 import {PenilaianKinerja} from './penilaianKinerja.entity'
 import {PenilaianLaporanPemlap} from './penilaianLaporanPemlap.entity'
 import {IzinBimbinganSkripsi} from './izinBimbinganSkripsi.entity'
-import {BimbinganDosen} from './bimbinganDosen.entity'
+import {KelompokBimbinganMagang} from './kelompokBimbinganMagang.entity'
 import {KegiatanHarian} from './kegiatanHarian.entity'
 import {Presensi} from './presensi.entity'
 import {TipeKegiatan} from './tipeKegiatan.entity'
@@ -41,7 +41,7 @@ penilaianLaporanDosen?: PenilaianLaporanDosen  | null;
 penilaianKinerja?: PenilaianKinerja  | null;
 penilaianLaporanPemlap?: PenilaianLaporanPemlap  | null;
 izinBimbinganSkripsi?: IzinBimbinganSkripsi[] ;
-bimbinganDosen?: BimbinganDosen[] ;
+kelompokBimbinganMagang?: KelompokBimbinganMagang[] ;
 kegiatanHarian?: KegiatanHarian[] ;
 presensi?: Presensi[] ;
 tipeKegiatan?: TipeKegiatan[] ;
