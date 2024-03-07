@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { PemilihanPenempatanService } from './pemilihan-penempatan.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Pemilihan Penempatan')
 @Controller('pemilihan-penempatan')
 export class PemilihanPenempatanController {
   constructor(private pemilihanPenempatanService: PemilihanPenempatanService) { }

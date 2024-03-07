@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "./ERD.md"
+  title    = "Shopping Mall"
+}
+
 generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
   output                          = "../src/generated/nestjs-dto"
@@ -275,20 +281,22 @@ model KelompokBimbinganMagang {
 }
 
 model KegiatanHarian {
-  kegiatanId         Int           @id @default(autoincrement())
-  mahasiswa          Mahasiswa     @relation(fields: [nim], references: [nim])
-  nim                String
-  tanggal            DateTime
-  deskripsi          String
-  volume             Int
-  satuan             Int
-  durasi             Int
-  pemberiTugas       String
-  statusPenyelesaian Int           @default(0)
-  createdAt          DateTime?     @default(now())
-  updatedAt          DateTime?     @updatedAt
-  tipeKegiatan       TipeKegiatan? @relation(fields: [tipeKegiatanId], references: [tipeKegiatanId])
-  tipeKegiatanId     Int?
+  kegiatanId                  Int                   @id @default(autoincrement())
+  mahasiswa                   Mahasiswa             @relation(fields: [nim], references: [nim])
+  nim                         String
+  tanggal                     DateTime
+  deskripsi                   String
+  volume                      Int
+  satuan                      Int
+  durasi                      Int
+  pemberiTugas                String
+  statusPenyelesaian          Int                   @default(0)
+  createdAt                   DateTime?             @default(now())
+  updatedAt                   DateTime?             @updatedAt
+  tipeKegiatan                TipeKegiatan?         @relation(fields: [tipeKegiatanId], references: [tipeKegiatanId])
+  tipeKegiatanId              Int?
+  RekapKegiatanBulanan        RekapKegiatanBulanan? @relation(fields: [rekapKegiatanBulananRekapId], references: [rekapId])
+  rekapKegiatanBulananRekapId Int?
 }
 
 model TipeKegiatan {
@@ -313,11 +321,20 @@ model Presensi {
 }
 
 model RekapKegiatanBulanan {
-  rekapId   Int       @id @default(autoincrement())
-  mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
-  nim       String
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  rekapId         Int              @id @default(autoincrement())
+  mahasiswa       Mahasiswa        @relation(fields: [nim], references: [nim])
+  nim             String
+  periode         String
+  uraian          String
+  satuan          String
+  target          Int
+  realisasi       Int
+  persentase      Int
+  tingkatKualitas Int?
+  keterangan      String?
+  kegiatanHarian  KegiatanHarian[]
+  createdAt       DateTime?        @default(now())
+  updatedAt       DateTime?        @updatedAt
 }
 
 model IzinPresensi {

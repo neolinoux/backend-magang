@@ -14,20 +14,20 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "dosen.11@gmail.com",
+  "email": "admin@admin.com",
   "password": "makanenak"
 }
 
 ###
-POST http://localhost:3000/api/auth/logout
-Authorization: Bearer 
+POST http://localhost:3000/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
 
 ###
 GET http://localhost:3000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg4ODQ2OTIsImV4cCI6MTcwODk3MTA5Mn0.AvGhbp-d8HnIaibHrGxSrpNErsKu2wrj5RZhfo--XiU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
 
 ###
-GET http://localhost:3000/api/users/me
+GET http://localhost:3000/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3OTI4NDIsImV4cCI6MTcwODg3OTI0Mn0.CnsttFzMtQ0n6ZPKA9BHFEBllMbXblBeOO6pA_K1HOE
 
 ###

@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Param, Req, Put, Query } from '@nestjs/com
 import { BimbinganMagangService } from './bimbingan-magang.service';
 import { CreateBimbinganMagangDto } from 'src/generated/nestjs-dto/create-bimbinganMagang.dto';
 import { UpdateBimbinganMagangDto } from 'src/generated/nestjs-dto/update-bimbinganMagang.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Bimbingan Magang')
 @Controller('bimbingan-magang')
 export class BimbinganMagangController {
   constructor(

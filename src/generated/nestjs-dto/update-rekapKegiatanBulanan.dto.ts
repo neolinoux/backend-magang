@@ -5,5 +5,13 @@
 
 
 export class UpdateRekapKegiatanBulananDto {
-  createdAt?: Date;
+  periode?: string;
+uraian?: string;
+satuan?: string;
+target?: number;
+realisasi?: number;
+persentase?: number;
+tingkatKualitas?: number;
+keterangan?: string;
+createdAt?: Date;
 }
