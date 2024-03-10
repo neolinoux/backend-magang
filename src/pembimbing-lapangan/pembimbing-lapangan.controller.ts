@@ -1,10 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PembimbingLapanganService } from './pembimbing-lapangan.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
 import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
 
 @ApiTags('Pembimbing Lapangan')
+@ApiBearerAuth()
+@ApiTags('Bimbingan Magang')
 @Controller('pembimbing-lapangan')
 export class PembimbingLapanganController {
   constructor(private readonly pembimbingLapanganService: PembimbingLapanganService) {}

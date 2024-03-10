@@ -1,9 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SatkerService } from './satker.service';
 import { Satker } from 'src/generated/nestjs-dto/satker.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Satker')
+@ApiBearerAuth()
+@ApiTags('Bimbingan Magang')
 @Controller('satker')
 export class SatkerController {
   constructor(private readonly satkerService: SatkerService) {}

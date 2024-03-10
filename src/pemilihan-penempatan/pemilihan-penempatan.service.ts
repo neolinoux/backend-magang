@@ -53,7 +53,7 @@ export class PemilihanPenempatanService {
           satkerPilihanId: id
         },
         data: {
-          status: body.status
+          status: body.status // 'Diterima' atau 'Ditolak' atau 'Diubah' 
         },
         select: {
           satkerPilihanId: true,
@@ -72,7 +72,7 @@ export class PemilihanPenempatanService {
           status: true,
         }
       });
-  
+
       return {
         status: 'success',
         message: 'Status Pemilihan Penempatan Berhasil Diubah',
@@ -124,6 +124,50 @@ export class PemilihanPenempatanService {
       return {
         status: 'error',
         message: 'Pemilihan Penempatan Gagal Dibuat',
+      }
+    }
+  }
+
+  async pindahPemilihanPenempatan(id: number, body: any) {
+    try {
+      const data = await this.prisma.satkerPilihan.update({
+        where: {
+          satkerPilihanId: id
+        },
+        data: {
+          satker: {
+            connect: {
+              kode: body.kodeSatker
+            }
+          }
+        },
+        select: {
+          satkerPilihanId: true,
+          mahasiswa: {
+            select: {
+              nama: true,
+              nim: true,
+              alamat: true,
+            }
+          },
+          satker: {
+            select: {
+              nama: true,
+            }
+          },
+          status: true,
+        }
+      });
+
+      return {
+        status: 'success',
+        message: 'Pemilihan Penempatan Berhasil Dipindahkan',
+        data: data
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Pemilihan Penempatan Gagal Dipindahkan',
       }
     }
   }

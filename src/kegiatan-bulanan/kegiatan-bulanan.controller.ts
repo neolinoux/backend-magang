@@ -8,11 +8,13 @@ import {
   Delete,
   Controller,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateRekapKegiatanBulananDto } from 'src/generated/nestjs-dto/create-rekapKegiatanBulanan.dto';
 import { UpdateRekapKegiatanBulananDto } from 'src/generated/nestjs-dto/update-rekapKegiatanBulanan.dto';
 
 @ApiTags('Kegiatan Bulanan')
+@ApiBearerAuth()
+@ApiTags('Bimbingan Magang')
 @Controller('kegiatan-bulanan')
 export class KegiatanBulananController {
   constructor(private readonly kegiatanBulananService: KegiatanBulananService) {}

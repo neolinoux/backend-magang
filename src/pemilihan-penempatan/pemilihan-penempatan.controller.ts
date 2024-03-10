@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { PemilihanPenempatanService } from './pemilihan-penempatan.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Pemilihan Penempatan')
+@ApiBearerAuth()
+@ApiTags('Bimbingan Magang')
 @Controller('pemilihan-penempatan')
 export class PemilihanPenempatanController {
   constructor(private pemilihanPenempatanService: PemilihanPenempatanService) { }
@@ -15,6 +17,11 @@ export class PemilihanPenempatanController {
   @Put(':id')
   async confirmPemilihanPenempatan(@Param('id') id: number, @Body() body: any){
     return this.pemilihanPenempatanService.confirmPemilihanPenempatan(id, body);
+  }
+
+  @Put('/e/:id')
+  async pindahPemilihanPenempatan(@Param('id') id: number, @Body() body: any){
+    return this.pemilihanPenempatanService.pindahPemilihanPenempatan(id, body);
   }
 
   @Post()

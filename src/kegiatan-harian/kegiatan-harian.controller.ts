@@ -3,9 +3,11 @@ import { KegiatanHarianService } from './kegiatan-harian.service';
 import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiatanHarian.dto';
 import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiatanHarian.dto';
 import { TipeKegiatan } from 'src/generated/nestjs-dto/tipeKegiatan.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Kegiatan Harian')
+@ApiBearerAuth()
+@ApiTags('Bimbingan Magang')
 @Controller('kegiatan-harian')
 export class KegiatanHarianController {
   constructor(private readonly kegiatanHarianService: KegiatanHarianService) {}

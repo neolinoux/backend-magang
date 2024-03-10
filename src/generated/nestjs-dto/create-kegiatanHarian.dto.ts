@@ -1,3 +1,4 @@
+import { TipeKegiatan } from "./tipeKegiatan.entity";
 
 
 
@@ -11,5 +12,6 @@ volume: number;
 satuan: number;
 durasi: number;
 pemberiTugas: string;
-createdAt?: Date;
+  createdAt?: Date;
+  tipeKegiatan: TipeKegiatan;
 }
