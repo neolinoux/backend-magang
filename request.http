@@ -1,13 +1,11 @@
-###
+# POST http://localhost:3000/api/auth/signup
+# Content-Type: application/json
 
-POST http://localhost:3000/api/auth/signup
-Content-Type: application/json
-
-{
-  "email": "lala@stis.ac.id",
-  "password": "lalala",
-  "userRole": "admin"
-}
+# {
+#   "email": "lala@stis.ac.id",
+#   "password": "lalala",
+#   "userRole": "admin"
+# }
 
 ###
 POST http://localhost:3000/auth/login
@@ -19,10 +17,12 @@ Content-Type: application/json
 }
 
 ###
+- POST /api/auth/logout
 POST http://localhost:3000/auth/logout
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
 
 ###
+- GET /api/users
 GET http://localhost:3000/users
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
 

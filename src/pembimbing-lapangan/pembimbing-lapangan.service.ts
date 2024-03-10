@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PembimbingLapangan } from 'src/generated/nestjs-dto/pembimbingLapangan.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
 import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PembimbingLapanganService {

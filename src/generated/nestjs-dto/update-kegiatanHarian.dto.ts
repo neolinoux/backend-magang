@@ -1,17 +1,22 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { TipeKegiatan } from "./tipeKegiatan.entity";
 
-
-
-
-
-
 export class UpdateKegiatanHarianDto {
+  @ApiProperty()
   tanggal?: Date;
-deskripsi?: string;
-volume?: number;
-satuan?: number;
-durasi?: number;
-pemberiTugas?: string;
+  @ApiProperty()
+  deskripsi?: string;
+  @ApiProperty()
+  volume?: number;
+  @ApiProperty()
+  satuan?: number;
+  @ApiProperty()
+  durasi?: number;
+  @ApiProperty()
+  pemberiTugas?: string;
+  
   createdAt?: Date;
+  
+  @ApiProperty()
   tipeKegiatan: TipeKegiatan;
 }

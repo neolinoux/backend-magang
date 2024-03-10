@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { User } from "./user.entity";
 
 
@@ -6,8 +7,12 @@ import { User } from "./user.entity";
 
 
 export class CreateDosenPembimbingMagangDto {
+  @ApiProperty()
   nip: string;
-nama: string;
+  @ApiProperty()
+  nama: string;
+  @ApiProperty()
   prodi: string;
+  @ApiProperty()
   user: User;
 }

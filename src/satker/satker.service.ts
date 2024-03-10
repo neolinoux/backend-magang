@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Satker } from 'src/generated/nestjs-dto/satker.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { KabupatenKota } from '../generated/nestjs-dto/kabupatenKota.entity';
-import { connect } from 'http2';
 
 @Injectable()
 export class SatkerService {

@@ -3,7 +3,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validate } from 'class-validator';
 import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
-import { Mahasiswa } from 'src/generated/nestjs-dto/mahasiswa.entity';
 
 @Injectable()
 export class MahasiswaService {

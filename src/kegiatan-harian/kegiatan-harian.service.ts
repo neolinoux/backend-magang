@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiatanHarian.dto';
 import { TipeKegiatan } from 'src/generated/nestjs-dto/tipeKegiatan.entity';
+import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiatanHarian.dto';
 import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiatanHarian.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -9,7 +8,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class KegiatanHarianService {
   constructor(
     private prismaService: PrismaService,
-    private jwtService: JwtService
   ) { }
 
   async createKegiatanHarian(createKegiatanHarian: CreateKegiatanHarianDto, nim: string) {
