@@ -9,8 +9,8 @@ export class BimbinganMagangService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService
-  ) { }
-
+    ) { }
+    
   async create(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
     try {
       const token = req.headers['authorization'].split(' ')[1];
@@ -161,18 +161,11 @@ export class BimbinganMagangService {
             some: {
               dosen: {
                 nip: nip
-              },
-              mahasiswa: {
-                nim: {
-                  contains: query.nim
-                }
-              },
-            }
+              }
+            },
           },
           status: query.status,
-          tanggal: {
-            equals: new Date(query.tanggal)
-          }
+          tanggal: query.tanggal
         },
         select: {
           bimbinganId: true,
@@ -204,7 +197,7 @@ export class BimbinganMagangService {
       return {
         status: "error",
         message: "Gagal Mengambil Data Bimbingan Magang",
-        error: error
+        error: error.message
       }
     }
   }
@@ -240,7 +233,6 @@ export class BimbinganMagangService {
         },
         data: {
           tanggal: new Date(updateBimbinganMagangDto.tanggal),
-          status: updateBimbinganMagangDto.status,
           tempat: updateBimbinganMagangDto.tempat
         }
       });
@@ -254,6 +246,7 @@ export class BimbinganMagangService {
       return {
         status: "error",
         message: "Gagal Mengubah Bimbingan Magang",
+        error: error.message
       }
     }
   }
@@ -265,8 +258,11 @@ export class BimbinganMagangService {
         where: {
           userId: userId
         },
+        select: {
+          nip: true
+        }
       });
-
+      
       const cekBimbingan = await this.prismaService.kelompokBimbinganMagang.findFirst({
         where: {
           bimbinganId: id,
@@ -274,15 +270,18 @@ export class BimbinganMagangService {
             nip: dosen.nip,
           }
         },
+        select: {
+          bimbinganId: true
+        }
       });
-
+      
       if (!cekBimbingan) {
         return {
           status: "error",
           message: "Bimbingan Magang Tidak Ditemukan",
         }
       }
-
+      
       const data = await this.prismaService.bimbinganMagang.update({
         where: {
           bimbinganId: id
@@ -291,7 +290,7 @@ export class BimbinganMagangService {
           status: "Disetujui",
         }
       });
-
+      
       return {
         status: "success",
         message: "Bimbingan Magang Berhasil Disetujui",

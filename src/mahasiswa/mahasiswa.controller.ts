@@ -39,6 +39,7 @@ export class MahasiswaController {
   @UseInterceptors(FilesInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   async importExcel(@UploadedFiles() files: Array<Express.Multer.File>) {
+    console.log(files);
     const response = await this.mahasiswaService.importExcel(files);
 
     return response;

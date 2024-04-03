@@ -1,7 +1,7 @@
 
   export class ConnectProvinsiDto {
     provinsiId?: number;
-kodePriovinsi?: string;
+kodeProvinsi?: string;
 nama?: string;
   }
   

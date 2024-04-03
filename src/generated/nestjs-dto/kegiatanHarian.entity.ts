@@ -11,7 +11,7 @@ nim: string ;
 tanggal: Date ;
 deskripsi: string ;
 volume: number ;
-satuan: number ;
+satuan: string ;
 durasi: number ;
 pemberiTugas: string ;
 statusPenyelesaian: number ;

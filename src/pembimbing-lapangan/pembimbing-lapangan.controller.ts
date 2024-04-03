@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { PembimbingLapanganService } from './pembimbing-lapangan.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
@@ -12,7 +12,7 @@ export class PembimbingLapanganController {
   constructor(private readonly pembimbingLapanganService: PembimbingLapanganService) {}
 
   @Get()
-  findAll(@Param() params: any) {
+  findAll(@Query() params: any) {
     return this.pembimbingLapanganService.findAllPemlapBy(params);
   }
 
@@ -21,7 +21,7 @@ export class PembimbingLapanganController {
     return this.pembimbingLapanganService.create(createPembimbingLapangan);
   }
 
-  @Patch(':nip')
+  @Put(':nip')
   update(@Param('nip') nip: string, @Body() updatePembimbingLapangan: UpdatePembimbingLapanganDto) {
     return this.pembimbingLapanganService.update(nip, updatePembimbingLapangan);
   }

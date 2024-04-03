@@ -85,28 +85,32 @@ export class AuthService {
   }
 
   async me(token: string) {
-    const targetToken = token.split(' ')[1];
-
-    if (!targetToken) {
-      throw await new UnauthorizedException('User not logged in');
-    }
-
-    const invalidToken = await this.prisma.invalidToken.findUnique({
-      where: {
-        token: targetToken
+    try {
+      const targetToken = token.split(' ')[1];
+  
+      if (!targetToken) {
+        throw await new UnauthorizedException('User not logged in');
       }
-    });
-
-    if (invalidToken) {
-      throw await new UnauthorizedException('User not logged in');
-    }
-
-    const payload = this.jwtService.decode(targetToken);
-
-    return {
-      id: payload['id'],
-      email: payload['email'],
-      role: payload['role']
+  
+      const invalidToken = await this.prisma.invalidToken.findUnique({
+        where: {
+          token: targetToken
+        }
+      });
+  
+      if (invalidToken) {
+        throw await new UnauthorizedException('User not logged in');
+      }
+  
+      const payload = this.jwtService.decode(targetToken);
+  
+      return {
+        id: payload['id'],
+        email: payload['email'],
+        role: payload['role']
+      }
+    } catch (error) {
+      throw new UnauthorizedException('User not logged in');
     }
   }
 }

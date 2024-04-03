@@ -13,21 +13,49 @@ export class KegiatanBulananService {
     return 'This action adds a new kegiatanBulanan';
   }
 
-  findAll() {
-    return `This action returns all kegiatanBulanan`;
-  }
-
-  async findRekapMahasiswa(nim: string) {
+  async findAll(query) {
     try {
       const data = await this.prismaService.rekapKegiatanBulanan.findMany({
         where: {
           mahasiswa: {
-            nim: nim
+            OR: [
+              {
+                nim: {
+                  contains: query.nim
+                }
+              },
+              {
+                pembimbingLapangan: {
+                  nip: {
+                    contains: query.nipPemlap
+                  }
+                }
+              }
+            ]
           }
+        },
+        select: {
+          rekapId: true,
+          uraian: true,
+          satuan: true,
+          target: true,
+          realisasi: true,
+          tingkatKualitas: true,
+          keterangan: true
         }
       });
+
+      return {
+        status: 'success',
+        message: 'Data Kegiatan Bulanan Berhasil Diambil',
+        data: data
+      }
     } catch (error) {
-      
+      return {
+        status: 'error',
+        message: 'Data Kegiatan Bulanan Gagal Diambil',
+        error: error.message
+      }
     }
   }
 

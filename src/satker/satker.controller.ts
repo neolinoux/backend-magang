@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { SatkerService } from './satker.service';
-import { Satker } from 'src/generated/nestjs-dto/satker.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
+import { UpdateSatkerDto } from 'src/generated/nestjs-dto/update-satker.dto';
 
 @ApiTags('Satker')
 @ApiBearerAuth()
@@ -16,12 +17,12 @@ export class SatkerController {
   }
 
   @Post()
-  create(@Body() satker: Satker) {
+  create(@Body() satker: CreateSatkerDto) {
     return this.satkerService.create(satker);
   }
 
-  @Patch(':kode')
-  update(@Param('kode') kode: string, @Body() satker: Satker) {
+  @Put(':kode')
+  update(@Param('kode') kode: string, @Body() satker: UpdateSatkerDto) {
     return this.satkerService.update(kode, satker);
   }
 

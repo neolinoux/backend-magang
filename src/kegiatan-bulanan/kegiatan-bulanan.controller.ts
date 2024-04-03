@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Controller,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateRekapKegiatanBulananDto } from 'src/generated/nestjs-dto/create-rekapKegiatanBulanan.dto';
@@ -25,13 +26,8 @@ export class KegiatanBulananController {
   }
 
   @Get()
-  findAll() {
-    return this.kegiatanBulananService.findAll();
-  }
-
-  @Get('mahasiswa/:nim')
-  findRekapMahasiswa(@Param('nim') nim: string) {
-    return this.kegiatanBulananService.findRekapMahasiswa(nim);
+  findAll(@Query() query: any) {
+    return this.kegiatanBulananService.findAll(query);
   }
 
   @Patch(':id')

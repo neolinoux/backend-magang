@@ -16,19 +16,19 @@ generator markdown {
   title    = "Shopping Mall"
 }
 
-// generator nestjsDto {
-//   provider                        = "prisma-generator-nestjs-dto"
-//   output                          = "../src/generated/nestjs-dto"
-//   outputToNestJsResourceStructure = "false"
-//   exportRelationModifierClasses   = "true"
-//   reExport                        = "false"
-//   createDtoPrefix                 = "Create"
-//   updateDtoPrefix                 = "Update"
-//   dtoSuffix                       = "Dto"
-//   entityPrefix                    = ""
-//   entitySuffix                    = ""
-//   fileNamingStyle                 = "camel"
-// }
+generator nestjsDto {
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src/generated/nestjs-dto"
+  outputToNestJsResourceStructure = "false"
+  exportRelationModifierClasses   = "true"
+  reExport                        = "false"
+  createDtoPrefix                 = "Create"
+  updateDtoPrefix                 = "Update"
+  dtoSuffix                       = "Dto"
+  entityPrefix                    = ""
+  entitySuffix                    = ""
+  fileNamingStyle                 = "camel"
+}
 
 model User {
   userId                Int                    @id @unique @default(autoincrement())
@@ -36,13 +36,13 @@ model User {
   password              String
   userRoles             UserRoles[]
   userPermissions       UserPermissions[]
+  createdAt             DateTime?              @default(now())
+  updatedAt             DateTime?              @updatedAt
   mahasiswa             Mahasiswa?
   dosenPembimbingMagang DosenPembimbingMagang?
   pembimbingLapangan    PembimbingLapangan?
   adminProvinsi         AdminProvinsi?
   adminSatker           AdminSatker?
-  createdAt             DateTime?              @default(now())
-  updatedAt             DateTime?              @updatedAt
 }
 
 model Roles {
@@ -86,20 +86,21 @@ model UserPermissions {
 model TahunAjaran {
   tahunAjaranId         Int                     @id @default(autoincrement())
   tahun                 String                  @unique
+  isActive              Boolean                 @default(false)
   mahasiswa             Mahasiswa[]
   dosenPembimbingMagang DosenPembimbingMagang[]
   pembimbingLapangan    PembimbingLapangan[]
 }
 
-model SatkerPilihan {
-  satkerPilihanId Int       @id @default(autoincrement())
-  satker          Satker    @relation(fields: [satkerId], references: [satkerId], onDelete: Cascade)
-  satkerId        Int
-  mahasiswa       Mahasiswa @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade)
-  mahasiswaId     Int
+model PilihanSatker {
+  pilihanSatkerId Int       @id @default(autoincrement())
+  mahasiswa       Mahasiswa @relation(fields: [nim], references: [nim])
+  nim             String    @unique
+  satker          Satker[]
   status          String    @default("Menunggu")
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
 }
-
 model DosenPembimbingMagang {
   dosenId                 Int                       @id @default(autoincrement())
   nip                     String                    @unique
@@ -126,41 +127,15 @@ model PembimbingLapangan {
   nama          String
 }
 
-model PenilaianBimbingan {
-  penilaianId Int       @id @default(autoincrement())
-  mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
-  nim         String    @unique
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-}
-
-model PenilaianLaporanDosen {
-  penilaianId Int       @id @default(autoincrement())
-  mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
-  nim         String    @unique
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-}
-
-model PenilaianKinerja {
-  penilaianId Int       @id @default(autoincrement())
-  mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
-  nim         String    @unique
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-}
-
-model PenilaianLaporanPemlap {
-  penilaianId Int       @id @default(autoincrement())
-  mahasiswa   Mahasiswa @relation(fields: [nim], references: [nim], onDelete: Cascade)
-  nim         String    @unique
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
-}
-
 model Mahasiswa {
   mahasiswaId             Int                       @id @default(autoincrement())
   nim                     String                    @unique
+  satkerId                Int?
+  nama                    String
+  alamat                  String
+  prodi                   String
+  kelas                   String
+  nomorRekening           String?
   user                    User                      @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId                  Int                       @unique
   dosenPembimbingMagang   DosenPembimbingMagang?    @relation(fields: [nipDosen], references: [nip], onDelete: SetNull)
@@ -168,18 +143,8 @@ model Mahasiswa {
   pembimbingLapangan      PembimbingLapangan?       @relation(fields: [nipPemlap], references: [nip], onDelete: SetNull)
   nipPemlap               String?
   satker                  Satker?                   @relation(fields: [satkerId], references: [satkerId], onDelete: SetNull)
-  tahunAjaran             TahunAjaran               @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
   tahunAjaranId           Int
-  satkerId                Int?
-  nama                    String
-  alamat                  String
-  prodi                   String
-  kelas                   String
-  nomorRekening           String?
-  penilaianBimbingan      PenilaianBimbingan?
-  penilaianLaporanDosen   PenilaianLaporanDosen?
-  penilaianKinerja        PenilaianKinerja?
-  penilaianLaporanPemlap  PenilaianLaporanPemlap?
+  tahunAjaran             TahunAjaran               @relation(fields: [tahunAjaranId], references: [tahunAjaranId])
   izinBimbinganSkripsi    IzinBimbinganSkripsi[]
   kelompokBimbinganMagang KelompokBimbinganMagang[]
   kegiatanHarian          KegiatanHarian[]
@@ -187,14 +152,14 @@ model Mahasiswa {
   tipeKegiatan            TipeKegiatan[]
   rekapKegiatanBulanan    RekapKegiatanBulanan[]
   izinPresensi            IzinPresensi[]
-  satkerPilihan           SatkerPilihan[]
+  pilihanSatker           PilihanSatker?
 }
 
 model AdminProvinsi {
   adminProvinsiId Int      @id @default(autoincrement())
   user            User     @relation(fields: [userId], references: [userId])
   userId          Int      @unique
-  provinsi        Provinsi @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
+  provinsi        Provinsi @relation(fields: [kodeProvinsi], references: [kodeProvinsi])
   kodeProvinsi    String   @unique
   satker          Satker[]
 }
@@ -209,7 +174,7 @@ model AdminSatker {
 model Provinsi {
   provinsiId    Int             @id @unique @default(autoincrement())
   adminProvinsi AdminProvinsi?
-  kodePriovinsi String          @unique
+  kodeProvinsi  String          @unique
   kabupatenKota KabupatenKota[]
   satker        Satker[]
   nama          String          @unique
@@ -218,8 +183,8 @@ model Provinsi {
 model KabupatenKota {
   kabupatenKotaId   Int       @id @unique @default(autoincrement())
   kodeKabupatenKota String    @unique
-  provinsi          Provinsi? @relation(fields: [kodePriovinsi], references: [kodePriovinsi])
-  kodePriovinsi     String
+  provinsi          Provinsi? @relation(fields: [kodeProvinsi], references: [kodeProvinsi])
+  kodeProvinsi      String
   satker            Satker?
   nama              String    @unique
 }
@@ -231,10 +196,10 @@ model Satker {
   adminProvinsiId    Int?
   adminSatker        AdminSatker?         @relation(fields: [adminSatkerId], references: [adminSatkerId])
   adminSatkerId      Int?                 @unique
-  provinsi           Provinsi             @relation(fields: [kodeProvinsi], references: [kodePriovinsi])
-  kodeProvinsi       String
-  kabupatenKota      KabupatenKota        @relation(fields: [kodeKabupatenKota], references: [kodeKabupatenKota])
-  kodeKabupatenKota  String               @unique
+  provinsi           Provinsi?            @relation(fields: [kodeProvinsi], references: [kodeProvinsi])
+  kodeProvinsi       String?
+  kabupatenKota      KabupatenKota?       @relation(fields: [kodeKabupatenKota], references: [kodeKabupatenKota])
+  kodeKabupatenKota  String?              @unique
   nama               String
   kode               String               @unique
   email              String
@@ -242,7 +207,8 @@ model Satker {
   kapasitas          Int?
   mahasiswa          Mahasiswa[]
   pembimbingLapangan PembimbingLapangan[]
-  satkerPilihan      SatkerPilihan[]
+  pilihanSatker      PilihanSatker?      @relation(fields: [pilihanSatkerId], references: [pilihanSatkerId])
+  pilihanSatkerId    Int?
 }
 
 model IzinBimbinganSkripsi {
@@ -287,7 +253,7 @@ model KegiatanHarian {
   tanggal                     DateTime
   deskripsi                   String
   volume                      Int
-  satuan                      Int
+  satuan                      String
   durasi                      Int
   pemberiTugas                String
   statusPenyelesaian          Int                   @default(0)

@@ -20,7 +20,7 @@ export class PemilihanPenempatanController {
   }
 
   @Put('/e/:id')
-  async pindahPemilihanPenempatan(@Param('id') id: number, @Body() body: any){
+  async pindahPemilihanPenempatan(@Param('id') id: string, @Body() body: any){
     return this.pemilihanPenempatanService.pindahPemilihanPenempatan(id, body);
   }
 
@@ -30,7 +30,7 @@ export class PemilihanPenempatanController {
   }
 
   @Delete(':id')
-  async deletePemilihanPenempatan(@Param('id') id: number) {
+  async deletePemilihanPenempatan(@Param('id') id: string) {
     return this.pemilihanPenempatanService.deletePemilihanPenempatan(id);
   }
 }

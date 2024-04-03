@@ -40,11 +40,12 @@ erDiagram
     Int tahunAjaranId PK
     String tahun UK
 }
-"SatkerPilihan" {
-    Int satkerPilihanId PK
-    Int satkerId FK
-    Int mahasiswaId FK
+"PilihanSatker" {
+    Int pilihanSatkerId PK
+    String nim FK
     String status
+    DateTime createdAt "nullable"
+    DateTime updatedAt "nullable"
 }
 "DosenPembimbingMagang" {
     Int dosenId PK
@@ -62,43 +63,19 @@ erDiagram
     String kodeSatker FK
     String nama
 }
-"PenilaianBimbingan" {
-    Int penilaianId PK
-    String nim FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
-"PenilaianLaporanDosen" {
-    Int penilaianId PK
-    String nim FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
-"PenilaianKinerja" {
-    Int penilaianId PK
-    String nim FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
-"PenilaianLaporanPemlap" {
-    Int penilaianId PK
-    String nim FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
 "Mahasiswa" {
     Int mahasiswaId PK
     String nim UK
-    Int userId FK
-    String nipDosen FK "nullable"
-    String nipPemlap FK "nullable"
-    Int tahunAjaranId FK
     Int satkerId FK "nullable"
     String nama
     String alamat
     String prodi
     String kelas
     String nomorRekening "nullable"
+    Int userId FK
+    String nipDosen FK "nullable"
+    String nipPemlap FK "nullable"
+    Int tahunAjaranId FK
 }
 "AdminProvinsi" {
     Int adminProvinsiId PK
@@ -111,13 +88,13 @@ erDiagram
 }
 "Provinsi" {
     Int provinsiId PK
-    String kodePriovinsi UK
+    String kodeProvinsi UK
     String nama UK
 }
 "KabupatenKota" {
     Int kabupatenKotaId PK
     String kodeKabupatenKota UK
-    String kodePriovinsi FK
+    String kodeProvinsi FK
     String nama UK
 }
 "Satker" {
@@ -125,13 +102,14 @@ erDiagram
     Boolean internalBPS
     Int adminProvinsiId FK "nullable"
     Int adminSatkerId FK "nullable"
-    String kodeProvinsi FK
-    String kodeKabupatenKota FK
+    String kodeProvinsi FK "nullable"
+    String kodeKabupatenKota FK "nullable"
     String nama
     String kode UK
     String email
     String alamat
     Int kapasitas "nullable"
+    Int pilihanSatkerId FK "nullable"
 }
 "IzinBimbinganSkripsi" {
     Int izinBimbinganId PK
@@ -166,7 +144,7 @@ erDiagram
     DateTime tanggal
     String deskripsi
     Int volume
-    Int satuan
+    String satuan
     Int durasi
     String pemberiTugas
     Int statusPenyelesaian
@@ -226,17 +204,12 @@ erDiagram
 "PermissionRoles" }o--|| "Permissions" : permission
 "UserPermissions" }o--|| "User" : user
 "UserPermissions" }o--|| "Permissions" : permission
-"SatkerPilihan" }o--|| "Satker" : satker
-"SatkerPilihan" }o--|| "Mahasiswa" : mahasiswa
+"PilihanSatker" |o--|| "Mahasiswa" : mahasiswa
 "DosenPembimbingMagang" |o--|| "User" : user
 "DosenPembimbingMagang" }o--|| "TahunAjaran" : tahunAjaran
 "PembimbingLapangan" |o--|| "User" : user
 "PembimbingLapangan" }o--|| "TahunAjaran" : tahunAjaran
 "PembimbingLapangan" }o--|| "Satker" : satker
-"PenilaianBimbingan" |o--|| "Mahasiswa" : mahasiswa
-"PenilaianLaporanDosen" |o--|| "Mahasiswa" : mahasiswa
-"PenilaianKinerja" |o--|| "Mahasiswa" : mahasiswa
-"PenilaianLaporanPemlap" |o--|| "Mahasiswa" : mahasiswa
 "Mahasiswa" |o--|| "User" : user
 "Mahasiswa" }o--|| "DosenPembimbingMagang" : dosenPembimbingMagang
 "Mahasiswa" }o--|| "PembimbingLapangan" : pembimbingLapangan
@@ -250,6 +223,7 @@ erDiagram
 "Satker" |o--|| "AdminSatker" : adminSatker
 "Satker" }o--|| "Provinsi" : provinsi
 "Satker" |o--|| "KabupatenKota" : kabupatenKota
+"Satker" }o--|| "PilihanSatker" : pilihanSatker
 "IzinBimbinganSkripsi" }o--|| "Mahasiswa" : mahasiswa
 "KelompokBimbinganMagang" }o--|| "BimbinganMagang" : bimbingan
 "KelompokBimbinganMagang" }o--|| "Mahasiswa" : mahasiswa
@@ -311,13 +285,14 @@ erDiagram
   - `tahunAjaranId`: 
   - `tahun`: 
 
-### `SatkerPilihan`
+### `PilihanSatker`
 
 **Properties**
-  - `satkerPilihanId`: 
-  - `satkerId`: 
-  - `mahasiswaId`: 
+  - `pilihanSatkerId`: 
+  - `nim`: 
   - `status`: 
+  - `createdAt`: 
+  - `updatedAt`: 
 
 ### `DosenPembimbingMagang`
 
@@ -339,53 +314,21 @@ erDiagram
   - `kodeSatker`: 
   - `nama`: 
 
-### `PenilaianBimbingan`
-
-**Properties**
-  - `penilaianId`: 
-  - `nim`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
-### `PenilaianLaporanDosen`
-
-**Properties**
-  - `penilaianId`: 
-  - `nim`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
-### `PenilaianKinerja`
-
-**Properties**
-  - `penilaianId`: 
-  - `nim`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
-### `PenilaianLaporanPemlap`
-
-**Properties**
-  - `penilaianId`: 
-  - `nim`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
 ### `Mahasiswa`
 
 **Properties**
   - `mahasiswaId`: 
   - `nim`: 
-  - `userId`: 
-  - `nipDosen`: 
-  - `nipPemlap`: 
-  - `tahunAjaranId`: 
   - `satkerId`: 
   - `nama`: 
   - `alamat`: 
   - `prodi`: 
   - `kelas`: 
   - `nomorRekening`: 
+  - `userId`: 
+  - `nipDosen`: 
+  - `nipPemlap`: 
+  - `tahunAjaranId`: 
 
 ### `AdminProvinsi`
 
@@ -404,7 +347,7 @@ erDiagram
 
 **Properties**
   - `provinsiId`: 
-  - `kodePriovinsi`: 
+  - `kodeProvinsi`: 
   - `nama`: 
 
 ### `KabupatenKota`
@@ -412,7 +355,7 @@ erDiagram
 **Properties**
   - `kabupatenKotaId`: 
   - `kodeKabupatenKota`: 
-  - `kodePriovinsi`: 
+  - `kodeProvinsi`: 
   - `nama`: 
 
 ### `Satker`
@@ -429,6 +372,7 @@ erDiagram
   - `email`: 
   - `alamat`: 
   - `kapasitas`: 
+  - `pilihanSatkerId`: 
 
 ### `IzinBimbinganSkripsi`
 

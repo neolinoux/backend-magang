@@ -1,12 +1,3 @@
-# POST http://localhost:3000/api/auth/signup
-# Content-Type: application/json
-
-# {
-#   "email": "lala@stis.ac.id",
-#   "password": "lalala",
-#   "userRole": "admin"
-# }
-
 ###
 POST http://localhost:3000/auth/login
 Content-Type: application/json
@@ -17,27 +8,25 @@ Content-Type: application/json
 }
 
 ###
-- POST /api/auth/logout
 POST http://localhost:3000/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
-- GET /api/users
 GET http://localhost:3000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzA5NzEzMjE0LCJleHAiOjE3MDk3OTk2MTR9.boneJjMBfxphMT0ggOnYZpkq2N8IwEZbM1_vM4DhAGo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
 GET http://localhost:3000/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3OTI4NDIsImV4cCI6MTcwODg3OTI0Mn0.CnsttFzMtQ0n6ZPKA9BHFEBllMbXblBeOO6pA_K1HOE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
-GET http://localhost:3000/api/users/4
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3NjE3MzksImV4cCI6MTcwODg0ODEzOX0.z61SDdOby882_QmcY048rwguoXF_uTbdywfQjbFyQYk
+GET http://localhost:3000/users/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
-PUT http://localhost:3000/api/users/update/3
+PUT http://localhost:3000/users/update/3
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDg3NjE3MzksImV4cCI6MTcwODg0ODEzOX0.z61SDdOby882_QmcY048rwguoXF_uTbdywfQjbFyQYk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 {
   "email": "tyo@stis.ac.id",
@@ -45,13 +34,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiO
 }
 
 ###
-GET http://localhost:3000/mahasiswa?tahun=2023%2F2024&nim=741146864
+GET http://localhost:3000/mahasiswa
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzA5MTkwNDIyLCJleHAiOjE3MDkyNzY4MjJ9.lQBheMikGKJ8R2MaLhxkmh_qXvr6ElypIIxrfJmcNTE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
-PUT http://localhost:3000/mahasiswa/889887838
+PUT http://localhost:3000/mahasiswa/551249944
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzUzNjM3LCJleHAiOjE3MTA4NDAwMzd9.EQcuCmPJT--z-82JvBDPK8J6WhdBM6fmN3p2IJSW9dI
 
 {
   "dosenPembimbingMagang": {
@@ -63,15 +53,17 @@ Content-Type: application/json
   "satker": {
     "kode": "5604"
   },
-  "alamat": "Jl. Raya Bogor, Bogor, Jawa Barat, Indonesia",
+  "alamat": "Jl. Raya Bogor, Bogor, Jawa Barat, Indonesia"
 }
 
 ###
 DELETE http://localhost:3000/mahasiswa/889887838
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
 POST http://localhost:3000/mahasiswa/excel
 Content-Type: multipart/form-data
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzUzNjM3LCJleHAiOjE3MTA4NDAwMzd9.EQcuCmPJT--z-82JvBDPK8J6WhdBM6fmN3p2IJSW9dI
 
 {
   "file": "C:/Users/Rahmad Setiya Budi/Documents/app/backend-magang/test-mahasiswa.xlsx"
@@ -79,10 +71,12 @@ Content-Type: multipart/form-data
 
 ###
 GET http://localhost:3000/dosen-pembimbing
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 ###
 Put http://localhost:3000/dosen-pembimbing/455768196
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 {
   "email": "dosenksss@gmail.com",
@@ -94,6 +88,7 @@ Content-Type: application/json
 ###
 POST  http://localhost:3000/dosen-pembimbing
 Content-Type:  application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzEwNzM5NzI1LCJleHAiOjE3MTA4MjYxMjV9.paW3qnSCObh35e6SwRF2GWT-QpNrNwRs9IE300ytfuc
 
 {
   "nip": "091708548",
@@ -113,7 +108,7 @@ Get http://localhost:3000/dosen-pembimbing/455768196/mahasiswa
 GET http://localhost:3000/pembimbing-lapangan/353757282/mahasiswa
 
 ###
-GET http://localhost:3000/satker?kodeProvinsi=63&internalBPS=1
+GET http://localhost:3000/satker
 
 ###
 POST http://localhost:3000/satker
@@ -193,3 +188,8 @@ GET http://localhost:3000/bimbingan-magang/dosen-pembimbing/491718953
 
 ###
 GET http://localhost:3000/bimbingan-magang/mahasiswa/586531010
+
+
+###
+PUT http://localhost:3000/bimbingan-magang/confirm/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzEwNzc5ODMxLCJleHAiOjE3MTA4NjYyMzF9.7XrgKK-p63MQUrnfsaVDLO125P0jP9fbywCAjJ5dhqs

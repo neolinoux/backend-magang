@@ -5,44 +5,27 @@ import {Provinsi} from './provinsi.entity'
 import {KabupatenKota} from './kabupatenKota.entity'
 import {Mahasiswa} from './mahasiswa.entity'
 import {PembimbingLapangan} from './pembimbingLapangan.entity'
-import {SatkerPilihan} from './satkerPilihan.entity'
-import { ApiProperty } from '@nestjs/swagger'
+import {PilihanSatker} from './pilihanSatker.entity'
 
 
 export class Satker {
-  satkerId: number;
-  
-  @ApiProperty()
-  internalBPS: boolean ;
-  adminProvinsi?: AdminProvinsi  | null;
-  adminProvinsiId: number  | null;
-  adminSatker?: AdminSatker  | null;
-  adminSatkerId: number | null;
-
-  @ApiProperty()
-  provinsi?: Provinsi;
-  kodeProvinsi: string;
-  
-  @ApiProperty()
-  kabupatenKota?: KabupatenKota;
-
-  kodeKabupatenKota: string;
-  
-  @ApiProperty()
-  nama: string;
-
-  @ApiProperty()
-  kode: string;
-
-  @ApiProperty()
-  email: string ;
-
-  @ApiProperty()
-  alamat: string;
-
-  @ApiProperty()
-  kapasitas: number | null;
-  mahasiswa?: Mahasiswa[];
-  pembimbingLapangan?: PembimbingLapangan[];
-  satkerPilihan?: SatkerPilihan[];
+  satkerId: number ;
+internalBPS: boolean ;
+adminProvinsi?: AdminProvinsi  | null;
+adminProvinsiId: number  | null;
+adminSatker?: AdminSatker  | null;
+adminSatkerId: number  | null;
+provinsi?: Provinsi  | null;
+kodeProvinsi: string  | null;
+kabupatenKota?: KabupatenKota  | null;
+kodeKabupatenKota: string  | null;
+nama: string ;
+kode: string ;
+email: string ;
+alamat: string ;
+kapasitas: number  | null;
+mahasiswa?: Mahasiswa[] ;
+pembimbingLapangan?: PembimbingLapangan[] ;
+pilihanSatker?: PilihanSatker  | null;
+pilihanSatkerId: number  | null;
 }

@@ -13,8 +13,8 @@ export class KegiatanHarianController {
   constructor(private readonly kegiatanHarianService: KegiatanHarianService) {}
 
   @Post()
-  createKegiatanHarian(@Body() createKegiatanHarian: CreateKegiatanHarianDto, nim: string) {
-    return this.kegiatanHarianService.createKegiatanHarian(createKegiatanHarian, nim)
+  createKegiatanHarian(@Body() createKegiatanHarian: CreateKegiatanHarianDto, @Req() req: any){
+    return this.kegiatanHarianService.createKegiatanHarian(createKegiatanHarian, req)
   }
 
   @Post('tipe-kegiatan/:nim')
@@ -38,8 +38,8 @@ export class KegiatanHarianController {
   }
 
   @Get('tipe-kegiatan')
-  findAllTipeKegiatan(@Param('nim') nim: string) {
-    return this.kegiatanHarianService.findAllTipeKegiatan(nim);
+  findAllTipeKegiatan(@Query() params: any){
+    return this.kegiatanHarianService.findAllTipeKegiatan(params);
   }
 
   @Put('konfirmasi/:nim/:id')

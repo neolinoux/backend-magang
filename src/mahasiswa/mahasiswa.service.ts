@@ -75,13 +75,11 @@ export class MahasiswaService {
         message: 'File yang diupload bukan file excel',
       };
     }
-
     //parse file
     const excel = require('exceljs');
     const workbook = new excel.Workbook();
     await workbook.xlsx.load(file.buffer);
     const worksheet = workbook.getWorksheet(1);
-
     // loop through each row
     let data = [];
     let error = [];
@@ -302,6 +300,7 @@ export class MahasiswaService {
       return {
         status: 'error',
         message: 'request failed',
+        error: error,
       };
     }
   }

@@ -65,6 +65,7 @@ CREATE TABLE "SatkerPilihan" (
     "satkerPilihanId" SERIAL NOT NULL,
     "satkerId" INTEGER NOT NULL,
     "mahasiswaId" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'Menunggu',
 
     CONSTRAINT "SatkerPilihan_pkey" PRIMARY KEY ("satkerPilihanId")
 );
@@ -171,7 +172,7 @@ CREATE TABLE "AdminSatker" (
 -- CreateTable
 CREATE TABLE "Provinsi" (
     "provinsiId" SERIAL NOT NULL,
-    "kodePriovinsi" TEXT NOT NULL,
+    "kodeProvinsi" TEXT NOT NULL,
     "nama" TEXT NOT NULL,
 
     CONSTRAINT "Provinsi_pkey" PRIMARY KEY ("provinsiId")
@@ -181,7 +182,7 @@ CREATE TABLE "Provinsi" (
 CREATE TABLE "KabupatenKota" (
     "kabupatenKotaId" SERIAL NOT NULL,
     "kodeKabupatenKota" TEXT NOT NULL,
-    "kodePriovinsi" TEXT NOT NULL,
+    "kodeProvinsi" TEXT NOT NULL,
     "nama" TEXT NOT NULL,
 
     CONSTRAINT "KabupatenKota_pkey" PRIMARY KEY ("kabupatenKotaId")
@@ -218,32 +219,59 @@ CREATE TABLE "IzinBimbinganSkripsi" (
 );
 
 -- CreateTable
-CREATE TABLE "BimbinganDosen" (
+CREATE TABLE "BimbinganMagang" (
     "bimbinganId" SERIAL NOT NULL,
+    "tanggal" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL,
+    "tempat" TEXT,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+    "nomorKelompok" SERIAL NOT NULL,
+
+    CONSTRAINT "BimbinganMagang_pkey" PRIMARY KEY ("bimbinganId")
+);
+
+-- CreateTable
+CREATE TABLE "KelompokBimbinganMagang" (
+    "kelompokId" SERIAL NOT NULL,
+    "bimbinganId" INTEGER NOT NULL,
     "nim" TEXT NOT NULL,
     "nipDosen" TEXT NOT NULL,
-    "tanggal" TIMESTAMP(3) NOT NULL,
-    "keterangan" TEXT NOT NULL,
+    "deskripsi" TEXT,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
 
-    CONSTRAINT "BimbinganDosen_pkey" PRIMARY KEY ("bimbinganId")
+    CONSTRAINT "KelompokBimbinganMagang_pkey" PRIMARY KEY ("kelompokId")
 );
 
 -- CreateTable
 CREATE TABLE "KegiatanHarian" (
     "kegiatanId" SERIAL NOT NULL,
     "nim" TEXT NOT NULL,
-    "judul" TEXT NOT NULL,
     "tanggal" TIMESTAMP(3) NOT NULL,
     "deskripsi" TEXT NOT NULL,
-    "kuantitas" INTEGER NOT NULL,
-    "kualitas" INTEGER NOT NULL,
+    "volume" INTEGER NOT NULL,
+    "satuan" INTEGER NOT NULL,
+    "durasi" INTEGER NOT NULL,
+    "pemberiTugas" TEXT NOT NULL,
+    "statusPenyelesaian" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
-    "tipeKegiatanId" INTEGER NOT NULL,
+    "tipeKegiatanId" INTEGER,
+    "rekapKegiatanBulananRekapId" INTEGER,
 
     CONSTRAINT "KegiatanHarian_pkey" PRIMARY KEY ("kegiatanId")
+);
+
+-- CreateTable
+CREATE TABLE "TipeKegiatan" (
+    "tipeKegiatanId" SERIAL NOT NULL,
+    "nim" TEXT NOT NULL,
+    "nama" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "TipeKegiatan_pkey" PRIMARY KEY ("tipeKegiatanId")
 );
 
 -- CreateTable
@@ -260,20 +288,17 @@ CREATE TABLE "Presensi" (
 );
 
 -- CreateTable
-CREATE TABLE "TipeKegiatan" (
-    "tipeKegiatanId" SERIAL NOT NULL,
-    "nim" TEXT NOT NULL,
-    "nama" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3),
-
-    CONSTRAINT "TipeKegiatan_pkey" PRIMARY KEY ("tipeKegiatanId")
-);
-
--- CreateTable
 CREATE TABLE "RekapKegiatanBulanan" (
     "rekapId" SERIAL NOT NULL,
     "nim" TEXT NOT NULL,
+    "periode" TEXT NOT NULL,
+    "uraian" TEXT NOT NULL,
+    "satuan" TEXT NOT NULL,
+    "target" INTEGER NOT NULL,
+    "realisasi" INTEGER NOT NULL,
+    "persentase" INTEGER NOT NULL,
+    "tingkatKualitas" INTEGER,
+    "keterangan" TEXT,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
 
@@ -361,7 +386,7 @@ CREATE UNIQUE INDEX "AdminSatker_userId_key" ON "AdminSatker"("userId");
 CREATE UNIQUE INDEX "Provinsi_provinsiId_key" ON "Provinsi"("provinsiId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Provinsi_kodePriovinsi_key" ON "Provinsi"("kodePriovinsi");
+CREATE UNIQUE INDEX "Provinsi_kodeProvinsi_key" ON "Provinsi"("kodeProvinsi");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Provinsi_nama_key" ON "Provinsi"("nama");
@@ -463,13 +488,13 @@ ALTER TABLE "Mahasiswa" ADD CONSTRAINT "Mahasiswa_tahunAjaranId_fkey" FOREIGN KE
 ALTER TABLE "AdminProvinsi" ADD CONSTRAINT "AdminProvinsi_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AdminProvinsi" ADD CONSTRAINT "AdminProvinsi_kodeProvinsi_fkey" FOREIGN KEY ("kodeProvinsi") REFERENCES "Provinsi"("kodePriovinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AdminProvinsi" ADD CONSTRAINT "AdminProvinsi_kodeProvinsi_fkey" FOREIGN KEY ("kodeProvinsi") REFERENCES "Provinsi"("kodeProvinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AdminSatker" ADD CONSTRAINT "AdminSatker_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "KabupatenKota" ADD CONSTRAINT "KabupatenKota_kodePriovinsi_fkey" FOREIGN KEY ("kodePriovinsi") REFERENCES "Provinsi"("kodePriovinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "KabupatenKota" ADD CONSTRAINT "KabupatenKota_kodeProvinsi_fkey" FOREIGN KEY ("kodeProvinsi") REFERENCES "Provinsi"("kodeProvinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Satker" ADD CONSTRAINT "Satker_adminProvinsiId_fkey" FOREIGN KEY ("adminProvinsiId") REFERENCES "AdminProvinsi"("adminProvinsiId") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -478,7 +503,7 @@ ALTER TABLE "Satker" ADD CONSTRAINT "Satker_adminProvinsiId_fkey" FOREIGN KEY ("
 ALTER TABLE "Satker" ADD CONSTRAINT "Satker_adminSatkerId_fkey" FOREIGN KEY ("adminSatkerId") REFERENCES "AdminSatker"("adminSatkerId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Satker" ADD CONSTRAINT "Satker_kodeProvinsi_fkey" FOREIGN KEY ("kodeProvinsi") REFERENCES "Provinsi"("kodePriovinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Satker" ADD CONSTRAINT "Satker_kodeProvinsi_fkey" FOREIGN KEY ("kodeProvinsi") REFERENCES "Provinsi"("kodeProvinsi") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Satker" ADD CONSTRAINT "Satker_kodeKabupatenKota_fkey" FOREIGN KEY ("kodeKabupatenKota") REFERENCES "KabupatenKota"("kodeKabupatenKota") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -487,22 +512,28 @@ ALTER TABLE "Satker" ADD CONSTRAINT "Satker_kodeKabupatenKota_fkey" FOREIGN KEY 
 ALTER TABLE "IzinBimbinganSkripsi" ADD CONSTRAINT "IzinBimbinganSkripsi_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BimbinganDosen" ADD CONSTRAINT "BimbinganDosen_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "KelompokBimbinganMagang" ADD CONSTRAINT "KelompokBimbinganMagang_bimbinganId_fkey" FOREIGN KEY ("bimbinganId") REFERENCES "BimbinganMagang"("bimbinganId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BimbinganDosen" ADD CONSTRAINT "BimbinganDosen_nipDosen_fkey" FOREIGN KEY ("nipDosen") REFERENCES "DosenPembimbingMagang"("nip") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "KelompokBimbinganMagang" ADD CONSTRAINT "KelompokBimbinganMagang_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KelompokBimbinganMagang" ADD CONSTRAINT "KelompokBimbinganMagang_nipDosen_fkey" FOREIGN KEY ("nipDosen") REFERENCES "DosenPembimbingMagang"("nip") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "KegiatanHarian" ADD CONSTRAINT "KegiatanHarian_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "KegiatanHarian" ADD CONSTRAINT "KegiatanHarian_tipeKegiatanId_fkey" FOREIGN KEY ("tipeKegiatanId") REFERENCES "TipeKegiatan"("tipeKegiatanId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "KegiatanHarian" ADD CONSTRAINT "KegiatanHarian_tipeKegiatanId_fkey" FOREIGN KEY ("tipeKegiatanId") REFERENCES "TipeKegiatan"("tipeKegiatanId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Presensi" ADD CONSTRAINT "Presensi_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "KegiatanHarian" ADD CONSTRAINT "KegiatanHarian_rekapKegiatanBulananRekapId_fkey" FOREIGN KEY ("rekapKegiatanBulananRekapId") REFERENCES "RekapKegiatanBulanan"("rekapId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TipeKegiatan" ADD CONSTRAINT "TipeKegiatan_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Presensi" ADD CONSTRAINT "Presensi_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RekapKegiatanBulanan" ADD CONSTRAINT "RekapKegiatanBulanan_nim_fkey" FOREIGN KEY ("nim") REFERENCES "Mahasiswa"("nim") ON DELETE RESTRICT ON UPDATE CASCADE;

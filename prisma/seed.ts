@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Roles as RolesEnum } from '../src/enum/roles.enum';
 import { Permissions as PermissionsEnum } from '../src/enum/permissions.enum';
-import UniqeEnforcer from 'enforce-unique'
 
 const prisma = new PrismaClient();
 
@@ -91,7 +90,7 @@ async function main() {
       tahun: tahun,
     })),
   });
-  
+
   const hashedDosPemPassword = await bcrypt.hash('makanenak', 10);
   const hashedMahaPassword = await bcrypt.hash('makanenak', 10);
 
@@ -102,7 +101,7 @@ async function main() {
           email: faker.internet.email({
             allowSpecialCharacters: false,
             firstName: 'dosen',
-            lastName: `${k+1}${i + 1}`,
+            lastName: `${k + 1}${i + 1}`,
           }),
           password: hashedDosPemPassword,
           userRoles: {
@@ -127,7 +126,7 @@ async function main() {
           dosenPembimbingMagang: true,
         },
       });
-  
+
       for (let j = 0; j < kelas.length; j++) {
         const userMahasiswa = await prisma.user.create({
           data: {
@@ -242,10 +241,10 @@ async function main() {
     const prov = await prisma.provinsi.create({
       data: {
         nama: provinsi[i],
-        kodePriovinsi: kodeProvinsi[i]
+        kodeProvinsi: kodeProvinsi[i]
       },
     });
-    
+
     const adminProv = await prisma.user.create({
       data: {
         email: faker.internet.email({
@@ -263,7 +262,7 @@ async function main() {
           create: {
             provinsi: {
               connect: {
-                kodePriovinsi: kodeProvinsi[i],
+                kodeProvinsi: kodeProvinsi[i],
               },
             },
           },
@@ -281,7 +280,7 @@ async function main() {
           kodeKabupatenKota: faker.string.numeric(100),
           provinsi: {
             connect: {
-              kodePriovinsi: kodeProvinsi[i],
+              kodeProvinsi: kodeProvinsi[i],
             },
           },
         },
@@ -308,7 +307,7 @@ async function main() {
           },
           provinsi: {
             connect: {
-              kodePriovinsi: kodeProvinsi[i],
+              kodeProvinsi: kodeProvinsi[i],
             },
           },
           alamat: faker.location.streetAddress(),
@@ -337,7 +336,7 @@ async function main() {
               },
             },
           },
-        },  
+        },
       });
     }
   }

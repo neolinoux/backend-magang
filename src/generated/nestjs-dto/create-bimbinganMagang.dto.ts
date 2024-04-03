@@ -1,17 +1,14 @@
-import { ApiBody, ApiProperty } from "@nestjs/swagger";
-import { KelompokBimbinganMagang } from "./kelompokBimbinganMagang.entity";
+import { Mahasiswa } from "./mahasiswa.entity";
+
+
+
+
+
 
 export class CreateBimbinganMagangDto {
-  @ApiProperty()
   tanggal: Date;
-
-  status: string;
-  
-  @ApiProperty()
-  tempat?: string;
-  
+status: string;
+tempat?: string;
   createdAt?: Date;
-  
-  @ApiProperty()
-  peserta: KelompokBimbinganMagang[];
+  peserta: Mahasiswa[];
 }

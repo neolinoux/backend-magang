@@ -1,3 +1,5 @@
+import { KabupatenKota } from "./kabupatenKota.entity";
+import { Provinsi } from "./provinsi.entity";
 
 
 
@@ -9,5 +11,8 @@ export class CreateSatkerDto {
 kode: string;
 email: string;
 alamat: string;
-kapasitas?: number;
+  kapasitas?: number;
+  internalBPS?: boolean;
+  provinsi: Provinsi;
+  kabupatenKota: KabupatenKota;
 }

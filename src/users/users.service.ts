@@ -75,29 +75,44 @@ export class UsersService{
     where: Prisma.UserWhereUniqueInput;
     data: Prisma.UserUpdateInput;
   }): Promise<User> {
-    const { data, where } = params;
 
-    // find user
-    const user = await this.prisma.user.findUnique({
-      where,
-    });
-    
-    // if user not found, throw exception
-    if (!user) throw new NotFoundException('User not found');
-    
-    // hash password
-    if (data.password) {
-      const saltOrRounds = 10;
-      const password = data.password;
-      const hashedPassword = await bcrypt.hash(password.toString(), saltOrRounds);
-      data.password = hashedPassword.toString();
+    try {
+      const { data, where } = params;
+  
+      // find user
+      const user = await this.prisma.user.findUnique({
+        where,
+      });
+      
+      // if user not found, throw exception
+      if (!user) throw new NotFoundException('User not found');
+      
+      const userExists = await this.prisma.user.findUnique({
+        where: {
+          email: data.email.toString(),
+        }
+      });
+
+      if (userExists) {
+        throw new HttpException('User already exists', 409);
+      }
+
+      // hash password
+      if (data.password) {
+        const saltOrRounds = 10;
+        const password = data.password;
+        const hashedPassword = await bcrypt.hash(password.toString(), saltOrRounds);
+        data.password = hashedPassword.toString();
+      }
+  
+      // update user
+      return this.prisma.user.update({
+        data,
+        where,
+      });
+    } catch (error) {
+      return error;
     }
-
-    // update user
-    return this.prisma.user.update({
-      data,
-      where,
-    });
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {

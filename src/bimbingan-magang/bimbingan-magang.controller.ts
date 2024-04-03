@@ -35,7 +35,7 @@ export class BimbinganMagangController {
   }
 
   @Put('confirm/:id')
-  confirm(@Param('id') id: string, @Req() req: any){
+  confirm(@Param('id') id: string, @Req() req: any) {
     return this.bimbinganMagangService.confirm(+id, req);
   }
 }
