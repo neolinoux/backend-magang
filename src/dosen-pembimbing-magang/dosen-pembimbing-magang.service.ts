@@ -12,13 +12,16 @@ export class DosenPembimbingMagangService {
 
   async findAllDosenBy(params: any) {
     try {
-      console.log(params);
       const data = await this.prisma.dosenPembimbingMagang.findMany({
         where: {
           nip: params.nip,
           nama: params.nama,
-          tahunAjaran: {
-            tahun: params.tahunAjaran,
+          tahunAjaranDosen: {
+            every: {
+              tahunAjaran: {
+                tahun: params.tahun,
+              },
+            },
           },
           prodi: params.prodi,
         },
@@ -32,6 +35,15 @@ export class DosenPembimbingMagangService {
             },
           },
           prodi: true,
+          tahunAjaranDosen: {
+            select: {
+              tahunAjaran: {
+                select: {
+                  tahun: true,
+                },
+              },
+            },
+          },
         },
         orderBy: {
           userId: 'asc',
@@ -125,9 +137,13 @@ export class DosenPembimbingMagangService {
               password: hashedPassword,
             },
           },
-          tahunAjaran: {
-            connect: {
-              tahun: createDosenPembimbingMagang.tahunAjaran.tahun,
+          tahunAjaranDosen: {
+            create: {
+              tahunAjaran: {
+                connect: {
+                  tahun: createDosenPembimbingMagang.tahunAjaranDosen[0].tahunAjaran.tahun,
+                },
+              },
             },
           },
         },

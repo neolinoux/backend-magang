@@ -20,11 +20,24 @@ export class PembimbingLapanganService {
               email: true,
             },
           },
+          tahunAjaranPemlap: {
+            select: {
+              tahunAjaran: {
+                select: {
+                  tahun: true,
+                },
+              },
+            },
+          },
         },
         where: {
           nip: params.nip,
-          tahunAjaran: {
-            tahun: params.tahunAjaran,
+          tahunAjaranPemlap: {
+            some: {
+              tahunAjaran: {
+                tahun: params.tahun,
+              },
+            },
           },
         },
       });
@@ -70,9 +83,13 @@ export class PembimbingLapanganService {
               password: hashedPassword,
             },
           },
-          tahunAjaran: {
-            connect: {
-              tahun: createPembimbingLapangan.tahunAjaran.tahun,
+          tahunAjaranPemlap: {
+            create: {
+              tahunAjaran: {
+                connect: {
+                  tahun: createPembimbingLapangan.tahunAjaranPemlap.tahunAjaran.tahun,
+                },
+              },
             },
           },
           satker: {
@@ -88,6 +105,15 @@ export class PembimbingLapanganService {
           user: {
             select: {
               email: true,
+            },
+          },
+          tahunAjaranPemlap: {
+            select: {
+              tahunAjaran: {
+                select: {
+                  tahun: true,
+                },
+              },
             },
           },
         },
@@ -181,6 +207,15 @@ export class PembimbingLapanganService {
           user: {
             select: {
               email: true,
+            },
+          },
+          tahunAjaranPemlap: {
+            select: {
+              tahunAjaran: {
+                select: {
+                  tahun: true,
+                },
+              },
             },
           },
         },

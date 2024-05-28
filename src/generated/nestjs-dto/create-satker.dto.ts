@@ -12,7 +12,8 @@ kode: string;
 email: string;
 alamat: string;
   kapasitas?: number;
-  internalBPS?: boolean;
+  internalBPS: boolean;
   provinsi: Provinsi;
   kabupatenKota: KabupatenKota;
+  
 }

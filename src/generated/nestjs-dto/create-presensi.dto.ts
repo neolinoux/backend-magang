@@ -6,7 +6,8 @@
 
 export class CreatePresensiDto {
   tanggal: Date;
-waktu: Date;
-keterangan: string;
+waktuDatang: Date;
+waktuPulang: Date;
+status: string;
 createdAt?: Date;
 }

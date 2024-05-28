@@ -11,20 +11,56 @@ export class BimbinganMagangService {
     private readonly jwtService: JwtService
     ) { }
     
-  async create(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
+  async createByMahasiswa(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
     try {
-      const token = req.headers['authorization'].split(' ')[1];
-      const userId = await this.jwtService.decode(token)['id'];
-      const userRole = await this.prismaService.user.findUnique({
+      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
+      const mahasiswa = await this.prismaService.mahasiswa.findUnique({
         where: {
           userId: userId
         },
         select: {
-          userRoles: {
+          nim: true,
+          nipDosen: true
+        }
+      });
+
+      const bimbinganMagang = await this.prismaService.bimbinganMagang.create({
+        data: {
+          tanggal: new Date(createBimbinganMagangDto.tanggal),
+          status: "Menunggu",
+          tempat: createBimbinganMagangDto.tempat, //nullable
+          PesertaBimbinganMagang: {
+            create: {
+              mahasiswa: {
+                connect: {
+                  nim: mahasiswa.nim
+                }
+              },
+              dosen: {
+                connect: {
+                  nip: mahasiswa.nipDosen
+                }
+              }
+            }
+          },
+        },
+        select: {
+          bimbinganId: true,
+          tanggal: true,
+          status: true,
+          tempat: true,
+          PesertaBimbinganMagang: {
             select: {
-              role: {
+              mahasiswa: {
                 select: {
-                  roleName: true
+                  nim: true,
+                  nama: true
+                }
+              },
+              dosen: {
+                select: {
+                  nip: true,
+                  nama: true
                 }
               }
             }
@@ -32,70 +68,60 @@ export class BimbinganMagangService {
         }
       });
 
-      if (userRole.userRoles[0].role.roleName === "mahasiswa") {
-        const mahasiswa = await this.prismaService.mahasiswa.findUnique({
-          where: {
-            userId: userId
-          },
-          select: {
-            nim: true,
-            dosenPembimbingMagang: {
-              select: {
-                nip: true
-              }
-            }
-          }
-        });
-
-        const data = await this.prismaService.bimbinganMagang.create({
-          data: {
-            tanggal: new Date(createBimbinganMagangDto.tanggal),
-            status: "Menunggu",
-            tempat: createBimbinganMagangDto.tempat, //nullable
-            KelompokBimbinganMagang: {
-              create: {
-                nim: mahasiswa.nim,
-                nipDosen: mahasiswa.dosenPembimbingMagang.nip
-              },
-            },
-          }
-        });
-
-        return {
-          status: "success",
-          message: "Bimbingan Magang Berhasil Ditambahkan",
-          // data: data
-        }
+      return {
+        status: "success",
+        message: "Bimbingan Magang Berhasil Ditambahkan",
+        data: bimbinganMagang
       }
+    } catch (error) {
+      return {
+        status: "error",
+        message: "Gagal Menambahkan Bimbingan Magang",
+        error: error
+      }
+    }
+  }
 
+  async createByDosenPembimbing(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
+    try {
+      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
       const dosen = await this.prismaService.dosenPembimbingMagang.findUnique({
         where: {
           userId: userId
         },
         select: {
-          nip: true
+          nip: true,
+          mahasiswa: {
+            select: {
+              nim: true,
+              nama: true
+            }
+          }
         }
       });
 
-      const data = await this.prismaService.bimbinganMagang.create({
+      const bimbinganMagang = await this.prismaService.bimbinganMagang.create({
         data: {
           tanggal: new Date(createBimbinganMagangDto.tanggal),
-          status: "Disetujui",
+          status: "Menunggu",
           tempat: createBimbinganMagangDto.tempat, //nullable
+        },
+        select: {
+          bimbinganId: true,
         }
       });
 
-      for (let i = 0; i < createBimbinganMagangDto.peserta.length; i++) {
-        await this.prismaService.kelompokBimbinganMagang.create({
+      for (let i = 0; i < createBimbinganMagangDto.pesertaBimbinganMagang[0].mahasiswa.length; i++) {
+        await this.prismaService.pesertaBimbinganMagang.create({
           data: {
             bimbingan: {
               connect: {
-                bimbinganId: data.bimbinganId
+                bimbinganId: bimbinganMagang.bimbinganId
               }
             },
             mahasiswa: {
               connect: {
-                nim: createBimbinganMagangDto.peserta[i].nim
+                nim: createBimbinganMagangDto.pesertaBimbinganMagang[0].mahasiswa[i].nim
               }
             },
             dosen: {
@@ -112,7 +138,6 @@ export class BimbinganMagangService {
         message: "Bimbingan Magang Berhasil Ditambahkan",
         // data: data
       }
-
     } catch (error) {
       return {
         status: "error",
@@ -126,7 +151,7 @@ export class BimbinganMagangService {
     try {
       const data = await this.prismaService.bimbinganMagang.findMany({
         where: {
-          KelompokBimbinganMagang: {
+          PesertaBimbinganMagang: {
             some: {
               mahasiswa: {
                 nim: nim
@@ -157,7 +182,7 @@ export class BimbinganMagangService {
     try {
       const data = await this.prismaService.bimbinganMagang.findMany({
         where: {
-          KelompokBimbinganMagang: {
+          PesertaBimbinganMagang: {
             some: {
               dosen: {
                 nip: nip
@@ -172,7 +197,7 @@ export class BimbinganMagangService {
           tanggal: true,
           status: true,
           tempat: true,
-          KelompokBimbinganMagang: {
+          PesertaBimbinganMagang: {
             select: {
               mahasiswa: {
                 select: {
@@ -211,7 +236,7 @@ export class BimbinganMagangService {
         },
       });
 
-      const cekBimbingan = await this.prismaService.kelompokBimbinganMagang.findFirst({
+      const cekBimbingan = await this.prismaService.pesertaBimbinganMagang.findFirst({
         where: {
           bimbinganId: id,
           mahasiswa: {
@@ -263,7 +288,7 @@ export class BimbinganMagangService {
         }
       });
       
-      const cekBimbingan = await this.prismaService.kelompokBimbinganMagang.findFirst({
+      const cekBimbingan = await this.prismaService.pesertaBimbinganMagang.findFirst({
         where: {
           bimbinganId: id,
           dosen: {

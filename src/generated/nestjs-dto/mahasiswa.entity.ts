@@ -3,15 +3,14 @@ import {User} from './user.entity'
 import {DosenPembimbingMagang} from './dosenPembimbingMagang.entity'
 import {PembimbingLapangan} from './pembimbingLapangan.entity'
 import {Satker} from './satker.entity'
-import {TahunAjaran} from './tahunAjaran.entity'
+import {TahunAjaranMahasiswa} from './tahunAjaranMahasiswa.entity'
 import {IzinBimbinganSkripsi} from './izinBimbinganSkripsi.entity'
-import {KelompokBimbinganMagang} from './kelompokBimbinganMagang.entity'
+import {PesertaBimbinganMagang} from './pesertaBimbinganMagang.entity'
 import {KegiatanHarian} from './kegiatanHarian.entity'
 import {Presensi} from './presensi.entity'
 import {TipeKegiatan} from './tipeKegiatan.entity'
 import {RekapKegiatanBulanan} from './rekapKegiatanBulanan.entity'
 import {IzinPresensi} from './izinPresensi.entity'
-import {PilihanSatker} from './pilihanSatker.entity'
 
 
 export class Mahasiswa {
@@ -30,14 +29,12 @@ nipDosen: string  | null;
 pembimbingLapangan?: PembimbingLapangan  | null;
 nipPemlap: string  | null;
 satker?: Satker  | null;
-tahunAjaranId: number ;
-tahunAjaran?: TahunAjaran ;
+tahunAjaranMahasiswa?: TahunAjaranMahasiswa[] ;
 izinBimbinganSkripsi?: IzinBimbinganSkripsi[] ;
-kelompokBimbinganMagang?: KelompokBimbinganMagang[] ;
+pesertaBimbinganMagang?: PesertaBimbinganMagang[] ;
 kegiatanHarian?: KegiatanHarian[] ;
 presensi?: Presensi[] ;
 tipeKegiatan?: TipeKegiatan[] ;
 rekapKegiatanBulanan?: RekapKegiatanBulanan[] ;
 izinPresensi?: IzinPresensi[] ;
-pilihanSatker?: PilihanSatker  | null;
 }

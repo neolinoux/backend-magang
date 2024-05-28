@@ -5,6 +5,6 @@
 
 
 export class UpdateProvinsiDto {
-  kodeProvinsi?: string;
-nama?: string;
+  nama?: string;
+kodeProvinsi?: string;
 }

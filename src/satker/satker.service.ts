@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
 import { Satker } from 'src/generated/nestjs-dto/satker.entity';
@@ -79,7 +79,7 @@ export class SatkerService {
     }
     
     let newSatker;
-      
+
     if (satker.internalBPS === true) {
       newSatker = await this.prisma.satker.create({
         data: {
@@ -160,11 +160,13 @@ export class SatkerService {
       data: newSatker,
     }
     } catch (error) {
-      return {
+      throw new HttpException({
         status: 'error',
         message: 'Data Satuan Kerja Gagal Ditambahkan',
         error: error.message,
-      }
+      }, HttpStatus.BAD_REQUEST, {
+        cause: error,
+      });
     }
   }
 

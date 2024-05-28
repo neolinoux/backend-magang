@@ -3,16 +3,17 @@ import {
   Post,
   Body,
   Request,
-  Headers,
-  Get
+  Get,
+  UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User as UserModel } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto'
 import { AuthEntity } from './entity/auth.entity';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -56,6 +57,8 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async getCurrentUser(@Request() req: any) {
     return this.authService.me(req.headers['authorization']);
   }

@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Roles as RolesEnum } from '../src/enum/roles.enum';
 import { Permissions as PermissionsEnum } from '../src/enum/permissions.enum';
+import { TahunAjaran } from '../src/generated/nestjs-dto/tahunAjaran.entity';
+import { TahunAjaranDosen } from '../src/generated/nestjs-dto/tahunAjaranDosen.entity';
 
 const prisma = new PrismaClient();
 
@@ -27,20 +29,6 @@ async function main() {
   const adminPassword = 'makanenak';
   const hashedPassword = await bcrypt.hash(adminPassword, saltOrRounds);
 
-  // const testUser = await prisma.user.create({
-  //   data: {
-  //     email: 'test@gmail.com',
-  //     password: hashedPassword,
-  //   },
-  // });
-
-  // const userRolesTest = await prisma.userRoles.create({
-  //   data: {
-  //     roleId: 1,
-  //     userId: testUser.userId,
-  //   },
-  // });
-
   const admin = await prisma.user.create({
     data: {
       email: 'admin@admin.com',
@@ -52,6 +40,23 @@ async function main() {
       },
     },
   });
+
+  const tahunAjaran = [
+    '2022/2023',
+    '2023/2024',
+  ]
+
+  const prodi = [
+    'DIV Komputasi Statistik',
+    'DIV Statistik',
+    'DIII Statistik',
+  ]
+
+  const nimProdi = [
+    '212011',
+    '222011',
+    '112011'
+  ]
 
   const kelas = [
     '4SI1',
@@ -71,30 +76,20 @@ async function main() {
     '4SE5',
   ]
 
-  const prodi = [
-    'DIV Komputasi Statistik',
-    'DIV Statistik',
-    'DIII Statistik',
-  ]
-
-  const tahunAjaran = [
-    // '2019/2020',
-    // '2020/2021',
-    // '2021/2022',
-    '2022/2023',
-    '2023/2024',
-  ]
-
-  await prisma.tahunAjaran.createMany({
-    data: tahunAjaran.map((tahun) => ({
-      tahun: tahun,
-    })),
-  });
-
   const hashedDosPemPassword = await bcrypt.hash('makanenak', 10);
   const hashedMahaPassword = await bcrypt.hash('makanenak', 10);
 
   for (let k = 0; k < tahunAjaran.length; k++) {
+    
+    const tahunAjaranCreate = await prisma.tahunAjaran.create({
+      data: {
+        tahun: tahunAjaran[k],
+      },
+      select: {
+        tahunAjaranId: true,
+      },
+    });
+
     for (let i = 0; i < prodi.length; i++) {
       const userDosen = await prisma.user.create({
         data: {
@@ -114,11 +109,6 @@ async function main() {
               nip: faker.string.numeric(9),
               nama: 'dosen' + `${i + 1}`,
               prodi: prodi[i],
-              tahunAjaran: {
-                connect: {
-                  tahun: tahunAjaran[k],
-                },
-              },
             },
           },
         },
@@ -127,10 +117,25 @@ async function main() {
         },
       });
 
+      const TahunAjaranDosenCreate = await prisma.tahunAjaranDosen.create({
+        data: {
+          tahunAjaran: {
+            connect: {
+              tahunAjaranId: tahunAjaranCreate.tahunAjaranId,
+            },
+          },
+          dosen: {
+            connect: {
+              dosenId: userDosen.dosenPembimbingMagang.dosenId,
+            },
+          },
+        },
+      });
+
       for (let j = 0; j < kelas.length; j++) {
         const userMahasiswa = await prisma.user.create({
           data: {
-            email: faker.internet.email(),
+            email: 'mahasiswa' + `${k + 1}${i + 1}${j + 1}` + '@email.com',
             password: hashedMahaPassword,
             userRoles: {
               create: {
@@ -139,21 +144,34 @@ async function main() {
             },
             mahasiswa: {
               create: {
-                nim: faker.string.numeric(9),
-                nama: 'mahasiswa' + `${i + 1}${j + 1}`,
+                nim: nimProdi[i] + `${k + 1}${i + 1}${j + 1}`,
+                nama: 'mahasiswa' + `${k + 1}${i + 1}${j + 1}`,
                 kelas: kelas[j],
                 prodi: prodi[i],
                 alamat: faker.location.streetAddress(),
-                tahunAjaran: {
-                  connect: {
-                    tahun: tahunAjaran[k],
-                  },
-                },
                 dosenPembimbingMagang: {
                   connect: {
                     nip: userDosen.dosenPembimbingMagang.nip,
                   },
                 },
+              },
+            },
+          },
+          select: {
+            mahasiswa: true,
+          },
+        });
+
+        const TahunAjaranMahasiswaCreate = await prisma.tahunAjaranMahasiswa.create({
+          data: {
+            tahunAjaran: {
+              connect: {
+                tahunAjaranId: tahunAjaranCreate.tahunAjaranId,
+              },
+            },
+            mahasiswa: {
+              connect: {
+                mahasiswaId: userMahasiswa.mahasiswa.mahasiswaId,
               },
             },
           },
@@ -243,33 +261,33 @@ async function main() {
         nama: provinsi[i],
         kodeProvinsi: kodeProvinsi[i]
       },
+      select: {
+        provinsiId: true,
+        kodeProvinsi: true,
+      },
     });
 
-    const adminProv = await prisma.user.create({
+    const adminProv = await prisma.adminProvinsi.create({
       data: {
-        email: faker.internet.email({
-          allowSpecialCharacters: false,
-          firstName: 'adminProv',
-          lastName: `${i + 1}`,
-        }),
-        password: hashedPassword,
-        userRoles: {
+        user: {
           create: {
-            roleId: 2,
-          },
-        },
-        adminProvinsi: {
-          create: {
-            provinsi: {
-              connect: {
-                kodeProvinsi: kodeProvinsi[i],
+            email: 'adminProv' + `${i + 1}` + '@email.com',
+            password: hashedPassword,
+            userRoles: {
+              create: {
+                roleId: 2,
               },
             },
           },
         },
+        provinsi: {
+          connect: {
+            kodeProvinsi: prov.kodeProvinsi,
+          },
+        },
       },
       select: {
-        adminProvinsi: true,
+        adminProvinsiId: true,
       },
     });
 
@@ -277,27 +295,50 @@ async function main() {
       const kabkot = await prisma.kabupatenKota.create({
         data: {
           nama: 'kabkot ' + `${provinsi[i]}${j + 1}`,
-          kodeKabupatenKota: faker.string.numeric(100),
+          kodeKabupatenKota: `${i + 1}` + `${j + 1}`,
           provinsi: {
             connect: {
               kodeProvinsi: kodeProvinsi[i],
             },
           },
         },
+        select: {
+          kodeKabupatenKota: true,
+        },
+      });
+
+      const adminSatker = await prisma.adminSatker.create({
+        data: {
+          user: {
+            create: {
+              email: 'adminSatker' + kabkot.kodeKabupatenKota + '@email.com',
+              password: hashedPassword,
+              userRoles: {
+                create: {
+                  roleId: 8,
+                },
+              },
+            },
+          },
+        },
+        select: {
+          adminSatkerId: true,
+        },
       });
 
       const satker = await prisma.satker.create({
         data: {
           nama: 'satker ' + `${provinsi[i]}${j + 1}`,
-          kode: faker.string.numeric(100),
-          email: faker.internet.email({
-            allowSpecialCharacters: false,
-            firstName: 'satker',
-            lastName: `${provinsi[i]}${j + 1}`,
-          }),
+          kode: kabkot.kodeKabupatenKota,
+          email: `satker` + kabkot.kodeKabupatenKota + `@email.com`,
+          provinsi: {
+            connect: {
+              kodeProvinsi: prov.kodeProvinsi,
+            },
+          },
           adminProvinsi: {
             connect: {
-              adminProvinsiId: adminProv.adminProvinsi.adminProvinsiId,
+              adminProvinsiId: adminProv.adminProvinsiId,
             },
           },
           kabupatenKota: {
@@ -305,37 +346,15 @@ async function main() {
               kodeKabupatenKota: kabkot.kodeKabupatenKota,
             },
           },
-          provinsi: {
-            connect: {
-              kodeProvinsi: kodeProvinsi[i],
-            },
-          },
           alamat: faker.location.streetAddress(),
-        },
-      });
-
-      const adminSatker = await prisma.user.create({
-        data: {
-          email: faker.internet.email({
-            allowSpecialCharacters: false,
-            firstName: 'adminSatker',
-            lastName: `${i + 1}${j + 1}`,
-          }),
-          password: hashedPassword,
-          userRoles: {
-            create: {
-              roleId: 8,
-            },
-          },
           adminSatker: {
-            create: {
-              satker: {
-                connect: {
-                  satkerId: satker.satkerId,
-                },
-              },
+            connect: {
+              adminSatkerId: adminSatker.adminSatkerId,
             },
           },
+        },
+        select: {
+          satkerId: true,
         },
       });
     }

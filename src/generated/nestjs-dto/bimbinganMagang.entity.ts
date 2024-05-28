@@ -1,5 +1,5 @@
 
-import {KelompokBimbinganMagang} from './kelompokBimbinganMagang.entity'
+import {PesertaBimbinganMagang} from './pesertaBimbinganMagang.entity'
 
 
 export class BimbinganMagang {
@@ -10,5 +10,5 @@ tempat: string  | null;
 createdAt: Date  | null;
 updatedAt: Date  | null;
 nomorKelompok: number ;
-KelompokBimbinganMagang?: KelompokBimbinganMagang[] ;
+PesertaBimbinganMagang?: PesertaBimbinganMagang[] ;
 }

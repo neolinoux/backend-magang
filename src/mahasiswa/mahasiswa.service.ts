@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validate } from 'class-validator';
 import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
+import { disconnect } from 'process';
 
 @Injectable()
 export class MahasiswaService {
@@ -21,11 +22,13 @@ export class MahasiswaService {
         dosenPembimbingMagang: {
           select: {
             nama: true,
+            nip: true,
           }
         },
         pembimbingLapangan: {
           select: {
             nama: true,
+            nip: true,
           }
         },
         satker: {
@@ -34,11 +37,15 @@ export class MahasiswaService {
           }
         },
         alamat: true,
-        tahunAjaran: {
+        tahunAjaranMahasiswa: {
           select: {
-            tahun: true,
+            tahunAjaran: {
+              select: {
+                tahun: true,
+              }
+            },
           }
-        },
+        }
       },
       orderBy: {
         user: {
@@ -59,8 +66,12 @@ export class MahasiswaService {
         satker: {
           kode: params.kodeSatker,
         },
-        tahunAjaran: {
-          tahun: params.tahun,
+        tahunAjaranMahasiswa: {
+          some: {
+            tahunAjaran: {
+              tahun: params.tahun,
+            },
+          },
         },
       }
     });
@@ -143,9 +154,13 @@ export class MahasiswaService {
                 kelas: row.getCell(4).value,
                 prodi: row.getCell(3).value,
                 alamat: row.getCell(5).value,
-                tahunAjaran: {
-                  connect: {
-                    tahun: tahunAjaran,
+                tahunAjaranMahasiswa: {
+                  create: {
+                    tahunAjaran: {
+                      connect: {
+                        tahun: tahunAjaran,
+                      },
+                    },
                   },
                 },
                 dosenPembimbingMagang: {
@@ -178,11 +193,7 @@ export class MahasiswaService {
                   }
                 },
                 alamat: true,
-                tahunAjaran: {
-                  select: {
-                    tahun: true,
-                  }
-                },
+                tahunAjaranMahasiswa: true,
               },
             },
           },
@@ -228,6 +239,7 @@ export class MahasiswaService {
   }
 
   async update(nim: string, updateMahasiswaDto: UpdateMahasiswaDto) {
+    console.log(updateMahasiswaDto);
     try {
       const cekMahasiswa = await this.prisma.mahasiswa.findUnique({
         where: {
@@ -235,13 +247,14 @@ export class MahasiswaService {
         },
       });
   
-      if(!cekMahasiswa){
+      if (!cekMahasiswa) {
         return {
           status: 'error',
           message: 'Data Mahasiswa Tidak Ditemukan',
         };
       }
 
+      // pembimbing lapangan dan satker tidak boleh null, masih dicari solusinya untuk bisa menerima nullable
       const updatedMahasiswa = await this.prisma.mahasiswa.update({
         where: {
           nim: nim,
@@ -254,12 +267,12 @@ export class MahasiswaService {
           },
           pembimbingLapangan: {
             connect: {
-              nip: updateMahasiswaDto.pembimbingLapangan.nip,
-            },
+              nip: updateMahasiswaDto.pembimbingLapangan.nip == null ? undefined : updateMahasiswaDto.pembimbingLapangan.nip,
+            }
           },
           satker: {
             connect: {
-              kode: updateMahasiswaDto.satker.kode,
+              kode: updateMahasiswaDto.satker.kode == null ? undefined : updateMahasiswaDto.satker.kode,
             },
           },
         },
@@ -283,11 +296,7 @@ export class MahasiswaService {
             }
           },
           alamat: true,
-          tahunAjaran: {
-            select: {
-              tahun: true,
-            }
-          },
+          tahunAjaranMahasiswa: true,
         },
       });
 

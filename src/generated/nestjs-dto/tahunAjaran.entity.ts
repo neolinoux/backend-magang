@@ -1,13 +1,14 @@
 
-import {Mahasiswa} from './mahasiswa.entity'
-import {DosenPembimbingMagang} from './dosenPembimbingMagang.entity'
-import {PembimbingLapangan} from './pembimbingLapangan.entity'
+import {TahunAjaranDosen} from './tahunAjaranDosen.entity'
+import {TahunAjaranMahasiswa} from './tahunAjaranMahasiswa.entity'
+import {TahunAjaranPembimbingLapangan} from './tahunAjaranPembimbingLapangan.entity'
 
 
 export class TahunAjaran {
   tahunAjaranId: number ;
 tahun: string ;
-mahasiswa?: Mahasiswa[] ;
-dosenPembimbingMagang?: DosenPembimbingMagang[] ;
-pembimbingLapangan?: PembimbingLapangan[] ;
+isActive: boolean ;
+TahunAjaranDosen?: TahunAjaranDosen[] ;
+TahunAjaranMahasiswa?: TahunAjaranMahasiswa[] ;
+TahunAjaranPembimbingLapangan?: TahunAjaranPembimbingLapangan[] ;
 }

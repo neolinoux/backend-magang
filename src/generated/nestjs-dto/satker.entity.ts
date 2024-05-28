@@ -5,7 +5,6 @@ import {Provinsi} from './provinsi.entity'
 import {KabupatenKota} from './kabupatenKota.entity'
 import {Mahasiswa} from './mahasiswa.entity'
 import {PembimbingLapangan} from './pembimbingLapangan.entity'
-import {PilihanSatker} from './pilihanSatker.entity'
 
 
 export class Satker {
@@ -26,6 +25,4 @@ alamat: string ;
 kapasitas: number  | null;
 mahasiswa?: Mahasiswa[] ;
 pembimbingLapangan?: PembimbingLapangan[] ;
-pilihanSatker?: PilihanSatker  | null;
-pilihanSatkerId: number  | null;
 }

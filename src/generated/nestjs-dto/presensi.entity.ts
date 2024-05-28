@@ -7,8 +7,9 @@ export class Presensi {
 mahasiswa?: Mahasiswa ;
 nim: string ;
 tanggal: Date ;
-waktu: Date ;
-keterangan: string ;
+waktuDatang: Date ;
+waktuPulang: Date ;
+status: string ;
 createdAt: Date  | null;
 updatedAt: Date  | null;
 }

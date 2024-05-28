@@ -15,8 +15,13 @@ export class BimbinganMagangController {
   ) { }
 
   @Post()
-  create(@Body() createBimbinganMagangDto: CreateBimbinganMagangDto, @Req() req: any) {
-    return this.bimbinganMagangService.create(createBimbinganMagangDto, req);
+  createByMahasiswa(@Body() createBimbinganMagangDto: CreateBimbinganMagangDto, @Req() req: any) {
+    return this.bimbinganMagangService.createByMahasiswa(createBimbinganMagangDto, req);
+  }
+
+  @Post()
+  createByDosen(@Body() createBimbinganMagangDto: CreateBimbinganMagangDto, @Req() req: any) {
+    return this.bimbinganMagangService.createByDosenPembimbing(createBimbinganMagangDto, req);
   }
 
   @Get('mahasiswa/:nim')

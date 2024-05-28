@@ -1,4 +1,4 @@
-import { Mahasiswa } from "./mahasiswa.entity";
+import { PesertaBimbinganMagang } from "./pesertaBimbinganMagang.entity";
 
 
 
@@ -10,5 +10,5 @@ export class CreateBimbinganMagangDto {
 status: string;
 tempat?: string;
   createdAt?: Date;
-  peserta: Mahasiswa[];
+  pesertaBimbinganMagang: PesertaBimbinganMagang;
 }

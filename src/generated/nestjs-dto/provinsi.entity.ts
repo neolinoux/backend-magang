@@ -6,9 +6,9 @@ import {Satker} from './satker.entity'
 
 export class Provinsi {
   provinsiId: number ;
-adminProvinsi?: AdminProvinsi  | null;
+nama: string ;
 kodeProvinsi: string ;
+adminProvinsi?: AdminProvinsi  | null;
 kabupatenKota?: KabupatenKota[] ;
 satker?: Satker[] ;
-nama: string ;
 }

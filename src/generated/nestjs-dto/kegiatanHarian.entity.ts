@@ -1,7 +1,6 @@
 
 import {Mahasiswa} from './mahasiswa.entity'
 import {TipeKegiatan} from './tipeKegiatan.entity'
-import {RekapKegiatanBulanan} from './rekapKegiatanBulanan.entity'
 
 
 export class KegiatanHarian {
@@ -19,6 +18,4 @@ createdAt: Date  | null;
 updatedAt: Date  | null;
 tipeKegiatan?: TipeKegiatan  | null;
 tipeKegiatanId: number  | null;
-RekapKegiatanBulanan?: RekapKegiatanBulanan  | null;
-rekapKegiatanBulananRekapId: number  | null;
 }

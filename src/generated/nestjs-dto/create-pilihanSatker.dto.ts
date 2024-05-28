@@ -5,5 +5,7 @@
 
 
 export class CreatePilihanSatkerDto {
-  createdAt?: Date;
+  nim: string;
+kodeSatker: string;
+createdAt?: Date;
 }

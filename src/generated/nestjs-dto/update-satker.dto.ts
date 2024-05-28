@@ -1,11 +1,6 @@
 import { KabupatenKota } from "./kabupatenKota.entity";
 import { Provinsi } from "./provinsi.entity";
 
-
-
-
-
-
 export class UpdateSatkerDto {
   nama?: string;
 kode?: string;
