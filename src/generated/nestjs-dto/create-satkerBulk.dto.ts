@@ -8,11 +8,11 @@ import { Provinsi } from "./provinsi.entity";
 
 
 
-export class CreateSatkerDto {
+export class CreateSatkerBulkDto {
   @IsNotEmpty()
   @IsString()
   nama: string;
-  
+
   @IsNotEmpty()
   @IsString()
   email: string;
@@ -27,17 +27,43 @@ export class CreateSatkerDto {
 
   @IsNotEmpty()
   kabupatenKota: {
-    namaKabupatenKota: string;
-    kodeKabupatenKota: string;
+    create: {
+      nama: string;
+      kodeKabupatenKota: string;
+      provinsi: {
+        connect: {
+          kodeProvinsi: string;
+        }
+      }
+    }
   };
 
   provinsi: {
-    kodeProvinsi: string;
+    connect: {
+      kodeProvinsi: string;
+    }
+  };
+
+  adminProvinsi: {
+    connect: {
+      provinsiId: number;
+    },
   };
 
   adminSatker: {
-    email: string;
-    password: string;
+    create: {
+      user: {
+        create: {
+          email: string;
+          password: string;
+          tahunAjaran: {
+            connect: {
+              tahunAjaranId: number;
+            }
+          }
+        }
+      }
+    }
   };
 
   @IsNotEmpty()

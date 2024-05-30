@@ -36,45 +36,45 @@ async function main() {
   //   })),
   // });
 
-  const saltOrRounds = 10;
-  const adminPassword = 'makanenak';
-  const hashedPassword = await bcrypt.hash(adminPassword, saltOrRounds);
+  // const saltOrRounds = 10;
+  // const adminPassword = 'makanenak';
+  // const hashedPassword = await bcrypt.hash(adminPassword, saltOrRounds);
 
-  //set one tahun ajaran active
-  await prisma.tahunAjaran.update({
-    where: {
-      tahunAjaranId: 1,
-    },
-    data: {
-      isActive: true,
-    },
-  });
+  // //set one tahun ajaran active
+  // await prisma.tahunAjaran.update({
+  //   where: {
+  //     tahunAjaranId: 1,
+  //   },
+  //   data: {
+  //     isActive: true,
+  //   },
+  // });
 
-  //get active tahun ajaran
-  const tahunAjaran = await prisma.tahunAjaran.findFirst({
-    where: {
-      isActive: true,
-    },
-  });
+  // //get active tahun ajaran
+  // const tahunAjaran = await prisma.tahunAjaran.findFirst({
+  //   where: {
+  //     isActive: true,
+  //   },
+  // });
 
-  console.log(tahunAjaran);
+  // console.log(tahunAjaran);
 
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@admin.com',
-      password: hashedPassword,
-      userRoles: {
-        create: {
-          roleId: 1,
-        },
-      },
-      tahunAjaran: {
-        connect: {
-          tahunAjaranId: tahunAjaran.tahunAjaranId,
-        },
-      },
-    },
-  });
+  // const admin = await prisma.user.create({
+  //   data: {
+  //     email: 'admin@admin.com',
+  //     password: hashedPassword,
+  //     userRoles: {
+  //       create: {
+  //         roleId: 1,
+  //       },
+  //     },
+  //     tahunAjaran: {
+  //       connect: {
+  //         tahunAjaranId: tahunAjaran.tahunAjaranId,
+  //       },
+  //     },
+  //   },
+  // });
 
   // const tahunAjaran = [
   //   '2022/2023',
@@ -215,81 +215,90 @@ async function main() {
   //   }
   // }
 
-  // const provinsi = [
-  //   'Aceh',
-  //   'Sumatera Utara',
-  //   'Sumatera Barat',
-  //   'Riau',
-  //   'Kepulauan Riau',
-  //   'Jambi',
-  //   'Bengkulu',
-  //   'Sumatera Selatan',
-  //   'Bangka Belitung',
-  //   'Lampung',
-  //   'Banten',
-  //   'DKI Jakarta',
-  //   'Jawa Barat',
-  //   'Jawa Tengah',
-  //   'DI Yogyakarta',
-  //   'Jawa Timur',
-  //   'Bali',
-  //   'Nusa Tenggara Barat',
-  //   'Nusa Tenggara Timur',
-  //   'Kalimantan Barat',
-  //   'Kalimantan Tengah',
-  //   'Kalimantan Selatan',
-  //   'Kalimantan Timur',
-  //   'Kalimantan Utara',
-  //   'Gorontalo',
-  //   'Sulawesi Barat',
-  //   'Sulawesi Selatan',
-  //   'Sulawesi Tenggara',
-  //   'Sulawesi Tengah',
-  //   'Sulawesi Utara',
-  //   'Maluku',
-  //   'Maluku Utara',
-  //   'Papua Barat',
-  //   'Papua',
-  //   'K/L/D lainnya'
-  // ]
+  const provinsi = [
+    'Aceh',
+    'Sumatera Utara',
+    'Sumatera Barat',
+    'Riau',
+    'Kepulauan Riau',
+    'Jambi',
+    'Bengkulu',
+    'Sumatera Selatan',
+    'Bangka Belitung',
+    'Lampung',
+    'Banten',
+    'DKI Jakarta',
+    'Jawa Barat',
+    'Jawa Tengah',
+    'DI Yogyakarta',
+    'Jawa Timur',
+    'Bali',
+    'Nusa Tenggara Barat',
+    'Nusa Tenggara Timur',
+    'Kalimantan Barat',
+    'Kalimantan Tengah',
+    'Kalimantan Selatan',
+    'Kalimantan Timur',
+    'Kalimantan Utara',
+    'Gorontalo',
+    'Sulawesi Barat',
+    'Sulawesi Selatan',
+    'Sulawesi Tenggara',
+    'Sulawesi Tengah',
+    'Sulawesi Utara',
+    'Maluku',
+    'Maluku Utara',
+    'Papua Barat',
+    'Papua',
+    'K/L/D lainnya'
+  ]
 
-  // const kodeProvinsi = [
-  //   '11',
-  //   '12',
-  //   '13',
-  //   '14',
-  //   '15',
-  //   '16',
-  //   '17',
-  //   '18',
-  //   '19',
-  //   '21',
-  //   '31',
-  //   '32',
-  //   '33',
-  //   '34',
-  //   '35',
-  //   '36',
-  //   '51',
-  //   '52',
-  //   '53',
-  //   '61',
-  //   '62',
-  //   '63',
-  //   '64',
-  //   '65',
-  //   '71',
-  //   '72',
-  //   '73',
-  //   '74',
-  //   '75',
-  //   '76',
-  //   '81',
-  //   '82',
-  //   '91',
-  //   '94',
-  //   '00'
-  // ]
+  const kodeProvinsi = [
+    '11',
+    '12',
+    '13',
+    '14',
+    '15',
+    '16',
+    '17',
+    '18',
+    '19',
+    '21',
+    '31',
+    '32',
+    '33',
+    '34',
+    '35',
+    '36',
+    '51',
+    '52',
+    '53',
+    '61',
+    '62',
+    '63',
+    '64',
+    '65',
+    '71',
+    '72',
+    '73',
+    '74',
+    '75',
+    '76',
+    '81',
+    '82',
+    '91',
+    '94',
+    '00'
+  ]
+
+  for (let i = 0; i < provinsi.length; i++) {
+    await prisma.provinsi.create({
+      data: {
+        nama: provinsi[i],
+        kodeProvinsi: kodeProvinsi[i]
+      },
+    });
+  }
 
   // for (let i = 0; i < provinsi.length; i++) {
 

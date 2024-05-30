@@ -42,6 +42,6 @@ export class DosenPembimbingMagangController {
     @Param('dosenId') dosenId: number,
     @Body() updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto
   ) {
-    return this.dosenPembimbingMagangService.update(dosenId, updateDosenPembimbingMagang);
+    return this.dosenPembimbingMagangService.update(+dosenId, updateDosenPembimbingMagang);
   }
 }

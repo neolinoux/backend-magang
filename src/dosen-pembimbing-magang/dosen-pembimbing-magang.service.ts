@@ -21,8 +21,12 @@ export class DosenPembimbingMagangService {
   ) {
       const data = await this.prisma.dosenPembimbingMagang.findMany({
         where: {
-          nip: params.nip,
-          nama: params.nama,
+          nip: {
+            contains: params.nip,
+          },
+          nama: {
+            contains: params.nama,
+          },
           prodi: {
             contains: params.prodi,
           },
@@ -50,54 +54,42 @@ export class DosenPembimbingMagangService {
   }
 
   async create(createDosenPembimbingMagang: CreateDosenPembimbingMagangDto) {
-      await this.prisma.dosenPembimbingMagang.findFirstOrThrow({
-        where: {
-          dosenId: createDosenPembimbingMagang.dosenId,
-        },
-      });
-  
-      const hashedPassword = await bcrypt.hash(createDosenPembimbingMagang.user.password, 10);
-  
-      const dosenBaru = await this.prisma.dosenPembimbingMagang.create({
-        data: {
-          nip: createDosenPembimbingMagang.nip,
-          nama: createDosenPembimbingMagang.nama,
-          prodi: createDosenPembimbingMagang.prodi,
-          user: {
-            create: {
-              email: createDosenPembimbingMagang.user.email,
-              password: hashedPassword,
-              tahunAjaran: {
-                connect: {
-                  tahun: (await this.prisma.tahunAjaran.findFirst({
-                    where: {
-                      isActive: true,
-                    },
-                    select: {
-                      tahun: true,
-                    },
-                  })).tahun,
-                }
-              },
+    const hashedPassword = await bcrypt.hash(createDosenPembimbingMagang.user.password, 10);
+    
+    const dosenBaru = await this.prisma.dosenPembimbingMagang.create({
+      data: {
+        nip: createDosenPembimbingMagang.nip,
+        nama: createDosenPembimbingMagang.nama,
+        prodi: createDosenPembimbingMagang.prodi,
+        user: {
+          create: {
+            email: createDosenPembimbingMagang.user.email,
+            password: hashedPassword,
+            tahunAjaran: {
+              connect: {
+                tahun: (await this.prisma.tahunAjaran.findFirst({
+                  where: {
+                    isActive: true,
+                  },
+                  select: {
+                    tahun: true,
+                  },
+                })).tahun,
+              }
             },
           },
         },
-      });
-  
-      return {
-        status: 'success',
-        message: 'Data Dosen Pembimbing Berhasil Ditambahkan',
-        data: dosenBaru,
-      };
-  }
-
-  async update(dosenId: number, updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
-    const dosen = await this.prisma.dosenPembimbingMagang.findFirstOrThrow({
-      where: {
-        dosenId: dosenId,
       },
     });
 
+    return {
+      status: 'success',
+      message: 'Data Dosen Pembimbing Berhasil Ditambahkan',
+      data: dosenBaru,
+    };
+  }
+
+  async update(dosenId: number, updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
     const updatedDosen = await this.prisma.dosenPembimbingMagang.update({
       where: {
         dosenId: dosenId,

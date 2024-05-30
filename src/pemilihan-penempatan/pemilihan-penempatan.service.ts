@@ -11,105 +11,91 @@ export class PemilihanPenempatanService {
       mahasiswaId: number
     }
   ) {
-    try {
-      const data = await this.prisma.pilihanSatker.findMany({
-        where: {
-          satkerId: params.satkerId,
-          mahasiswaId: params.mahasiswaId,
-        },
-      });
+    const data = await this.prisma.pilihanSatker.findMany({
+      where: {
+        satkerId: params.satkerId,
+        mahasiswaId: params.mahasiswaId,
+      },
+    });
 
-      const dataMahasiswa = await this.prisma.mahasiswa.findMany({
-        where: {
-          mahasiswaId: params.mahasiswaId,
-        },
-        select: {
-          nama: true,
-          nim: true,
-          alamat: true,
-        }
-      });
-
-      const dataSatker = await this.prisma.satker.findMany({
-        where: {
-          satkerId: params.satkerId,
-        },
-        select: {
-          kodeSatker: true,
-          nama: true,
-        }
-      });
-
-      return {
-        status: 'success',
-        message: 'Data Pemilihan Penempatan Berhasil Diambil',
-        data: {
-          id: data[0].pilihanSatkerId,
-        }
+    const dataMahasiswa = await this.prisma.mahasiswa.findMany({
+      where: {
+        mahasiswaId: params.mahasiswaId,
+      },
+      select: {
+        nama: true,
+        nim: true,
+        alamat: true,
       }
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Data Pemilihan Penempatan Gagal Diambil',
+    });
+
+    const dataSatker = await this.prisma.satker.findMany({
+      where: {
+        satkerId: params.satkerId,
+      },
+      select: {
+        kodeSatker: true,
+        nama: true,
+      }
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Pemilihan Penempatan Berhasil Diambil',
+      data: {
+        id: data[0].pilihanSatkerId,
       }
     }
   }
 
   async confirmPemilihanPenempatan(pilihanId: number, pilihanFinal: any) {
-    try {
-      const confirmPilihan = await this.prisma.pilihanSatker.update({
-        where: {
-          pilihanSatkerId: pilihanId
-        },
-        data: {
-          satkerId: pilihanFinal.satkerId,
-          status: 'Diterima'
-        },
-        select: {
-          pilihanSatkerId: true,
-          mahasiswaId: true,
-          satkerId: true,
-          status: true,
-        }
-      });
-
-      // ubah status pilihan lainnya menjadi 'Ditolak'
-      await this.prisma.pilihanSatker.updateMany({
-        where: {
-          mahasiswaId: confirmPilihan.mahasiswaId,
-          NOT: {
-            pilihanSatkerId: confirmPilihan.pilihanSatkerId
-          }
-        },
-        data: {
-          status: 'Ditolak'
-        }
-      });
-
-      // connect mahasiswa dengan satker pilihan
-      await this.prisma.mahasiswa.update({
-        where: {
-          mahasiswaId: confirmPilihan.mahasiswaId
-        },
-        data: {
-          satkerId: confirmPilihan.satkerId
-        }
-      });
-
-      return {
-        status: 'success',
-        message: 'Status Pemilihan Penempatan Berhasil Diubah',
-        data: {
-          pilihanSatkerId: confirmPilihan.pilihanSatkerId,
-          mahasiswaId: confirmPilihan.mahasiswaId,
-          satkerId: confirmPilihan.satkerId,
-          status: confirmPilihan.status
-        }
+    const confirmPilihan = await this.prisma.pilihanSatker.update({
+      where: {
+        pilihanSatkerId: pilihanId
+      },
+      data: {
+        satkerId: pilihanFinal.satkerId,
+        status: 'Diterima'
+      },
+      select: {
+        pilihanSatkerId: true,
+        mahasiswaId: true,
+        satkerId: true,
+        status: true,
       }
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Status Pemilihan Penempatan Gagal Diubah',
+    });
+
+    // ubah status pilihan lainnya menjadi 'Ditolak'
+    await this.prisma.pilihanSatker.updateMany({
+      where: {
+        mahasiswaId: confirmPilihan.mahasiswaId,
+        NOT: {
+          pilihanSatkerId: confirmPilihan.pilihanSatkerId
+        }
+      },
+      data: {
+        status: 'Ditolak'
+      }
+    });
+
+    // connect mahasiswa dengan satker pilihan
+    await this.prisma.mahasiswa.update({
+      where: {
+        mahasiswaId: confirmPilihan.mahasiswaId
+      },
+      data: {
+        satkerId: confirmPilihan.satkerId
+      }
+    });
+
+    return {
+      status: 'success',
+      message: 'Status Pemilihan Penempatan Berhasil Diubah',
+      data: {
+        pilihanSatkerId: confirmPilihan.pilihanSatkerId,
+        mahasiswaId: confirmPilihan.mahasiswaId,
+        satkerId: confirmPilihan.satkerId,
+        status: confirmPilihan.status
       }
     }
   }

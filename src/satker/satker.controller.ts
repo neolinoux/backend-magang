@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { SatkerService } from './satker.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
 import { UpdateSatkerDto } from 'src/generated/nestjs-dto/update-satker.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as XLSX from 'xlsx';
 
 @ApiTags('Satker')
 @ApiBearerAuth()
@@ -15,8 +17,11 @@ export class SatkerController {
   async findAllSatkerBy(
     @Query() params: {
       kodeSatker: string;
+      namaProvinsi: string;
       kodeProvinsi: string;
+      namaKabupatenKota: string;
       kodeKabupatenKota: string;
+      alamat: string;
       internalBPS: string;
     }
   ) {
@@ -28,6 +33,23 @@ export class SatkerController {
     @Body() satker: CreateSatkerDto
   ) {
     return this.satkerService.create(satker);
+  }
+
+  @Post('bulk')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  createBulk(
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      throw new Error('File harus berformat xlsx');
+    }
+
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    return this.satkerService.createBulk(data);
   }
 
   @Put(':satkerId')
