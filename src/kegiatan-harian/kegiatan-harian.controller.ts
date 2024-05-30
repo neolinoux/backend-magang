@@ -4,6 +4,7 @@ import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiata
 import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiatanHarian.dto';
 import { TipeKegiatan } from 'src/generated/nestjs-dto/tipeKegiatan.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CreateTipeKegiatanDto } from 'src/generated/nestjs-dto/create-tipeKegiatan.dto';
 
 @ApiTags('Kegiatan Harian')
 @ApiBearerAuth()
@@ -12,55 +13,99 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class KegiatanHarianController {
   constructor(private readonly kegiatanHarianService: KegiatanHarianService) {}
 
-  @Post()
-  createKegiatanHarian(@Body() createKegiatanHarian: CreateKegiatanHarianDto, @Req() req: any){
-    return this.kegiatanHarianService.createKegiatanHarian(createKegiatanHarian, req)
-  }
-
-  @Post('tipe-kegiatan/:nim')
-  create(@Body() tipeKegiatan: TipeKegiatan, @Param('nim') nim: string) {
-    return this.kegiatanHarianService.create(tipeKegiatan, nim);
-  }
-
-  @Get('mahasiswa/:nim')
-  findAllKegiatanHarianMahasiswa(@Param('nim') nim: string, @Query() params: any){
-    return this.kegiatanHarianService.findAllKegiatanHarianMahasiswa(nim, params);
-  }
-
-  @Get('pembimbing-lapangan/:nip')
-  findAllKegiatanHarianPembimbingLapangan(@Param('nip') nip: string, @Query() params: any){
-    return this.kegiatanHarianService.findAllKegiatanHarianPembimbingLapangan(nip, params);
-  }
-
-  @Get('dosen-pembimbing/:nip')
-  findAllKegiatanHarianDosenPembimbing(@Param('nip') nip: string, @Query() params: any){
-    return this.kegiatanHarianService.findAllKegiatanHarianDosenPembimbing(nip, params);
-  }
-
   @Get('tipe-kegiatan')
-  findAllTipeKegiatan(@Query() params: any){
+  findAllTipeKegiatan(
+    @Query() params: {
+      nama: string
+    }
+  ) {
     return this.kegiatanHarianService.findAllTipeKegiatan(params);
   }
 
-  @Put('konfirmasi/:nim/:id')
-  konfirmasiKegiatanHarian(
-    @Param('nim') nim: string,
-    @Param('id') id: string,
-    @Body() konfirmasi: any
+  // mahasiswa create tipe kegiatan
+  @Post('tipe-kegiatan/:mahasiswaId')
+  create(
+    @Body() tipeKegiatan: CreateTipeKegiatanDto,
+    @Param('mahasiswaId') mahasiswaId: number
   ) {
-    return this.kegiatanHarianService.konfirmasiKegiatanHarian(nim, +id, konfirmasi);
+    return this.kegiatanHarianService.createTipeKegiatan(tipeKegiatan, mahasiswaId);
   }
 
-  @Put(':nim/:id')
+  // get kegiatan harian by mahasiswa
+  @Get('mahasiswa/:mahasiswaId')
+  findAllKegiatanHarianMahasiswa(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Query() params: {
+      nim: string,
+      tanggal: Date,
+      satuan: string,
+      pemberiTugas: string,
+      statusPenyelesaian: number,
+      namaTipeKegiatan: string
+    }
+  ) {
+    return this.kegiatanHarianService.findAllKegiatanHarianMahasiswa(mahasiswaId, params);
+  }
+
+  // get kegiatan harian by pembimbing lapangan
+  @Get('pembimbing-lapangan/:pemlapId')
+  findAllKegiatanHarianPembimbingLapangan(
+    @Param('pemlapId') pemlapId: number,
+    @Query() params: {
+      nim: string,
+      tanggal: Date,
+      satuan: string,
+      pemberiTugas: string,
+      statusPenyelesaian: number,
+      namaTipeKegiatan: string
+    }
+  ) {
+    return this.kegiatanHarianService.findAllKegiatanHarianPembimbingLapangan(pemlapId, params);
+  }
+
+  @Get('dosen-pembimbing/:dosenId')
+  findAllKegiatanHarianDosenPembimbing(
+    @Param('dosenId') dosenId: number,
+    @Query() params: {
+      nim: string,
+      tanggal: Date,
+      satuan: string,
+      pemberiTugas: string,
+      statusPenyelesaian: number,
+      namaTipeKegiatan: string
+    }
+  ) {
+    return this.kegiatanHarianService.findAllKegiatanHarianDosenPembimbing(dosenId, params);
+  }
+
+  @Put('konfirmasi/:kegiatanId')
+  konfirmasiKegiatanHarian(
+    @Param('kegiatanId') kegiatanId: number,
+    @Body() konfirmasi: {
+      statusPenyelesaian: number
+    }
+  ) {
+    return this.kegiatanHarianService.konfirmasiKegiatanHarian(kegiatanId, konfirmasi);
+  }
+
+  @Post(':mahasiswaId')
+  createKegiatanHarian(
+    @Body() createKegiatanHarian: CreateKegiatanHarianDto,
+    @Param('mahasiswaId') mahasiswaId: number,
+  ) {
+    return this.kegiatanHarianService.createKegiatanHarian(createKegiatanHarian, mahasiswaId);
+  }
+
+  @Put(':kegiatanHarianId')
   updateKegiatanHarian(
-    @Param('nim') nim: string,
-    @Param('id') id: string,
-    @Body() updateKegiatanHarianDto: UpdateKegiatanHarianDto) {
-    return this.kegiatanHarianService.updateKegiatanHarian(nim, +id, updateKegiatanHarianDto);
+    @Param('kegiatanHarianId') kegiatanHarianId: number,
+    @Body() updateKegiatanHarianDto: UpdateKegiatanHarianDto
+  ) {
+    return this.kegiatanHarianService.updateKegiatanHarian(kegiatanHarianId, updateKegiatanHarianDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.kegiatanHarianService.remove(+id);
+  @Delete(':kegiatanId')
+  remove(@Param('kegiatanId') kegiatanId: number) {
+    return this.kegiatanHarianService.remove(kegiatanId);
   }
 }

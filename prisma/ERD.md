@@ -6,12 +6,18 @@
 ## default
 ```mermaid
 erDiagram
+"TahunAjaran" {
+    Int tahunAjaranId PK
+    String tahun UK
+    Boolean isActive
+}
 "User" {
     Int userId PK
-    String email UK
+    String email
     String password
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int tahunAjaranId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "Roles" {
     Int roleId PK
@@ -36,67 +42,45 @@ erDiagram
     Int userId FK
     Int permissionId FK
 }
-"TahunAjaran" {
-    Int tahunAjaranId PK
-    String tahun UK
-    Boolean isActive
-}
-"TahunAjaranMahasiswa" {
-    Int tahunAjaranMahasiswaId PK
-    Int mahasiswaId FK
-    Int tahunAjaranId FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
-"TahunAjaranDosen" {
-    Int tahunAjaranDosenId PK
-    Int dosenId FK
-    Int tahunAjaranId FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
-"TahunAjaranPembimbingLapangan" {
-    Int tahunAjaranPemlapId PK
-    Int pemlapId FK
-    Int tahunAjaranId FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-}
 "DosenPembimbingMagang" {
     Int dosenId PK
-    String nip UK
-    Int userId FK
+    String nip
     String nama
     String prodi
+    Int userId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "Mahasiswa" {
     Int mahasiswaId PK
-    String nim UK
+    String nim
     String nama
-    String alamat
     String prodi
     String kelas
+    String alamat
     String nomorRekening "nullable"
-    Int userId FK
-    String nipDosen FK "nullable"
-    String nipPemlap FK "nullable"
+    Int dosenId FK "nullable"
+    Int pemlapId FK "nullable"
+    Int userId FK "nullable"
     Int satkerId FK "nullable"
+    DateTime createdAt
+    DateTime updatedAt
 }
 "AdminProvinsi" {
     Int adminProvinsiId PK
     Int userId FK
-    String kodeProvinsi FK
+    Int provinsiId FK
 }
 "Provinsi" {
     Int provinsiId PK
-    String nama UK
+    String nama
     String kodeProvinsi UK
 }
 "KabupatenKota" {
     Int kabupatenKotaId PK
     String kodeKabupatenKota UK
-    String nama UK
-    String kodeProvinsi FK
+    String nama
+    Int provinsiId FK
 }
 "AdminSatker" {
     Int adminSatkerId PK
@@ -104,60 +88,63 @@ erDiagram
 }
 "Satker" {
     Int satkerId PK
-    Boolean internalBPS
-    Int adminProvinsiId FK "nullable"
-    Int adminSatkerId FK "nullable"
-    String kodeProvinsi FK "nullable"
-    String kodeKabupatenKota FK "nullable"
     String nama
-    String kode UK
+    String kodeSatker UK
     String email
     String alamat
+    Boolean internalBPS
+    Int adminProvinsiId FK
+    Int adminSatkerId FK
+    Int povinsiId FK
+    Int kabupatenKotaId FK
+}
+"KapasitasSatkerTahunAjaran" {
+    Int kapasitasId PK
+    Int satkerId FK
+    Int tahunAjaranId FK
     Int kapasitas "nullable"
 }
 "PembimbingLapangan" {
     Int pemlapId PK
-    String nip UK
+    String nip
     String nama
     Int userId FK
-    String kodeSatker FK
+    Int satkerId FK
 }
 "IzinBimbinganSkripsi" {
     Int izinBimbinganId PK
-    String nim FK
     DateTime tanggal
     String keterangan
-    Boolean status
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    String status
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "BimbinganMagang" {
     Int bimbinganId PK
     DateTime tanggal
     String status
     String tempat "nullable"
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
-    Int nomorKelompok
+    Int dosenId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
-"PesertaBimbinganMagang" {
+"PesertaBimbinganMahasiswa" {
     Int pesertaBimbinganMagangId PK
     Int bimbinganId FK
-    String nim FK
-    String nipDosen FK
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "TipeKegiatan" {
     Int tipeKegiatanId PK
-    String nim FK
     String nama
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "KegiatanHarian" {
     Int kegiatanId PK
-    String nim FK
     DateTime tanggal
     String deskripsi
     Int volume
@@ -165,13 +152,13 @@ erDiagram
     Int durasi
     String pemberiTugas
     Int statusPenyelesaian
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int mahasiswaId FK
     Int tipeKegiatanId FK "nullable"
+    DateTime createdAt
+    DateTime updatedAt
 }
 "RekapKegiatanBulanan" {
     Int rekapId PK
-    String nim FK
     String periode
     String uraian
     String satuan
@@ -180,25 +167,26 @@ erDiagram
     Int persentase
     Int tingkatKualitas "nullable"
     String keterangan "nullable"
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "Presensi" {
     Int presensiId PK
-    String nim FK
     DateTime tanggal
     DateTime waktuDatang
     DateTime waktuPulang
     String status
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
 }
 "IzinPresensi" {
     Int izinId PK
-    String nim FK
     DateTime tanggal
     DateTime waktu
     String keterangan
+    Int mahasiswaId FK
     DateTime createdAt "nullable"
     DateTime updatedAt "nullable"
 }
@@ -210,28 +198,23 @@ erDiagram
 }
 "PilihanSatker" {
     Int pilihanSatkerId PK
-    String nim
-    String kodeSatker
+    Int mahasiswaId
+    Int satkerId
     String status
-    DateTime createdAt "nullable"
-    DateTime updatedAt "nullable"
+    DateTime createdAt
+    DateTime updatedAt
 }
+"User" }o--|| "TahunAjaran" : tahunAjaran
 "UserRoles" }o--|| "User" : user
 "UserRoles" }o--|| "Roles" : role
 "PermissionRoles" }o--|| "Roles" : role
 "PermissionRoles" }o--|| "Permissions" : permission
 "UserPermissions" }o--|| "User" : user
 "UserPermissions" }o--|| "Permissions" : permission
-"TahunAjaranMahasiswa" }o--|| "Mahasiswa" : mahasiswa
-"TahunAjaranMahasiswa" }o--|| "TahunAjaran" : tahunAjaran
-"TahunAjaranDosen" }o--|| "DosenPembimbingMagang" : dosen
-"TahunAjaranDosen" }o--|| "TahunAjaran" : tahunAjaran
-"TahunAjaranPembimbingLapangan" }o--|| "PembimbingLapangan" : pemlap
-"TahunAjaranPembimbingLapangan" }o--|| "TahunAjaran" : tahunAjaran
 "DosenPembimbingMagang" |o--|| "User" : user
-"Mahasiswa" |o--|| "User" : user
 "Mahasiswa" }o--|| "DosenPembimbingMagang" : dosenPembimbingMagang
 "Mahasiswa" }o--|| "PembimbingLapangan" : pembimbingLapangan
+"Mahasiswa" |o--|| "User" : user
 "Mahasiswa" }o--|| "Satker" : satker
 "AdminProvinsi" |o--|| "User" : user
 "AdminProvinsi" |o--|| "Provinsi" : provinsi
@@ -241,12 +224,14 @@ erDiagram
 "Satker" |o--|| "AdminSatker" : adminSatker
 "Satker" }o--|| "Provinsi" : provinsi
 "Satker" |o--|| "KabupatenKota" : kabupatenKota
+"KapasitasSatkerTahunAjaran" }o--|| "Satker" : satker
+"KapasitasSatkerTahunAjaran" }o--|| "TahunAjaran" : tahunAjaran
 "PembimbingLapangan" |o--|| "User" : user
 "PembimbingLapangan" }o--|| "Satker" : satker
 "IzinBimbinganSkripsi" }o--|| "Mahasiswa" : mahasiswa
-"PesertaBimbinganMagang" }o--|| "BimbinganMagang" : bimbingan
-"PesertaBimbinganMagang" }o--|| "Mahasiswa" : mahasiswa
-"PesertaBimbinganMagang" }o--|| "DosenPembimbingMagang" : dosen
+"BimbinganMagang" }o--|| "DosenPembimbingMagang" : dosenPembimbingMagang
+"PesertaBimbinganMahasiswa" }o--|| "BimbinganMagang" : bimbingan
+"PesertaBimbinganMahasiswa" }o--|| "Mahasiswa" : mahasiswa
 "TipeKegiatan" }o--|| "Mahasiswa" : mahasiswa
 "KegiatanHarian" }o--|| "Mahasiswa" : mahasiswa
 "KegiatanHarian" }o--|| "TipeKegiatan" : tipeKegiatan
@@ -255,12 +240,20 @@ erDiagram
 "IzinPresensi" }o--|| "Mahasiswa" : mahasiswa
 ```
 
+### `TahunAjaran`
+
+**Properties**
+  - `tahunAjaranId`: 
+  - `tahun`: 
+  - `isActive`: 
+
 ### `User`
 
 **Properties**
   - `userId`: 
   - `email`: 
   - `password`: 
+  - `tahunAjaranId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -297,48 +290,16 @@ erDiagram
   - `userId`: 
   - `permissionId`: 
 
-### `TahunAjaran`
-
-**Properties**
-  - `tahunAjaranId`: 
-  - `tahun`: 
-  - `isActive`: 
-
-### `TahunAjaranMahasiswa`
-
-**Properties**
-  - `tahunAjaranMahasiswaId`: 
-  - `mahasiswaId`: 
-  - `tahunAjaranId`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
-### `TahunAjaranDosen`
-
-**Properties**
-  - `tahunAjaranDosenId`: 
-  - `dosenId`: 
-  - `tahunAjaranId`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
-### `TahunAjaranPembimbingLapangan`
-
-**Properties**
-  - `tahunAjaranPemlapId`: 
-  - `pemlapId`: 
-  - `tahunAjaranId`: 
-  - `createdAt`: 
-  - `updatedAt`: 
-
 ### `DosenPembimbingMagang`
 
 **Properties**
   - `dosenId`: 
   - `nip`: 
-  - `userId`: 
   - `nama`: 
   - `prodi`: 
+  - `userId`: 
+  - `createdAt`: 
+  - `updatedAt`: 
 
 ### `Mahasiswa`
 
@@ -346,21 +307,23 @@ erDiagram
   - `mahasiswaId`: 
   - `nim`: 
   - `nama`: 
-  - `alamat`: 
   - `prodi`: 
   - `kelas`: 
+  - `alamat`: 
   - `nomorRekening`: 
+  - `dosenId`: 
+  - `pemlapId`: 
   - `userId`: 
-  - `nipDosen`: 
-  - `nipPemlap`: 
   - `satkerId`: 
+  - `createdAt`: 
+  - `updatedAt`: 
 
 ### `AdminProvinsi`
 
 **Properties**
   - `adminProvinsiId`: 
   - `userId`: 
-  - `kodeProvinsi`: 
+  - `provinsiId`: 
 
 ### `Provinsi`
 
@@ -375,7 +338,7 @@ erDiagram
   - `kabupatenKotaId`: 
   - `kodeKabupatenKota`: 
   - `nama`: 
-  - `kodeProvinsi`: 
+  - `provinsiId`: 
 
 ### `AdminSatker`
 
@@ -387,15 +350,22 @@ erDiagram
 
 **Properties**
   - `satkerId`: 
+  - `nama`: 
+  - `kodeSatker`: 
+  - `email`: 
+  - `alamat`: 
   - `internalBPS`: 
   - `adminProvinsiId`: 
   - `adminSatkerId`: 
-  - `kodeProvinsi`: 
-  - `kodeKabupatenKota`: 
-  - `nama`: 
-  - `kode`: 
-  - `email`: 
-  - `alamat`: 
+  - `povinsiId`: 
+  - `kabupatenKotaId`: 
+
+### `KapasitasSatkerTahunAjaran`
+
+**Properties**
+  - `kapasitasId`: 
+  - `satkerId`: 
+  - `tahunAjaranId`: 
   - `kapasitas`: 
 
 ### `PembimbingLapangan`
@@ -405,16 +375,16 @@ erDiagram
   - `nip`: 
   - `nama`: 
   - `userId`: 
-  - `kodeSatker`: 
+  - `satkerId`: 
 
 ### `IzinBimbinganSkripsi`
 
 **Properties**
   - `izinBimbinganId`: 
-  - `nim`: 
   - `tanggal`: 
   - `keterangan`: 
   - `status`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -425,17 +395,16 @@ erDiagram
   - `tanggal`: 
   - `status`: 
   - `tempat`: 
+  - `dosenId`: 
   - `createdAt`: 
   - `updatedAt`: 
-  - `nomorKelompok`: 
 
-### `PesertaBimbinganMagang`
+### `PesertaBimbinganMahasiswa`
 
 **Properties**
   - `pesertaBimbinganMagangId`: 
   - `bimbinganId`: 
-  - `nim`: 
-  - `nipDosen`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -443,8 +412,8 @@ erDiagram
 
 **Properties**
   - `tipeKegiatanId`: 
-  - `nim`: 
   - `nama`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -452,7 +421,6 @@ erDiagram
 
 **Properties**
   - `kegiatanId`: 
-  - `nim`: 
   - `tanggal`: 
   - `deskripsi`: 
   - `volume`: 
@@ -460,15 +428,15 @@ erDiagram
   - `durasi`: 
   - `pemberiTugas`: 
   - `statusPenyelesaian`: 
+  - `mahasiswaId`: 
+  - `tipeKegiatanId`: 
   - `createdAt`: 
   - `updatedAt`: 
-  - `tipeKegiatanId`: 
 
 ### `RekapKegiatanBulanan`
 
 **Properties**
   - `rekapId`: 
-  - `nim`: 
   - `periode`: 
   - `uraian`: 
   - `satuan`: 
@@ -477,6 +445,7 @@ erDiagram
   - `persentase`: 
   - `tingkatKualitas`: 
   - `keterangan`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -484,11 +453,11 @@ erDiagram
 
 **Properties**
   - `presensiId`: 
-  - `nim`: 
   - `tanggal`: 
   - `waktuDatang`: 
   - `waktuPulang`: 
   - `status`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -496,10 +465,10 @@ erDiagram
 
 **Properties**
   - `izinId`: 
-  - `nim`: 
   - `tanggal`: 
   - `waktu`: 
   - `keterangan`: 
+  - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
 
@@ -515,8 +484,8 @@ erDiagram
 
 **Properties**
   - `pilihanSatkerId`: 
-  - `nim`: 
-  - `kodeSatker`: 
+  - `mahasiswaId`: 
+  - `satkerId`: 
   - `status`: 
   - `createdAt`: 
   - `updatedAt`: 

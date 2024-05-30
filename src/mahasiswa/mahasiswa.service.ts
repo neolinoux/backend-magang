@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { validate } from 'class-validator';
 import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
-import { disconnect } from 'process';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class MahasiswaService {
@@ -11,306 +10,179 @@ export class MahasiswaService {
     private readonly prisma: PrismaService,
   ) { }
 
-  async findAll(params: any) {
+  async findAll(params) {
+    if (Object.keys(params).length === 0) {
+      return this.prisma.mahasiswa.findMany();
+    }
+
     return this.prisma.mahasiswa.findMany({
-      select: {
-        userId: true,
-        nim: true,
-        nama: true,
-        kelas: true,
-        prodi: true,
-        dosenPembimbingMagang: {
-          select: {
-            nama: true,
-            nip: true,
-          }
-        },
-        pembimbingLapangan: {
-          select: {
-            nama: true,
-            nip: true,
-          }
-        },
-        satker: {
-          select: {
-            nama: true,
-          }
-        },
-        alamat: true,
-        tahunAjaranMahasiswa: {
-          select: {
-            tahunAjaran: {
-              select: {
-                tahun: true,
-              }
-            },
-          }
-        }
-      },
-      orderBy: {
-        user: {
-          userId: 'asc',
-        }
-      },
       where: {
-        nim: params.nim,
-        nama: params.nama,
-        kelas: params.kelas,
-        prodi: params.prodi,
+        nim: {
+          contains: params.nim,
+        },
+        nama: {
+          contains: params.nama,
+        },
+        kelas: {
+          contains: params.kelas,
+        },
+        prodi: {
+          contains: params.prodi,
+        },
         dosenPembimbingMagang: {
-          nip: params.nipDosen,
+          dosenId: params.dosenId,
         },
         pembimbingLapangan: {
-          nip: params.nipPemlap,
+          pemlapId: params.pemlapId,
         },
         satker: {
-          kode: params.kodeSatker,
+          satkerId: params.satkerId,
         },
-        tahunAjaranMahasiswa: {
-          some: {
-            tahunAjaran: {
-              tahun: params.tahun,
+        user: {
+          email: {
+            contains: params.email,
+          },
+          tahunAjaran: {
+            tahun: {
+              contains: params.tahunAjaran,
             },
           },
         },
-      }
+      },
     });
   }
 
-  async importExcel(files: Array<Express.Multer.File>) {
-    //validate file
-    const file = files[0];
-    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      return {
-        status: 'error',
-        message: 'File yang diupload bukan file excel',
-      };
-    }
-    //parse file
-    const excel = require('exceljs');
-    const workbook = new excel.Workbook();
-    await workbook.xlsx.load(file.buffer);
-    const worksheet = workbook.getWorksheet(1);
-    // loop through each row
-    let data = [];
-    let error = [];
+  async importExcel(
+    data: any
+  ) {
+    let createMahasiswaDto: CreateMahasiswaDto[] = [];
+    let mahasiswa = []
 
-    try {
-      for (let i = 2; i <= worksheet.rowCount; i++) {
-        const row = worksheet.getRow(i);
-  
-        // check if user already exists
-        const mahasiswa = await this.prisma.mahasiswa.findUnique({
-          where: {
-            nim: row.getCell(1).value,
-          },
-        });
-  
-        if (mahasiswa) {
-          error.push({
-            row: i,
-            message: 'Mahasiswa dengan NIM ' + row.getCell(1).value + ' sudah ada',
-          });
+    const tahunAjaranAktif = await this.prisma.tahunAjaran.findFirst({
+      where: {
+        isActive: true,
+      }
+    });
+
+    for (let i = 0; i < data.length; i++) {
+      createMahasiswaDto.push({
+        nim: data[i].nim.toString(),
+        nama: data[i].nama.toString(),
+        prodi: data[i].prodi.toString(),
+        kelas: data[i].kelas.toString(),
+        alamat: data[i].alamat.toString(),
+        user: {
+          create: {
+            email: data[i].email.toString(),
+            password: bcrypt.hashSync(data[i].password.toString(), 10),
+            tahunAjaran: {
+              connect: {
+                tahunAjaranId: tahunAjaranAktif.tahunAjaranId,
+              },
+            },
+          }
         }
-      }
-      
-      if (error.length > 0) {
-        return {
-          status: 'error',
-          message: 'Data Mahasiswa Gagal Ditambahkan',
-          error: error,
-        };
-      }
+      })
 
-      error = [];
-      // loop through each row
-      for (let i = 2; i <= worksheet.rowCount; i++) {
-        const row = worksheet.getRow(i);
-        const mahasiswa = new CreateMahasiswaDto();
-  
-        mahasiswa.nim = row.getCell(1).value;
-        mahasiswa.nama = row.getCell(2).value;
-        mahasiswa.prodi = row.getCell(3).value;
-        mahasiswa.kelas = row.getCell(4).value;
-        mahasiswa.alamat = row.getCell(5).value;
-        const tahunAjaran = row.getCell(6).value;
-        const nipDosen = row.getCell(7).value;
-
-        // create user mahasiswa
-        // user mahasiswa will be login using oauth2, but for now we will create user manually
-        const userMahasiswa = await this.prisma.user.create({
-          data: {
-            email: row.getCell(1).value + '@gmail.com',
-            password: 'password',
-            userRoles: {
-              create: {
-                roleId: 9,
-              },
-            },
-            mahasiswa: {
-              create: {
-                nim: row.getCell(1).value,
-                nama: row.getCell(2).value,
-                kelas: row.getCell(4).value,
-                prodi: row.getCell(3).value,
-                alamat: row.getCell(5).value,
-                tahunAjaranMahasiswa: {
-                  create: {
-                    tahunAjaran: {
-                      connect: {
-                        tahun: tahunAjaran,
-                      },
-                    },
-                  },
-                },
-                dosenPembimbingMagang: {
-                  connect: {
-                    nip: nipDosen,
-                  },
-                },
-              },
-            },
-          },
+      mahasiswa.push(
+        await this.prisma.mahasiswa.create({
+          data: createMahasiswaDto[i],
           select: {
-            mahasiswa: {
+            mahasiswaId: true,
+            nim: true,
+            nama: true,
+            prodi: true,
+            kelas: true,
+            alamat: true,
+            user: {
               select: {
-                nim: true,
-                nama: true,
-                kelas: true,
-                pembimbingLapangan: {
+                email: true,
+                tahunAjaran: {
                   select: {
-                    nama: true,
-                  }
+                    tahun: true,
+                  },
                 },
-                dosenPembimbingMagang: {
-                  select: {
-                    nama: true,
-                  }
-                },
-                satker: {
-                  select: {
-                    nama: true,
-                  }
-                },
-                alamat: true,
-                tahunAjaranMahasiswa: true,
               },
             },
-          },
-        });
-
-        const errors = await validate(userMahasiswa);
-        if (errors.length > 0) {
-          error.push({
-            row: i - 2,
-            message: errors,
-          });
-        } else {
-          data[i - 2] = userMahasiswa;
-        }
-      }
-  
-      if (error.length > 0) {
-        return {
-          status: 'error',
-          message: 'Data Mahasiswa Gagal Ditambahkan',
-          error: error,
-        };
-      }
-  
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Ditambahkan',
-        data: data,
-      };
-
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Internal Server Error',
-      };
+          }
+        })
+      );
     }
 
-  } catch(error) {
     return {
-      status: 'error',
-      message: 'Internal Server Error',
+      status: 'success',
+      message: 'Data Mahasiswa Berhasil Ditambahkan',
+      data: mahasiswa,
     };
   }
 
-  async update(nim: string, updateMahasiswaDto: UpdateMahasiswaDto) {
-    console.log(updateMahasiswaDto);
-    try {
-      const cekMahasiswa = await this.prisma.mahasiswa.findUnique({
-        where: {
-          nim: nim,
-        },
-      });
-  
-      if (!cekMahasiswa) {
-        return {
-          status: 'error',
-          message: 'Data Mahasiswa Tidak Ditemukan',
+  async update(
+    mahasiswaId: number,
+    updateMahasiswaDto: UpdateMahasiswaDto
+  ) {
+
+    // cek dilakukan karna 3 field ini bersifat foreign key dan hanya bisa menerima perintah connect atau disconnect
+    const cekDosenPembimbingMagang =
+      (updateMahasiswaDto.dosenPembimbingMagang.dosenId.toString() === '') ?
+        {
+          disconnect: true,
+        } :
+        {
+          connect: {
+            dosenId: updateMahasiswaDto.dosenPembimbingMagang.dosenId
+          }
         };
-      }
+    
+    const cekPembimbingLapangan = 
+      (updateMahasiswaDto.pembimbingLapangan.pemlapId.toString() === '') ?
+        {
+          disconnect: true,
+        } :
+        {
+          connect: {
+            pemlapId: updateMahasiswaDto.pembimbingLapangan.pemlapId
+          }
+        };
+    
+    const cekSatker =
+      (updateMahasiswaDto.satker.satkerId.toString() === '') ?
+        {
+          disconnect: true,
+        } :
+        {
+          connect: {
+            satkerId: updateMahasiswaDto.satker.satkerId
+          }
+        };
 
-      // pembimbing lapangan dan satker tidak boleh null, masih dicari solusinya untuk bisa menerima nullable
-      const updatedMahasiswa = await this.prisma.mahasiswa.update({
-        where: {
-          nim: nim,
+    await this.prisma.mahasiswa.update({
+      where: {
+        mahasiswaId: mahasiswaId,
+      },
+      data: {
+        dosenPembimbingMagang: {
+          ...cekDosenPembimbingMagang,
         },
-        data: {
-          dosenPembimbingMagang: {
-            connect: {
-              nip: updateMahasiswaDto.dosenPembimbingMagang.nip,
-            },
-          },
-          pembimbingLapangan: {
-            connect: {
-              nip: updateMahasiswaDto.pembimbingLapangan.nip == null ? undefined : updateMahasiswaDto.pembimbingLapangan.nip,
-            }
-          },
-          satker: {
-            connect: {
-              kode: updateMahasiswaDto.satker.kode == null ? undefined : updateMahasiswaDto.satker.kode,
-            },
-          },
+        pembimbingLapangan: {
+          ...cekPembimbingLapangan,
         },
-        select: {
-          nim: true,
-          nama: true,
-          kelas: true,
-          pembimbingLapangan: {
-            select: {
-              nama: true,
-            }
-          },
-          dosenPembimbingMagang: {
-            select: {
-              nama: true,
-            }
-          },
-          satker: {
-            select: {
-              nama: true,
-            }
-          },
-          alamat: true,
-          tahunAjaranMahasiswa: true,
+        satker: {
+          ...cekSatker,
         },
-      });
+        alamat: updateMahasiswaDto.alamat,
+      },
+    });
 
-      return {
-        status: 'success',
-        message: 'Data Mahasiswa Berhasil Diupdate',
-        data: updatedMahasiswa,
-      };
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'request failed',
-        error: error,
-      };
-    }
+    const updatedMahasiswa = await this.prisma.mahasiswa.findUnique({
+      where: {
+        mahasiswaId: mahasiswaId,
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Mahasiswa Berhasil Diupdate',
+      data: updatedMahasiswa,
+    };
   }
 }

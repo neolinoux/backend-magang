@@ -1,5 +1,6 @@
 
-import {PesertaBimbinganMagang} from './pesertaBimbinganMagang.entity'
+import {DosenPembimbingMagang} from './dosenPembimbingMagang.entity'
+import {PesertaBimbinganMahasiswa} from './pesertaBimbinganMahasiswa.entity'
 
 
 export class BimbinganMagang {
@@ -7,8 +8,9 @@ export class BimbinganMagang {
 tanggal: Date ;
 status: string ;
 tempat: string  | null;
-createdAt: Date  | null;
-updatedAt: Date  | null;
-nomorKelompok: number ;
-PesertaBimbinganMagang?: PesertaBimbinganMagang[] ;
+dosenPembimbingMagang?: DosenPembimbingMagang ;
+dosenId: number ;
+createdAt: Date ;
+updatedAt: Date ;
+PesertaBimbinganMagang?: PesertaBimbinganMahasiswa[] ;
 }

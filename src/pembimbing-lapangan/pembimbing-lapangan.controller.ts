@@ -12,7 +12,12 @@ export class PembimbingLapanganController {
   constructor(private readonly pembimbingLapanganService: PembimbingLapanganService) {}
 
   @Get()
-  findAll(@Query() params: any) {
+  findAll(
+    @Query() params: {
+      nip: string,
+      tahunAjaran: string,
+    }
+  ) {
     return this.pembimbingLapanganService.findAllPemlapBy(params);
   }
 
@@ -21,13 +26,18 @@ export class PembimbingLapanganController {
     return this.pembimbingLapanganService.create(createPembimbingLapangan);
   }
 
-  @Put(':nip')
-  update(@Param('nip') nip: string, @Body() updatePembimbingLapangan: UpdatePembimbingLapanganDto) {
-    return this.pembimbingLapanganService.update(nip, updatePembimbingLapangan);
+  @Put(':pemlapId')
+  update(
+    @Param('pemlapId') pemlapId: number,
+    @Body() updatePembimbingLapangan: UpdatePembimbingLapanganDto
+  ) {
+    return this.pembimbingLapanganService.update(pemlapId, updatePembimbingLapangan);
   }
 
-  @Delete(':nip')
-  remove(@Param('nip') nip: string) {
-    return this.pembimbingLapanganService.remove(nip);
+  @Delete(':pemlapId')
+  remove(
+    @Param('pemlapId') pemlapId: number
+  ) {
+    return this.pembimbingLapanganService.remove(pemlapId);
   }
 }

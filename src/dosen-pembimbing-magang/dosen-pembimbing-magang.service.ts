@@ -10,39 +10,31 @@ export class DosenPembimbingMagangService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async findAllDosenBy(params: any) {
-    try {
+  async findAllDosenBy(
+    params: {
+      nip: string,
+      nama: string,
+      prodi: string,
+      email: string,
+      tahunAjaran: string
+    }
+  ) {
       const data = await this.prisma.dosenPembimbingMagang.findMany({
         where: {
           nip: params.nip,
           nama: params.nama,
-          tahunAjaranDosen: {
-            every: {
-              tahunAjaran: {
-                tahun: params.tahun,
-              },
-            },
+          prodi: {
+            contains: params.prodi,
           },
-          prodi: params.prodi,
-        },
-        select: {
-          userId: true,
-          nip: true,
-          nama: true,
           user: {
-            select: {
-              email: true,
+            email: {
+              contains: params.email,
             },
-          },
-          prodi: true,
-          tahunAjaranDosen: {
-            select: {
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
+            tahunAjaran: {
+              tahun: {
+                contains: params.tahunAjaran,
               },
-            },
+            }
           },
         },
         orderBy: {
@@ -55,74 +47,14 @@ export class DosenPembimbingMagangService {
         message: 'Data Dosen Pembimbing Berhasil Diambil',
         data: data,
       };
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Data Dosen Pembimbing Gagal Diambil',
-        error: error
-      };
-    }
-  }
-
-  async update(nip: string, updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
-    const dosen = await this.prisma.dosenPembimbingMagang.findUnique({
-      where: {
-        nip: nip,
-      },
-    });
-
-    if(!dosen){
-      return {
-        status: 'error',
-        message: 'Data Dosen Tidak Ditemukan',
-      };
-    }
-
-    const updatedDosen = await this.prisma.dosenPembimbingMagang.update({
-      where: {
-        nip: nip,
-      },
-      data: {
-        user: {
-          update: {
-            email: updateDosenPembimbingMagang.user.email,
-          },
-        },
-      },
-      select: {
-        userId: true,
-        nip: true,
-        nama: true,
-        user: {
-          select: {
-            email: true,
-          },
-        },
-        prodi: true,
-      },
-    });
-
-    return {
-      status: 'success',
-      message: 'Data Dosen Berhasil Diubah',
-      data: updatedDosen,
-    };
   }
 
   async create(createDosenPembimbingMagang: CreateDosenPembimbingMagangDto) {
-    try {
-      const dosen = await this.prisma.dosenPembimbingMagang.findUnique({
+      await this.prisma.dosenPembimbingMagang.findFirstOrThrow({
         where: {
-          nip: createDosenPembimbingMagang.nip,
+          dosenId: createDosenPembimbingMagang.dosenId,
         },
       });
-  
-      if (dosen) {
-        return {
-          status: 'error',
-          message: 'Data Dosen Sudah Ada',
-        };
-      }
   
       const hashedPassword = await bcrypt.hash(createDosenPembimbingMagang.user.password, 10);
   
@@ -135,26 +67,18 @@ export class DosenPembimbingMagangService {
             create: {
               email: createDosenPembimbingMagang.user.email,
               password: hashedPassword,
-            },
-          },
-          tahunAjaranDosen: {
-            create: {
               tahunAjaran: {
                 connect: {
-                  tahun: createDosenPembimbingMagang.tahunAjaranDosen[0].tahunAjaran.tahun,
-                },
+                  tahun: (await this.prisma.tahunAjaran.findFirst({
+                    where: {
+                      isActive: true,
+                    },
+                    select: {
+                      tahun: true,
+                    },
+                  })).tahun,
+                }
               },
-            },
-          },
-        },
-        select: {
-          userId: true,
-          nip: true,
-          nama: true,
-          prodi: true,
-          user: {
-            select: {
-              email: true,
             },
           },
         },
@@ -165,12 +89,32 @@ export class DosenPembimbingMagangService {
         message: 'Data Dosen Pembimbing Berhasil Ditambahkan',
         data: dosenBaru,
       };
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Data Dosen Pembimbing Gagal Ditambahkan',
-        error: error
-      };
-    }
+  }
+
+  async update(dosenId: number, updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
+    const dosen = await this.prisma.dosenPembimbingMagang.findFirstOrThrow({
+      where: {
+        dosenId: dosenId,
+      },
+    });
+
+    const updatedDosen = await this.prisma.dosenPembimbingMagang.update({
+      where: {
+        dosenId: dosenId,
+      },
+      data: {
+        user: {
+          update: {
+            email: updateDosenPembimbingMagang.user.email,
+          },
+        },
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Dosen Berhasil Diubah',
+      data: updatedDosen,
+    };
   }
 }

@@ -9,5 +9,4 @@ export class CreatePresensiDto {
 waktuDatang: Date;
 waktuPulang: Date;
 status: string;
-createdAt?: Date;
 }

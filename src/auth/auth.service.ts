@@ -14,8 +14,12 @@ export class AuthService {
     private jwtService: JwtService
   ) { }
 
-  async login(email: string, password: string, token: string) {
-    const user = await this.prisma.user.findUnique({
+  async login(
+    email: string,
+    password: string,
+    token: string
+  ) {
+    const user = await this.prisma.user.findFirstOrThrow({
       select: {
         userId: true,
         email: true,
@@ -36,13 +40,7 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      throw new NotFoundException(`email ${email} not registered`);
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid password');
     }
 
@@ -57,7 +55,8 @@ export class AuthService {
     }
 
     const payload = {
-      id: user.userId
+      id: user.userId,
+      role: user.userRoles[0].role.roleName,
     };
 
     return {
@@ -85,32 +84,28 @@ export class AuthService {
   }
 
   async me(token: string) {
-    try {
-      const targetToken = token.split(' ')[1];
-  
-      if (!targetToken) {
-        throw await new UnauthorizedException('User not logged in');
+    const targetToken = token.split(' ')[1];
+
+    if (!targetToken) {
+      throw await new UnauthorizedException('User not logged in');
+    }
+
+    const invalidToken = await this.prisma.invalidToken.findUnique({
+      where: {
+        token: targetToken
       }
-  
-      const invalidToken = await this.prisma.invalidToken.findUnique({
-        where: {
-          token: targetToken
-        }
-      });
-  
-      if (invalidToken) {
-        throw await new UnauthorizedException('User not logged in');
-      }
-  
-      const payload = this.jwtService.decode(targetToken);
-  
-      return {
-        id: payload['id'],
-        email: payload['email'],
-        role: payload['role']
-      }
-    } catch (error) {
-      throw new UnauthorizedException('User not logged in');
+    });
+
+    if (invalidToken) {
+      throw await new UnauthorizedException('User not logged in');
+    }
+
+    const payload = this.jwtService.decode(targetToken);
+
+    return {
+      id: payload['id'],
+      email: payload['email'],
+      role: payload['role']
     }
   }
 }

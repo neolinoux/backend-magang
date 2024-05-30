@@ -3,40 +3,32 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
 import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
 import * as bcrypt from 'bcrypt';
+import { tr } from '@faker-js/faker';
 
 @Injectable()
 export class PembimbingLapanganService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAllPemlapBy(params: any) {
+  async findAllPemlapBy(
+    params: {
+      nip: string,
+      tahunAjaran: string,
+    }
+  ) {
     try {
-      const allPembimbingLapangan = await this.prisma.pembimbingLapangan.findMany({
+      const data = await this.prisma.pembimbingLapangan.findMany({
         select: {
           userId: true,
           nip: true,
           nama: true,
-          user: {
-            select: {
-              email: true,
-            },
-          },
-          tahunAjaranPemlap: {
-            select: {
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
-              },
-            },
-          },
+          user: true,
+          satker: true,
         },
         where: {
           nip: params.nip,
-          tahunAjaranPemlap: {
-            some: {
-              tahunAjaran: {
-                tahun: params.tahun,
-              },
+          user: {
+            tahunAjaran: {
+              tahun: params.tahunAjaran,
             },
           },
         },
@@ -45,7 +37,7 @@ export class PembimbingLapanganService {
       return {
         status: 'success',
         message: 'Data Pembimbing Lapangan Berhasil Diambil',
-        data: allPembimbingLapangan,
+        data: data,
       };
     } catch (error) {
       return {
@@ -58,18 +50,11 @@ export class PembimbingLapanganService {
 
   async create(createPembimbingLapangan: CreatePembimbingLapanganDto) {
     try {
-      const cekPembimbingLapangan = await this.prisma.pembimbingLapangan.findUnique({
+      await this.prisma.pembimbingLapangan.findFirstOrThrow({
         where: {
           nip: createPembimbingLapangan.nip,
         },
       });
-  
-      if (cekPembimbingLapangan) {
-        return {
-          status: 'error',
-          message: 'Data Pembimbing Lapangan Sudah Ada',
-        };
-      }
   
       const hashedPassword = await bcrypt.hash(createPembimbingLapangan.user.password, 10);
   
@@ -81,20 +66,16 @@ export class PembimbingLapanganService {
             create: {
               email: createPembimbingLapangan.user.email,
               password: hashedPassword,
-            },
-          },
-          tahunAjaranPemlap: {
-            create: {
               tahunAjaran: {
-                connect: {
-                  tahun: createPembimbingLapangan.tahunAjaranPemlap.tahunAjaran.tahun,
+                create: {
+                  tahun: createPembimbingLapangan.user.tahunAjaran.tahun,
                 },
               },
             },
           },
           satker: {
             connect: {
-              kode: createPembimbingLapangan.satker.kode,
+              satkerId: createPembimbingLapangan.satker.satkerId,
             },
           },
         },
@@ -102,20 +83,8 @@ export class PembimbingLapanganService {
           userId: true,
           nip: true,
           nama: true,
-          user: {
-            select: {
-              email: true,
-            },
-          },
-          tahunAjaranPemlap: {
-            select: {
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
-              },
-            },
-          },
+          user: true,
+          satker: true
         },
       });
   
@@ -133,21 +102,18 @@ export class PembimbingLapanganService {
     }
   }
 
-  async update(nip: string, updatePembimbingLapangan: UpdatePembimbingLapanganDto) {
+  async update(
+    pemlapId: number,
+    updatePembimbingLapangan: UpdatePembimbingLapanganDto
+  ) {
     try {
-      const cekPembimbingLapangan = await this.prisma.pembimbingLapangan.findUnique({
+      await this.prisma.pembimbingLapangan.findFirstOrThrow({
         where: {
-          nip: nip,
+          pemlapId: pemlapId,
         },
       });
-  
-      if (!cekPembimbingLapangan) {
-        return {
-          status: 'error',
-          message: 'Data Pembimbing Lapangan Tidak Ditemukan',
-        };
-      }
 
+      // jika passwordnya di update lakukan hashing
       let hashedPassword = '';
       if (updatePembimbingLapangan.user.password) {
         hashedPassword = await bcrypt.hash(updatePembimbingLapangan.user.password, 10);
@@ -156,7 +122,7 @@ export class PembimbingLapanganService {
 
       const data  = await this.prisma.pembimbingLapangan.update({
         where: {
-          nip: nip,
+          pemlapId: pemlapId,
         },
         data: {
           nip: updatePembimbingLapangan.nip,
@@ -172,11 +138,7 @@ export class PembimbingLapanganService {
           userId: true,
           nip: true,
           nama: true,
-          user: {
-            select: {
-              email: true,
-            },
-          },
+          user: true,
         },
       });
 
@@ -194,50 +156,29 @@ export class PembimbingLapanganService {
     }
   }
 
-  async remove(nip: string) {
+  async remove(pemlapId: number) {
     try {
-      const pemimbingLapangan = await this.prisma.pembimbingLapangan.findUnique({
+      await this.prisma.pembimbingLapangan.findFirstOrThrow({
         where: {
-          nip: nip,
+          pemlapId: pemlapId,
         },
         select: {
           userId: true,
           nip: true,
           nama: true,
-          user: {
-            select: {
-              email: true,
-            },
-          },
-          tahunAjaranPemlap: {
-            select: {
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
-              },
-            },
-          },
+          user: true,
         },
       });
   
-      if(!pemimbingLapangan){
-        return {
-          status: 'error',
-          message: 'Data Pembimbing Lapangan Tidak Ditemukan',
-        };
-      }
-  
       await this.prisma.pembimbingLapangan.delete({
         where: {
-          nip: nip,
+          pemlapId: pemlapId,
         },
       });
   
       return {
         status: 'success',
-        message: 'Data Pembimbing Lapangan Berhasil Dihapus',
-        data: pemimbingLapangan,
+        message: 'Data Pembimbing Lapangan Berhasil Dihapus'
       };
     } catch (error) {
       return {

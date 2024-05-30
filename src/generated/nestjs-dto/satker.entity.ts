@@ -5,24 +5,25 @@ import {Provinsi} from './provinsi.entity'
 import {KabupatenKota} from './kabupatenKota.entity'
 import {Mahasiswa} from './mahasiswa.entity'
 import {PembimbingLapangan} from './pembimbingLapangan.entity'
+import {KapasitasSatkerTahunAjaran} from './kapasitasSatkerTahunAjaran.entity'
 
 
 export class Satker {
   satkerId: number ;
-internalBPS: boolean ;
-adminProvinsi?: AdminProvinsi  | null;
-adminProvinsiId: number  | null;
-adminSatker?: AdminSatker  | null;
-adminSatkerId: number  | null;
-provinsi?: Provinsi  | null;
-kodeProvinsi: string  | null;
-kabupatenKota?: KabupatenKota  | null;
-kodeKabupatenKota: string  | null;
 nama: string ;
-kode: string ;
+kodeSatker: string ;
 email: string ;
 alamat: string ;
-kapasitas: number  | null;
+internalBPS: boolean ;
+adminProvinsi?: AdminProvinsi ;
+adminProvinsiId: number ;
+adminSatker?: AdminSatker ;
+adminSatkerId: number ;
+provinsi?: Provinsi ;
+povinsiId: number ;
+kabupatenKota?: KabupatenKota ;
+kabupatenKotaId: number ;
 mahasiswa?: Mahasiswa[] ;
 pembimbingLapangan?: PembimbingLapangan[] ;
+kapasitasSatkerTahunAjaran?: KapasitasSatkerTahunAjaran[] ;
 }

@@ -1,17 +1,12 @@
 import { TipeKegiatan } from "./tipeKegiatan.entity";
 
-
-
-
-
-
 export class UpdateKegiatanHarianDto {
   tanggal?: Date;
-deskripsi?: string;
-volume?: number;
-satuan?: string;
-durasi?: number;
-pemberiTugas?: string;
-  createdAt?: Date;
-  tipeKegiatan: TipeKegiatan;
+  deskripsi?: string;
+  volume?: number;
+  durasi?: number;
+  statusPenyelesaian?: number;
+  satuan?: string;
+  pemberiTugas?: string;
+  tipeKegiatan?: TipeKegiatan;
 }

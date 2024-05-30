@@ -10,27 +10,53 @@ export class PemilihanPenempatanController {
   constructor(private pemilihanPenempatanService: PemilihanPenempatanService) { }
   
   @Get()
-  async findAllPemilihanPenempatanBy(@Query() params: any){
+  async findAllPemilihanPenempatanBy(
+    @Query() params: {
+      satkerId: number,
+      mahasiswaId: number
+    }
+  ) {
     return this.pemilihanPenempatanService.findAllPemilihanPenempatanBy(params);
   }
 
-  @Put(':id')
-  async confirmPemilihanPenempatan(@Param('id') id: number, @Body() body: any){
-    return this.pemilihanPenempatanService.confirmPemilihanPenempatan(id, body);
+  @Put(':pilihanId')
+  async confirmPemilihanPenempatan(
+    @Param('pilihanId') pilihanId: number,
+    @Body() pilihanFinal: [
+      satkerId: number,
+    ]
+  ) {
+    return this.pemilihanPenempatanService.confirmPemilihanPenempatan(pilihanId, pilihanFinal);
   }
 
-  @Put('/e/:id')
-  async pindahPemilihanPenempatan(@Param('id') id: string, @Body() body: any){
-    return this.pemilihanPenempatanService.pindahPemilihanPenempatan(id, body);
+  @Put('/e/:mahasiswaId')
+  async pindahPemilihanPenempatan(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() pilihan: [
+      satkerId1: number,
+      satkerId2: number,
+      satkerId3: number,
+    ]
+  ) {
+    return this.pemilihanPenempatanService.pindahPemilihanPenempatan(mahasiswaId, pilihan);
   }
 
-  @Post()
-  async createPemilihanPenempatan(@Body() body: any) {
-    return this.pemilihanPenempatanService.createPemilihanPenempatan(body);
+  @Post(':mahasiswaId')
+  async createPemilihanPenempatan(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() pilihan: [
+      satkerId1: number,
+      satkerId2: number,
+      satkerId3: number,
+    ]
+  ) {
+    return this.pemilihanPenempatanService.createPemilihanPenempatan(mahasiswaId, pilihan);
   }
 
-  @Delete(':id')
-  async deletePemilihanPenempatan(@Param('id') id: string) {
-    return this.pemilihanPenempatanService.deletePemilihanPenempatan(id);
+  @Delete(':pilihanId')
+  async deletePemilihanPenempatan(
+    @Param('pilihanId') pilihanId: number
+  ) {
+    return this.pemilihanPenempatanService.deletePemilihanPenempatan(pilihanId);
   }
 }

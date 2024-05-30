@@ -12,22 +12,36 @@ export class SatkerController {
   constructor(private readonly satkerService: SatkerService) {}
 
   @Get()
-  async findAllSatkerBy(@Query() params: any) {
+  async findAllSatkerBy(
+    @Query() params: {
+      kodeSatker: string;
+      kodeProvinsi: string;
+      kodeKabupatenKota: string;
+      internalBPS: string;
+    }
+  ) {
     return this.satkerService.findAllSatkerBy(params);
   }
 
   @Post()
-  create(@Body() satker: CreateSatkerDto) {
+  create(
+    @Body() satker: CreateSatkerDto
+  ) {
     return this.satkerService.create(satker);
   }
 
-  @Put(':kode')
-  update(@Param('kode') kode: string, @Body() satker: UpdateSatkerDto) {
-    return this.satkerService.update(kode, satker);
+  @Put(':satkerId')
+  update(
+    @Param('satkerId') satkerId: number,
+    @Body() satker: UpdateSatkerDto
+  ) {
+    return this.satkerService.update(satkerId, satker);
   }
 
-  @Delete(':kode')
-  remove(@Param('kode') kode: string) {
-    return this.satkerService.remove(kode);
+  @Delete(':satkerId')
+  remove(
+    @Param('satkerId') satkerId: number
+  ) {
+    return this.satkerService.remove(satkerId);
   }
 }

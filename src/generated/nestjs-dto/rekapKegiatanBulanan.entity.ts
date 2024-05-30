@@ -4,8 +4,6 @@ import {Mahasiswa} from './mahasiswa.entity'
 
 export class RekapKegiatanBulanan {
   rekapId: number ;
-mahasiswa?: Mahasiswa ;
-nim: string ;
 periode: string ;
 uraian: string ;
 satuan: string ;
@@ -14,6 +12,8 @@ realisasi: number ;
 persentase: number ;
 tingkatKualitas: number  | null;
 keterangan: string  | null;
-createdAt: Date  | null;
-updatedAt: Date  | null;
+mahasiswa?: Mahasiswa ;
+mahasiswaId: number ;
+createdAt: Date ;
+updatedAt: Date ;
 }

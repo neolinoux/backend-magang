@@ -9,6 +9,6 @@ export class AdminProvinsi {
 user?: User ;
 userId: number ;
 provinsi?: Provinsi ;
-kodeProvinsi: string ;
+provinsiId: number ;
 satker?: Satker[] ;
 }

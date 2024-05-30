@@ -7,20 +7,14 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class BimbinganMagangService {
   constructor(
-    private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly prismaService: PrismaService
     ) { }
     
-  async createByMahasiswa(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
+  async createByMahasiswa(mahasiswaId: number, createBimbinganMagangDto: CreateBimbinganMagangDto) {
     try {
-      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
-      const mahasiswa = await this.prismaService.mahasiswa.findUnique({
+      const mahasiswa = await this.prismaService.mahasiswa.findFirstOrThrow({
         where: {
-          userId: userId
-        },
-        select: {
-          nim: true,
-          nipDosen: true
+          mahasiswaId: mahasiswaId
         }
       });
 
@@ -29,43 +23,21 @@ export class BimbinganMagangService {
           tanggal: new Date(createBimbinganMagangDto.tanggal),
           status: "Menunggu",
           tempat: createBimbinganMagangDto.tempat, //nullable
-          PesertaBimbinganMagang: {
+          PesertaBimbinganMahasiswa: {
             create: {
               mahasiswa: {
                 connect: {
-                  nim: mahasiswa.nim
+                  mahasiswaId: mahasiswaId
                 }
               },
-              dosen: {
-                connect: {
-                  nip: mahasiswa.nipDosen
-                }
-              }
             }
           },
-        },
-        select: {
-          bimbinganId: true,
-          tanggal: true,
-          status: true,
-          tempat: true,
-          PesertaBimbinganMagang: {
-            select: {
-              mahasiswa: {
-                select: {
-                  nim: true,
-                  nama: true
-                }
-              },
-              dosen: {
-                select: {
-                  nip: true,
-                  nama: true
-                }
-              }
+          dosenPembimbingMagang: {
+            connect: {
+              dosenId: mahasiswa.dosenId
             }
           }
-        }
+        },
       });
 
       return {
@@ -82,61 +54,51 @@ export class BimbinganMagangService {
     }
   }
 
-  async createByDosenPembimbing(createBimbinganMagangDto: CreateBimbinganMagangDto, req: any) {
+  async createByDosenPembimbing(
+    dosenId: number,
+    createBimbinganMagangDto: CreateBimbinganMagangDto
+  ) {
     try {
-      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
-      const dosen = await this.prismaService.dosenPembimbingMagang.findUnique({
-        where: {
-          userId: userId
-        },
-        select: {
-          nip: true,
-          mahasiswa: {
-            select: {
-              nim: true,
-              nama: true
-            }
-          }
-        }
-      });
-
+      // create tanpa peserta dulu
       const bimbinganMagang = await this.prismaService.bimbinganMagang.create({
         data: {
           tanggal: new Date(createBimbinganMagangDto.tanggal),
           status: "Menunggu",
           tempat: createBimbinganMagangDto.tempat, //nullable
+          dosenPembimbingMagang: {
+            connect: {
+              dosenId: dosenId
+            }
+          },
+          PesertaBimbinganMahasiswa: {
+            create: {
+              mahasiswa: null
+            }
+          }
         },
-        select: {
-          bimbinganId: true,
-        }
       });
 
-      for (let i = 0; i < createBimbinganMagangDto.pesertaBimbinganMagang[0].mahasiswa.length; i++) {
-        await this.prismaService.pesertaBimbinganMagang.create({
+      for (let i = 0; i < createBimbinganMagangDto.pesertaBimbinganMahasiswa[0].mahasiswa.length; i++) {
+        await this.prismaService.pesertaBimbinganMahasiswa.create({
           data: {
             bimbingan: {
               connect: {
-                bimbinganId: bimbinganMagang.bimbinganId
+                bimbinganId: bimbinganMagang.bimbinganId,
               }
             },
             mahasiswa: {
               connect: {
-                nim: createBimbinganMagangDto.pesertaBimbinganMagang[0].mahasiswa[i].nim
-              }
-            },
-            dosen: {
-              connect: {
-                nip: dosen.nip
+                mahasiswaId: createBimbinganMagangDto.pesertaBimbinganMahasiswa[0].mahasiswa[i].mahasiswaId
               }
             }
           }
-        });
+        })
       }
 
       return {
         status: "success",
         message: "Bimbingan Magang Berhasil Ditambahkan",
-        // data: data
+        data: bimbinganMagang
       }
     } catch (error) {
       return {
@@ -147,27 +109,32 @@ export class BimbinganMagangService {
     }
   }
 
-  async findAllBimbinganMagangMahasiswaBy(nim: string) {
+  async findAllBimbinganMagangBy(
+    query: {
+      mahasiswaId: number;
+      dosenId: number;
+      tanggal: Date;
+      status: string;
+    }
+  ) {
     try {
-      const data = await this.prismaService.bimbinganMagang.findMany({
+      const listBimbinganMagang = await this.prismaService.bimbinganMagang.findMany({
         where: {
-          PesertaBimbinganMagang: {
+          dosenId: query.dosenId,
+          PesertaBimbinganMahasiswa: {
             some: {
-              mahasiswa: {
-                nim: nim
-              }
-            },
+              mahasiswaId: query.mahasiswaId
+            }
           },
-        },
-        orderBy: {
-          tanggal: "asc"
+          tanggal: query.tanggal,
+          status: query.status,
         },
       });
       
       return {
         status: "success",
         message: "Data Bimbingan Magang Berhasil Diambil",
-        data: data
+        data: listBimbinganMagang
       }
     } catch (error) {
       return {
@@ -178,83 +145,11 @@ export class BimbinganMagangService {
     }
   }
 
-  async findAllBimbinganMagangDosenPembimbingBy(nip: string, query: any) {
+  async update(bimbinganId: number, updateBimbinganMagangDto: UpdateBimbinganMagangDto) {
     try {
-      const data = await this.prismaService.bimbinganMagang.findMany({
+      const bimbinganMagang = await this.prismaService.bimbinganMagang.update({
         where: {
-          PesertaBimbinganMagang: {
-            some: {
-              dosen: {
-                nip: nip
-              }
-            },
-          },
-          status: query.status,
-          tanggal: query.tanggal
-        },
-        select: {
-          bimbinganId: true,
-          tanggal: true,
-          status: true,
-          tempat: true,
-          PesertaBimbinganMagang: {
-            select: {
-              mahasiswa: {
-                select: {
-                  nim: true,
-                  nama: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: {
-          tanggal: "asc"
-        },
-      });
-      
-      return {
-        status: "success",
-        message: "Data Bimbingan Magang Berhasil Diambil",
-        data: data
-      }
-    } catch (error) {
-      return {
-        status: "error",
-        message: "Gagal Mengambil Data Bimbingan Magang",
-        error: error.message
-      }
-    }
-  }
-
-  async update(id: number, updateBimbinganMagangDto: UpdateBimbinganMagangDto, req: any) {
-    try {
-      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
-      const mahasiswa = await this.prismaService.mahasiswa.findUnique({
-        where: {
-          userId: userId
-        },
-      });
-
-      const cekBimbingan = await this.prismaService.pesertaBimbinganMagang.findFirst({
-        where: {
-          bimbinganId: id,
-          mahasiswa: {
-            nim: mahasiswa.nim,
-          }
-        },
-      });
-
-      if (!cekBimbingan) {
-        return {
-          status: "error",
-          message: "Bimbingan Magang Tidak Ditemukan",
-        }
-      }
-
-      const data = await this.prismaService.bimbinganMagang.update({
-        where: {
-          bimbinganId: id
+          bimbinganId: bimbinganId
         },
         data: {
           tanggal: new Date(updateBimbinganMagangDto.tanggal),
@@ -265,51 +160,22 @@ export class BimbinganMagangService {
       return {
         status: "success",
         message: "Bimbingan Magang Berhasil Diubah",
-        data: data
+        data: bimbinganMagang
       }
     } catch (error) {
       return {
         status: "error",
         message: "Gagal Mengubah Bimbingan Magang",
-        error: error.message
+        error: error
       }
     }
   }
 
-  async confirm(id: number, req: any) {
+  async confirm(bimbinganId: number) {
     try {
-      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
-      const dosen = await this.prismaService.dosenPembimbingMagang.findUnique({
+        const bimbinganMagang = await this.prismaService.bimbinganMagang.update({
         where: {
-          userId: userId
-        },
-        select: {
-          nip: true
-        }
-      });
-      
-      const cekBimbingan = await this.prismaService.pesertaBimbinganMagang.findFirst({
-        where: {
-          bimbinganId: id,
-          dosen: {
-            nip: dosen.nip,
-          }
-        },
-        select: {
-          bimbinganId: true
-        }
-      });
-      
-      if (!cekBimbingan) {
-        return {
-          status: "error",
-          message: "Bimbingan Magang Tidak Ditemukan",
-        }
-      }
-      
-      const data = await this.prismaService.bimbinganMagang.update({
-        where: {
-          bimbinganId: id
+          bimbinganId: bimbinganId
         },
         data: {
           status: "Disetujui",
@@ -319,7 +185,7 @@ export class BimbinganMagangService {
       return {
         status: "success",
         message: "Bimbingan Magang Berhasil Disetujui",
-        data: data
+        data: bimbinganMagang
       }
     } catch (error) {
       return {

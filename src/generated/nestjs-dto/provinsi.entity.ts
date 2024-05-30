@@ -1,7 +1,7 @@
 
 import {AdminProvinsi} from './adminProvinsi.entity'
-import {KabupatenKota} from './kabupatenKota.entity'
 import {Satker} from './satker.entity'
+import {KabupatenKota} from './kabupatenKota.entity'
 
 
 export class Provinsi {
@@ -9,6 +9,6 @@ export class Provinsi {
 nama: string ;
 kodeProvinsi: string ;
 adminProvinsi?: AdminProvinsi  | null;
-kabupatenKota?: KabupatenKota[] ;
 satker?: Satker[] ;
+kabupatenKota?: KabupatenKota[] ;
 }

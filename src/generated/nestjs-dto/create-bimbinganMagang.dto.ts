@@ -1,4 +1,4 @@
-import { PesertaBimbinganMagang } from "./pesertaBimbinganMagang.entity";
+import { PesertaBimbinganMahasiswa } from "./pesertaBimbinganMahasiswa.entity";
 
 
 
@@ -7,8 +7,7 @@ import { PesertaBimbinganMagang } from "./pesertaBimbinganMagang.entity";
 
 export class CreateBimbinganMagangDto {
   tanggal: Date;
-status: string;
-tempat?: string;
-  createdAt?: Date;
-  pesertaBimbinganMagang: PesertaBimbinganMagang;
+  status: string;
+  tempat?: string;
+  pesertaBimbinganMahasiswa: PesertaBimbinganMahasiswa;
 }

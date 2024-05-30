@@ -1,3 +1,4 @@
+import { AdminSatker } from "./adminSatker.entity";
 import { KabupatenKota } from "./kabupatenKota.entity";
 import { Provinsi } from "./provinsi.entity";
 
@@ -8,12 +9,11 @@ import { Provinsi } from "./provinsi.entity";
 
 export class CreateSatkerDto {
   nama: string;
-kode: string;
-email: string;
-alamat: string;
-  kapasitas?: number;
+  kodeSatker: string;
+  email: string;
+  alamat: string;
   internalBPS: boolean;
-  provinsi: Provinsi;
   kabupatenKota: KabupatenKota;
-  
+  provinsi: Provinsi;
+  adminSatker: AdminSatker;
 }

@@ -5,7 +5,6 @@
 
 
 export class CreatePilihanSatkerDto {
-  nim: string;
-kodeSatker: string;
-createdAt?: Date;
+  mahasiswaId: number;
+satkerId: number;
 }

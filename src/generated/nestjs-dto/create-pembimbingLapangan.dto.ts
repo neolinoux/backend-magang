@@ -1,5 +1,4 @@
 import { Satker } from "./satker.entity";
-import { TahunAjaranPembimbingLapangan } from "./tahunAjaranPembimbingLapangan.entity";
 import { User } from "./user.entity";
 
 
@@ -12,5 +11,4 @@ export class CreatePembimbingLapanganDto {
   nama: string;
   user: User;
   satker: Satker;
-  tahunAjaranPemlap: TahunAjaranPembimbingLapangan;
 }

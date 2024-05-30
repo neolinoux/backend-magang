@@ -5,8 +5,6 @@ import {TipeKegiatan} from './tipeKegiatan.entity'
 
 export class KegiatanHarian {
   kegiatanId: number ;
-mahasiswa?: Mahasiswa ;
-nim: string ;
 tanggal: Date ;
 deskripsi: string ;
 volume: number ;
@@ -14,8 +12,10 @@ satuan: string ;
 durasi: number ;
 pemberiTugas: string ;
 statusPenyelesaian: number ;
-createdAt: Date  | null;
-updatedAt: Date  | null;
+mahasiswa?: Mahasiswa ;
+mahasiswaId: number ;
 tipeKegiatan?: TipeKegiatan  | null;
 tipeKegiatanId: number  | null;
+createdAt: Date ;
+updatedAt: Date ;
 }

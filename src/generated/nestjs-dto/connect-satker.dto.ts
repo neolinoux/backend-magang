@@ -1,8 +1,8 @@
 
   export class ConnectSatkerDto {
     satkerId?: number;
+kodeSatker?: string;
 adminSatkerId?: number;
-kodeKabupatenKota?: string;
-kode?: string;
+kabupatenKotaId?: number;
   }
   

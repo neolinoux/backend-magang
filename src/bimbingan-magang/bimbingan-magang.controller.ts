@@ -14,33 +14,46 @@ export class BimbinganMagangController {
     private readonly bimbinganMagangService: BimbinganMagangService,
   ) { }
 
-  @Post()
-  createByMahasiswa(@Body() createBimbinganMagangDto: CreateBimbinganMagangDto, @Req() req: any) {
-    return this.bimbinganMagangService.createByMahasiswa(createBimbinganMagangDto, req);
+  @Post('mahasiswa/:mahasiswaId')
+  createByMahasiswa(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() createBimbinganMagangDto: CreateBimbinganMagangDto
+  ) {
+    return this.bimbinganMagangService.createByMahasiswa(mahasiswaId, createBimbinganMagangDto);
   }
 
-  @Post()
-  createByDosen(@Body() createBimbinganMagangDto: CreateBimbinganMagangDto, @Req() req: any) {
-    return this.bimbinganMagangService.createByDosenPembimbing(createBimbinganMagangDto, req);
+  @Post('dosen-pembimbing/:dosenId')
+  createByDosen(
+    @Param('dosenId') dosenId: number,
+    @Body() createBimbinganMagangDto: CreateBimbinganMagangDto
+  ) {
+    return this.bimbinganMagangService.createByDosenPembimbing(dosenId, createBimbinganMagangDto);
   }
 
-  @Get('mahasiswa/:nim')
-  findAllBimbinganMagangMahasiswaBy(@Param('nim') nim: string) {
-    return this.bimbinganMagangService.findAllBimbinganMagangMahasiswaBy(nim);
+  @Get()
+  findAllBimbinganMagangMahasiswaBy(
+    @Query() query: {
+      mahasiswaId: number;
+      dosenId: number;
+      tanggal: Date;
+      status: string;
+    }
+  ) {
+    return this.bimbinganMagangService.findAllBimbinganMagangBy(query);
   }
 
-  @Get('dosen-pembimbing/:nip')
-  findAllBimbinganMagangDosenPembimbingBy(@Param('nip') nip: string,@Query() query: any) {
-    return this.bimbinganMagangService.findAllBimbinganMagangDosenPembimbingBy(nip, query);
+  @Put(':bimbinganId')
+  update(
+    @Param('bimbinganId') bimbinganId: number,
+    @Body() updateBimbinganMagangDto: UpdateBimbinganMagangDto,
+  ) {
+    return this.bimbinganMagangService.update(bimbinganId, updateBimbinganMagangDto);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateBimbinganMagangDto: UpdateBimbinganMagangDto, @Req() req: any){
-    return this.bimbinganMagangService.update(+id, updateBimbinganMagangDto, req);
-  }
-
-  @Put('confirm/:id')
-  confirm(@Param('id') id: string, @Req() req: any) {
-    return this.bimbinganMagangService.confirm(+id, req);
+  @Put('confirm/:bimbinganId')
+  confirm(
+    @Param('bimbinganId') bimbinganId: number
+  ) {
+    return this.bimbinganMagangService.confirm(bimbinganId);
   }
 }

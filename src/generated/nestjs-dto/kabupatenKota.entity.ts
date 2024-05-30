@@ -7,7 +7,7 @@ export class KabupatenKota {
   kabupatenKotaId: number ;
 kodeKabupatenKota: string ;
 nama: string ;
-provinsi?: Provinsi  | null;
-kodeProvinsi: string  | null;
+provinsi?: Provinsi ;
+provinsiId: number ;
 satker?: Satker  | null;
 }

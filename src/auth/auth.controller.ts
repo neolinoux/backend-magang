@@ -23,15 +23,15 @@ export class AuthController {
     private readonly usersService: UsersService
   ) { }
   
-  @Post('signup')
-  async signupUser(
-    @Body() {
-      email,
-      password
-    }: CreateUserDto,
-  ): Promise<UserModel> {
-    return this.usersService.createUser({ email, password });
-  }
+  // @Post('signup')
+  // async signupUser(
+  //   @Body() {
+  //     email,
+  //     password
+  //   }: CreateUserDto,
+  // ): Promise<UserModel> {
+  //   return this.usersService.createUser({ email, password });
+  // }
 
   @Post('login')
   @ApiOkResponse({ type: AuthEntity })
@@ -52,14 +52,14 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logoutUser(@Request() req: any) {
+  async logoutUser(@Request() req) {
     return this.authService.logout(req.headers['authorization']);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async getCurrentUser(@Request() req: any) {
+  async getCurrentUser(@Request() req) {
     return this.authService.me(req.headers['authorization']);
   }
 }

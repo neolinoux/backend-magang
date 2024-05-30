@@ -1,4 +1,3 @@
-import { TahunAjaranDosen } from "./tahunAjaranDosen.entity";
 import { User } from "./user.entity";
 
 
@@ -7,9 +6,9 @@ import { User } from "./user.entity";
 
 
 export class CreateDosenPembimbingMagangDto {
+  dosenId: number;
   nip: string;
-nama: string;
+  nama: string;
   prodi: string;
   user: User;
-  tahunAjaranDosen: TahunAjaranDosen[];
 }

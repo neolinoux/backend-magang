@@ -5,10 +5,10 @@ import {KegiatanHarian} from './kegiatanHarian.entity'
 
 export class TipeKegiatan {
   tipeKegiatanId: number ;
-mahasiswa?: Mahasiswa ;
-nim: string ;
 nama: string ;
+mahasiswa?: Mahasiswa ;
+mahasiswaId: number ;
+createdAt: Date ;
+updatedAt: Date ;
 kegiatanHarian?: KegiatanHarian[] ;
-createdAt: Date  | null;
-updatedAt: Date  | null;
 }

@@ -4,9 +4,9 @@
 
 export class PilihanSatker {
   pilihanSatkerId: number ;
-nim: string ;
-kodeSatker: string ;
+mahasiswaId: number ;
+satkerId: number ;
 status: string ;
-createdAt: Date  | null;
-updatedAt: Date  | null;
+createdAt: Date ;
+updatedAt: Date ;
 }

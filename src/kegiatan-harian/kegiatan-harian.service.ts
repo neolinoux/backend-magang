@@ -4,6 +4,7 @@ import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiata
 import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiatanHarian.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { CreateTipeKegiatanDto } from 'src/generated/nestjs-dto/create-tipeKegiatan.dto';
 
 @Injectable()
 export class KegiatanHarianService {
@@ -12,38 +13,29 @@ export class KegiatanHarianService {
     private jwtService: JwtService
   ) { }
 
-  async createKegiatanHarian(createKegiatanHarian: CreateKegiatanHarianDto, req: any) {
+  async createKegiatanHarian(createKegiatanHarian: CreateKegiatanHarianDto, mahasiswaId: number) {
     try {
-      const userId = await this.jwtService.decode(req.headers['authorization'].split(' ')[1])['id'];
-      const mahasiswa = await this.prismaService.mahasiswa.findUnique({
-        where: {
-          userId: userId
-        },
-        select: {
-          nim: true
-        }
-      });
-      
       const data = await this.prismaService.kegiatanHarian.create({
         data: {
-          mahasiswa: {
-            connect: {
-              nim: mahasiswa.nim
-            }
-          },
           tanggal: new Date(createKegiatanHarian.tanggal),
           deskripsi: createKegiatanHarian.deskripsi,
           volume: createKegiatanHarian.volume,
           satuan: createKegiatanHarian.satuan,
           durasi: createKegiatanHarian.durasi,
           pemberiTugas: createKegiatanHarian.pemberiTugas,
+          statusPenyelesaian: createKegiatanHarian.statusPenyelesaian,
           tipeKegiatan: {
             connect: {
               tipeKegiatanId: createKegiatanHarian.tipeKegiatan.tipeKegiatanId
             }
           },
+          mahasiswa: {
+            connect: {
+              mahasiswaId: mahasiswaId
+            }
+          }
         }
-      })
+      });
 
       return {
         status: "success",
@@ -59,14 +51,14 @@ export class KegiatanHarianService {
     }
   }
 
-  async create(tipeKegiatan: TipeKegiatan, nim: string) {
+  async createTipeKegiatan(tipeKegiatan: CreateTipeKegiatanDto, mahasiswaId: number) {
     try {
       const data = await this.prismaService.tipeKegiatan.create({
         data: {
           nama: tipeKegiatan.nama,
           mahasiswa: {
             connect: {
-              nim: nim,
+              mahasiswaId: mahasiswaId
             }
           }
         }
@@ -85,32 +77,35 @@ export class KegiatanHarianService {
     }
   }
 
-  async findAllKegiatanHarianMahasiswa(nim: string, params: any) {
+  async findAllKegiatanHarianMahasiswa(
+    mahasiswaId: number,
+    params: {
+      nim: string,
+      tanggal: Date,
+      satuan: string,
+      pemberiTugas: string,
+      namaTipeKegiatan: string,
+      statusPenyelesaian: number,
+    }
+  ) {
     try {
       const kegiatanHarian = await this.prismaService.kegiatanHarian.findMany({
         where: {
-          nim: nim,
+          mahasiswa: {
+            mahasiswaId: mahasiswaId,
+          },
           tanggal: params.tanggal !== undefined ? new Date(params.tanggal) : undefined,
-          tipeKegiatan: params.tipeKegiatan,
+          tipeKegiatan: {
+            nama: {
+              contains: params.namaTipeKegiatan
+            }
+          },
           statusPenyelesaian: params.statusPenyelesaian,
-          pemberiTugas: params.pemberiTugas,
+          pemberiTugas: {
+            contains: params.pemberiTugas
+          },
           satuan: params.satuan
         },
-        select: {
-          kegiatanId: true,
-          tanggal: true,
-          deskripsi: true,
-          volume: true,
-          satuan: true,
-          durasi: true,
-          pemberiTugas: true,
-          statusPenyelesaian: true,
-          tipeKegiatan: { //nullable
-            select: {
-              nama: true
-            }
-          }
-        }
       });
 
       return {
@@ -127,12 +122,17 @@ export class KegiatanHarianService {
     }
   }
 
-  async findAllTipeKegiatan(params: any) {
+  async findAllTipeKegiatan(
+    params: {
+      nama: string
+    }
+  ) {
     try {
       const tipeKegiatan = await this.prismaService.tipeKegiatan.findMany({
         where: {
-          nim: params.nim,
-          nama: params.nama,
+          nama: {
+            contains: params.nama
+          },
         }
       });
 
@@ -150,13 +150,23 @@ export class KegiatanHarianService {
     }
   }
 
-  async findAllKegiatanHarianPembimbingLapangan(nip: string, params: any) {
+  async findAllKegiatanHarianPembimbingLapangan(
+    pemlapId: number,
+    params: {
+      nim: string,
+      tanggal: Date,
+      satuan: string,
+      pemberiTugas: string,
+      namaTipeKegiatan: string,
+      statusPenyelesaian: number
+    }
+  ) {
     try {
-      const data = await this.prismaService.kegiatanHarian.findMany({
+      const kegiatanHarian = await this.prismaService.kegiatanHarian.findMany({
         where: {
           mahasiswa: {
             pembimbingLapangan: {
-              nip: nip
+              pemlapId: pemlapId
             },
             nim: params.nim
           },
@@ -164,7 +174,7 @@ export class KegiatanHarianService {
             equals: params.tanggal !== undefined ? new Date(params.tanggal) : undefined
           },
           tipeKegiatan: {
-            nama: params.tipeKegiatan
+            nama: params.namaTipeKegiatan
           },
           statusPenyelesaian: {
             equals: params.statusPenyelesaian
@@ -172,33 +182,12 @@ export class KegiatanHarianService {
           pemberiTugas: params.pemberiTugas,
           satuan: params.satuan
         },
-        select: {
-          kegiatanId: true,
-          mahasiswa: {
-            select: {
-              nim: true,
-              nama: true
-            }
-          },
-          tanggal: true,
-          deskripsi: true,
-          volume: true,
-          satuan: true,
-          durasi: true,
-          pemberiTugas: true,
-          statusPenyelesaian: true,
-          tipeKegiatan: {
-            select: {
-              nama: true
-            }
-          }
-        }
       });
 
       return {
         status: "success",
         message: "Berhasil Mengambil Kegiatan Harian",
-        data: data
+        data: kegiatanHarian
       }
     } catch (error) {
       return {
@@ -209,13 +198,23 @@ export class KegiatanHarianService {
     }
   }
 
-  async findAllKegiatanHarianDosenPembimbing(nip: string, params: any) {
+  async findAllKegiatanHarianDosenPembimbing(
+    dosenId: number,
+    params: {
+      nim: string,
+      tanggal: Date,
+      namaTipeKegiatan: string,
+      statusPenyelesaian: number,
+      pemberiTugas: string,
+      satuan: string
+    }
+  ) {
     try {
-      const data = await this.prismaService.kegiatanHarian.findMany({
+      const kegiatanHarian = await this.prismaService.kegiatanHarian.findMany({
         where: {
           mahasiswa: {
             dosenPembimbingMagang: {
-              nip: nip
+              dosenId: dosenId
             },
             nim: params.nim
           },
@@ -223,31 +222,14 @@ export class KegiatanHarianService {
             equals: params.tanggal !== undefined ? new Date(params.tanggal) : undefined
           },
           tipeKegiatan: {
-            nama: params.tipeKegiatan
+            nama: params.namaTipeKegiatan
           },
           statusPenyelesaian: params.statusPenyelesaian,
-          pemberiTugas: params.pemberiTugas,
-          satuan: params.satuan
-        },
-        select: {
-          kegiatanId: true,
-          mahasiswa: {
-            select: {
-              nim: true,
-              nama: true
-            }
+          pemberiTugas: {
+            contains: params.pemberiTugas
           },
-          tanggal: true,
-          deskripsi: true,
-          volume: true,
-          satuan: true,
-          durasi: true,
-          pemberiTugas: true,
-          statusPenyelesaian: true,
-          tipeKegiatan: {
-            select: {
-              nama: true
-            }
+          satuan: {
+            contains: params.satuan
           }
         }
       });
@@ -255,7 +237,7 @@ export class KegiatanHarianService {
       return {
         status: "success",
         message: "Berhasil Mengambil Kegiatan Harian",
-        data: data
+        data: kegiatanHarian
       }
     } catch (error) {
       return {
@@ -267,41 +249,25 @@ export class KegiatanHarianService {
   }
 
   async updateKegiatanHarian(
-    nim: string,
-    id: number,
+    kegiatanHarianId: number,
     updateKegiatanHarianDto: UpdateKegiatanHarianDto
   ) {
     try {
-      const data = await this.prismaService.mahasiswa.update({
+      const kegiatanHarian = await this.prismaService.kegiatanHarian.update({
         where: {
-          nim: nim
+          kegiatanId: kegiatanHarianId
         },
         data: {
-          kegiatanHarian: {
-            update: {
-              where: {
-                kegiatanId: id
-              },
-              data: {
-                tanggal: updateKegiatanHarianDto.tanggal !== undefined ? new Date(updateKegiatanHarianDto.tanggal) : undefined,
-                deskripsi: updateKegiatanHarianDto.deskripsi,
-                volume: updateKegiatanHarianDto.volume,
-                satuan: updateKegiatanHarianDto.satuan,
-                durasi: updateKegiatanHarianDto.durasi,
-                pemberiTugas: updateKegiatanHarianDto.pemberiTugas,
-                tipeKegiatan: {
-                  connect: {
-                    tipeKegiatanId: updateKegiatanHarianDto.tipeKegiatan.tipeKegiatanId
-                  }
-                }
-              }
-            }
-          }
-        },
-        select: {
-          kegiatanHarian: {
-            where: {
-              kegiatanId: id
+          tanggal: new Date(updateKegiatanHarianDto.tanggal),
+          deskripsi: updateKegiatanHarianDto.deskripsi,
+          volume: updateKegiatanHarianDto.volume,
+          satuan: updateKegiatanHarianDto.satuan,
+          durasi: updateKegiatanHarianDto.durasi,
+          pemberiTugas: updateKegiatanHarianDto.pemberiTugas,
+          statusPenyelesaian: updateKegiatanHarianDto.statusPenyelesaian,
+          tipeKegiatan: {
+            connect: {
+              tipeKegiatanId: updateKegiatanHarianDto.tipeKegiatan.tipeKegiatanId
             }
           }
         }
@@ -310,7 +276,7 @@ export class KegiatanHarianService {
       return {
         status: 'success',
         message: 'Kegiatan Harian Berhasil Diupdate',
-        data: data
+        data: kegiatanHarian
       }
     } catch (error) {
       return {
@@ -321,37 +287,25 @@ export class KegiatanHarianService {
     }
   }
 
-  async konfirmasiKegiatanHarian(nim: string, id: number, konfirmasi: any) {
+  async konfirmasiKegiatanHarian(
+    kegiatanId: number, konfirmasi: {
+      statusPenyelesaian: number
+    }
+  ) {
     try {
-      const data = await this.prismaService.mahasiswa.update({
+      const kegiatanHarian = await this.prismaService.kegiatanHarian.update({
         where: {
-          nim: nim
+          kegiatanId: kegiatanId
         },
         data: {
-          kegiatanHarian: {
-            update: {
-              where: {
-                kegiatanId: id
-              },
-              data: {
-                statusPenyelesaian: konfirmasi.statusPenyelesaian
-              }
-            }
-          }
-        },
-        select: {
-          kegiatanHarian: {
-            where: {
-              kegiatanId: id
-            }
-          }
+          statusPenyelesaian: konfirmasi.statusPenyelesaian
         }
       });
 
       return {
         status: 'success',
         message: 'Kegiatan Harian Berhasil Dikonfirmasi',
-        data: data
+        data: kegiatanHarian
       }
     } catch (error) {
       return {
@@ -362,7 +316,25 @@ export class KegiatanHarianService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} kegiatanHarian`;
+  async remove(kegiatanId: number) {
+    try {
+      const kegiatanHarian = await this.prismaService.kegiatanHarian.delete({
+        where: {
+          kegiatanId: kegiatanId
+        }
+      });
+
+      return {
+        status: 'success',
+        message: 'Kegiatan Harian Berhasil Dihapus',
+        data: kegiatanHarian
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Kegiatan Harian Gagal Dihapus',
+        data: error
+      }
+    }
   }
 }

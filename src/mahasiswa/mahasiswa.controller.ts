@@ -1,21 +1,24 @@
 import {
-  Controller,
+  Put,
   Get,
   Post,
   Body,
   Param,
-  Put,
+  Query,
+  UseGuards,
+  Controller,
+  UploadedFile,
   UseInterceptors,
   UploadedFiles,
-  UseGuards,
-  Query
 } from '@nestjs/common';
 import { MahasiswaService } from './mahasiswa.service';
 import { ApiConsumes, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { JwtService } from '@nestjs/jwt';
+import * as XLSX from 'xlsx';
+import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
+import { da } from '@faker-js/faker';
 
 @ApiTags('mahasiswa')
 @ApiBearerAuth()
@@ -25,7 +28,19 @@ export class MahasiswaController {
   constructor(private readonly mahasiswaService: MahasiswaService) {}
 
   @Get()
-  async getMahasiswa(@Query() params: any) {
+  async getMahasiswa(
+    @Query() params: {
+      nim: string;
+      nama: string;
+      kelas: string;
+      prodi: string;
+      nipDosen: string;
+      nipPemlap: string;
+      kodeSatker: string;
+      email: string;
+      tahunAjaran: string;
+    }
+  ) {
     const data = await this.mahasiswaService.findAll(params);
 
     return {
@@ -36,17 +51,27 @@ export class MahasiswaController {
   }
 
   @Post('excel')
-  @UseInterceptors(FilesInterceptor('file'))
   @ApiConsumes('multipart/form-data')
-  async importExcel(@UploadedFiles() files: Array<Express.Multer.File>) {
-    console.log(files);
-    const response = await this.mahasiswaService.importExcel(files);
+  @UseInterceptors(FileInterceptor('file'))
+  async importExcel(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      throw new Error('File harus berformat xlsx');
+    }
 
-    return response;
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    return this.mahasiswaService.importExcel(data);
   }
 
-  @Put(':nim')
-  update(@Param('nim') nim: string, @Body() updateMahasiswaDto: UpdateMahasiswaDto) {
-    return this.mahasiswaService.update(nim, updateMahasiswaDto);
+  @Put(':mahasiswaId')
+  update(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() updateMahasiswaDto: UpdateMahasiswaDto
+  ) {
+    return this.mahasiswaService.update(+mahasiswaId, updateMahasiswaDto);
   }
 }

@@ -5,23 +5,23 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PemilihanPenempatanService {
   constructor(private prisma: PrismaService) { }
 
-  async findAllPemilihanPenempatanBy(params: any) {
+  async findAllPemilihanPenempatanBy(
+    params: {
+      satkerId: number,
+      mahasiswaId: number
+    }
+  ) {
     try {
       const data = await this.prisma.pilihanSatker.findMany({
         where: {
-          kodeSatker: params.kodeSatker,
-          nim: params.nim,
+          satkerId: params.satkerId,
+          mahasiswaId: params.mahasiswaId,
         },
-        select: {
-          nim: true,
-          status: true,
-          pilihanSatkerId: true,
-        }
       });
 
       const dataMahasiswa = await this.prisma.mahasiswa.findMany({
         where: {
-          nim: params.nim,
+          mahasiswaId: params.mahasiswaId,
         },
         select: {
           nama: true,
@@ -32,10 +32,10 @@ export class PemilihanPenempatanService {
 
       const dataSatker = await this.prisma.satker.findMany({
         where: {
-          kode: params.kodeSatker,
+          satkerId: params.satkerId,
         },
         select: {
-          kode: true,
+          kodeSatker: true,
           nama: true,
         }
       });
@@ -44,9 +44,7 @@ export class PemilihanPenempatanService {
         status: 'success',
         message: 'Data Pemilihan Penempatan Berhasil Diambil',
         data: {
-          pilihanSatkerId: data[0].pilihanSatkerId,
-          mahasiswa: dataMahasiswa,
-          satker: dataSatker
+          id: data[0].pilihanSatkerId,
         }
       }
     } catch (error) {
@@ -57,41 +55,44 @@ export class PemilihanPenempatanService {
     }
   }
 
-  async confirmPemilihanPenempatan(id: number, body: any) {
+  async confirmPemilihanPenempatan(pilihanId: number, pilihanFinal: any) {
     try {
-      const data = await this.prisma.pilihanSatker.update({
+      const confirmPilihan = await this.prisma.pilihanSatker.update({
         where: {
-          pilihanSatkerId: id
+          pilihanSatkerId: pilihanId
         },
         data: {
-          status: body.status // 'Diterima' atau 'Ditolak' atau 'Diubah'
+          satkerId: pilihanFinal.satkerId,
+          status: 'Diterima'
         },
         select: {
           pilihanSatkerId: true,
-          nim: true,
-          kodeSatker: true,
+          mahasiswaId: true,
+          satkerId: true,
           status: true,
         }
       });
 
-      const dataMahasiswa = await this.prisma.mahasiswa.findMany({
+      // ubah status pilihan lainnya menjadi 'Ditolak'
+      await this.prisma.pilihanSatker.updateMany({
         where: {
-          nim: data.nim,
+          mahasiswaId: confirmPilihan.mahasiswaId,
+          NOT: {
+            pilihanSatkerId: confirmPilihan.pilihanSatkerId
+          }
         },
-        select: {
-          nama: true,
-          nim: true,
-          alamat: true,
+        data: {
+          status: 'Ditolak'
         }
       });
 
-      const dataSatker = await this.prisma.satker.findMany({
+      // connect mahasiswa dengan satker pilihan
+      await this.prisma.mahasiswa.update({
         where: {
-          kode: data.kodeSatker,
+          mahasiswaId: confirmPilihan.mahasiswaId
         },
-        select: {
-          kode: true,
-          nama: true,
+        data: {
+          satkerId: confirmPilihan.satkerId
         }
       });
 
@@ -99,9 +100,10 @@ export class PemilihanPenempatanService {
         status: 'success',
         message: 'Status Pemilihan Penempatan Berhasil Diubah',
         data: {
-          mahasiswa: dataMahasiswa,
-          satker: dataSatker,
-          status: data.status
+          pilihanSatkerId: confirmPilihan.pilihanSatkerId,
+          mahasiswaId: confirmPilihan.mahasiswaId,
+          satkerId: confirmPilihan.satkerId,
+          status: confirmPilihan.status
         }
       }
     } catch (error) {
@@ -112,38 +114,40 @@ export class PemilihanPenempatanService {
     }
   }
 
-  async createPemilihanPenempatan(body: any) {
+  async createPemilihanPenempatan(
+    mahasiswaId: number,
+    pilihan: [
+      satkerId1: number,
+      satkerId2: number,
+      satkerId3: number,
+    ]
+  ) {
     try {
-      let daftarPilihan = body.satker;
-      // console.log(body);
-      // object value to array
-      daftarPilihan = Object.keys(daftarPilihan).map((key) => {
-        return {
-          value: daftarPilihan[key]
-        }
-      });
-
       let data = null;
 
-      for (let i = 0; i < daftarPilihan.length; i++) {
-        data = await this.prisma.pilihanSatker.create({
+      for (let i = 0; i < pilihan.length; i++) {
+        
+        if (pilihan[i] === null) continue;
+        
+        data.push(await this.prisma.pilihanSatker.create({
           data: {
-            nim: body.nim,
-            kodeSatker: daftarPilihan[i].value,
+            mahasiswaId: mahasiswaId,
+            satkerId: pilihan[i],
             status: 'Menunggu'
           },
           select: {
             pilihanSatkerId: true,
-            nim: true,
-            kodeSatker: true,
+            mahasiswaId: true,
+            satkerId: true,
             status: true,
           }
-        });
+        }));
       }
     
       return {
         status: 'success',
         message: 'Pemilihan Penempatan Berhasil Ditambahkan',
+        data: data
       }
     } catch (error) {
       return {
@@ -155,29 +159,42 @@ export class PemilihanPenempatanService {
   }
 
   async pindahPemilihanPenempatan(
-    id: string,
-    body: {
-      kodeSatker: string
-    }
+    mahasiswaId: number,
+    pilihan: [
+      satkerId1: number,
+      satkerId2: number,
+      satkerId3: number,
+    ]
   ) {
     try {
       let data = null;
 
-      data = await this.prisma.pilihanSatker.update({
+      // select all pilihan satker by mahasiswaId
+      const pilihanSatker = await this.prisma.pilihanSatker.findMany({
         where: {
-          pilihanSatkerId: parseInt(id)
-        },
-        data: {
-          kodeSatker: body.kodeSatker,
-          status: 'Menunggu'
-        },
-        select: {
-          pilihanSatkerId: true,
-          nim: true,
-          kodeSatker: true,
-          status: true,
+          mahasiswaId: mahasiswaId
         }
       });
+
+      // edit pilihan satker by mahasiswaId
+      for (let i = 0; i < pilihan.length; i++) {
+        if (pilihan[i] === null) continue;
+
+        data.push(await this.prisma.pilihanSatker.update({
+          where: {
+            pilihanSatkerId: pilihanSatker[i].pilihanSatkerId
+          },
+          data: {
+            satkerId: pilihan[i]
+          },
+          select: {
+            pilihanSatkerId: true,
+            mahasiswaId: true,
+            satkerId: true,
+            status: true,
+          }
+        }));
+      }
 
       return {
         status: 'success',
@@ -192,11 +209,11 @@ export class PemilihanPenempatanService {
     }
   }
 
-  async deletePemilihanPenempatan(id: string) {
+  async deletePemilihanPenempatan(pilihanId: number) {
     try {
       await this.prisma.pilihanSatker.delete({
         where: {
-          pilihanSatkerId: parseInt(id)
+          pilihanSatkerId: pilihanId
         },
       });
 

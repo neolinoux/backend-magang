@@ -18,17 +18,30 @@ export class DosenPembimbingMagangController {
   ) { }
 
   @Get()
-  async findAllDosenBy(@Query() params: any){
+  async findAllDosenBy(
+    @Query() params: {
+      nip: string,
+      nama: string,
+      prodi: string,
+      email: string,
+      tahunAjaran: string
+    }
+  ) {
     return this.dosenPembimbingMagangService.findAllDosenBy(params);
   }
 
   @Post()
-  async addDosenPembimbingMagang(@Body() createDosenPembimbingMagang: CreateDosenPembimbingMagangDto) {
+  async addDosenPembimbingMagang(
+    @Body() createDosenPembimbingMagang: CreateDosenPembimbingMagangDto
+  ) {
     return this.dosenPembimbingMagangService.create(createDosenPembimbingMagang);
   }
   
-  @Put(':nip')
-  async update(@Param('nip') nip: string, @Body() updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto) {
-    return this.dosenPembimbingMagangService.update(nip, updateDosenPembimbingMagang);
+  @Put(':dosenId')
+  async update(
+    @Param('dosenId') dosenId: number,
+    @Body() updateDosenPembimbingMagang: UpdateDosenPembimbingMagangDto
+  ) {
+    return this.dosenPembimbingMagangService.update(dosenId, updateDosenPembimbingMagang);
   }
 }

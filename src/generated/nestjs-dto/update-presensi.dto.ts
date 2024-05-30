@@ -9,5 +9,4 @@ export class UpdatePresensiDto {
 waktuDatang?: Date;
 waktuPulang?: Date;
 status?: string;
-createdAt?: Date;
 }

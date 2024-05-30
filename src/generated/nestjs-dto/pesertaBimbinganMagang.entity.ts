@@ -9,7 +9,7 @@ export class PesertaBimbinganMagang {
 bimbingan?: BimbinganMagang ;
 bimbinganId: number ;
 mahasiswa?: Mahasiswa ;
-nim: string ;
+mahasiswaId: number ;
 dosen?: DosenPembimbingMagang ;
 nipDosen: string ;
 createdAt: Date  | null;
