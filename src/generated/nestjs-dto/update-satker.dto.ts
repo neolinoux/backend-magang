@@ -1,18 +1,49 @@
-import { KabupatenKota } from "./kabupatenKota.entity";
-import { KapasitasSatkerTahunAjaran } from "./kapasitasSatkerTahunAjaran.entity";
-import { Provinsi } from "./provinsi.entity";
+import { IsEmail, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
+class provinsi {
+  @IsString()
+  kodeProvinsi: string;
+}
 
+class kabupatenKota {
+  @IsString()
+  nama: string;
+  
+  @IsString()
+  kodeKabupatenKota: string;
+}
 
+class kapasitasSatkerTahunAjaran {
+  @IsNumber()
+  kapasitas: number;
 
-
+  @IsNumber()
+  kapasitasId: number;
+}
 
 export class UpdateSatkerDto {
+  @IsOptional()
+  @IsString()
   nama?: string;
-kodeSatker?: string;
-email?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
   alamat?: string;
-  provinsi: Provinsi;
-  kabupatenKota: KabupatenKota;
-  kapasitasSatkerTahunAjaran: KapasitasSatkerTahunAjaran;
+
+  @ValidateNested({ each: true })
+  @Type(() => provinsi)
+  provinsi: provinsi;
+  
+  @ValidateNested({ each: true })
+  @Type(() => kabupatenKota)
+  kabupatenKota: kabupatenKota;
+  
+  @ValidateNested({ each: true })
+  @Type(() => kapasitasSatkerTahunAjaran)
+  kapasitasSatkerTahunAjaran: kapasitasSatkerTahunAjaran;
 }

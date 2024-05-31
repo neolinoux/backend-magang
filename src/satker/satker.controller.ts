@@ -5,10 +5,10 @@ import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
 import { UpdateSatkerDto } from 'src/generated/nestjs-dto/update-satker.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as XLSX from 'xlsx';
+import { CreateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaran.dto';
 
 @ApiTags('Satker')
 @ApiBearerAuth()
-@ApiTags('Bimbingan Magang')
 @Controller('satker')
 export class SatkerController {
   constructor(private readonly satkerService: SatkerService) {}
@@ -28,13 +28,6 @@ export class SatkerController {
     return this.satkerService.findAllSatkerBy(params);
   }
 
-  @Post()
-  create(
-    @Body() satker: CreateSatkerDto
-  ) {
-    return this.satkerService.create(satker);
-  }
-
   @Post('bulk')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
@@ -50,6 +43,51 @@ export class SatkerController {
     const data = XLSX.utils.sheet_to_json(worksheet);
 
     return this.satkerService.createBulk(data);
+  }
+
+  @Post()
+  create(
+    @Body() satker: CreateSatkerDto
+  ) {
+    return this.satkerService.create(satker);
+  }
+
+  @Post('kapasitas-satker/bulk')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  createBulkKapasitasSatker(
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      throw new Error('File harus berformat xlsx');
+    }
+
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    return this.satkerService.createBulkKapasitasSatker(data);
+  }
+
+  @Post('kapasitas-satker')
+  createKapasitasSatker(
+    @Body() kapasitasSatker: CreateKapasitasSatkerTahunAjaranDto
+  ) {
+    return this.satkerService.createKapasitasSatker(kapasitasSatker);
+  }
+
+  @Get('kapasitas-satker')
+  async findAllKapasitasSatkerBy(
+    @Query() params: {
+      kodeSatker: string;
+      namaProvinsi: string;
+      kodeProvinsi: string;
+      namaKabupatenKota: string;
+      kodeKabupatenKota: string;
+      tahunAjaran: string;
+    }
+  ) {
+    return this.satkerService.findAllKapasitasSatkerBy(params);
   }
 
   @Put(':satkerId')

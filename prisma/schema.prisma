@@ -174,10 +174,10 @@ model Satker {
   email                      String
   alamat                     String
   internalBPS                Boolean                      @default(true)
-  adminProvinsi              AdminProvinsi                @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: Cascade, onUpdate: Cascade)
-  adminProvinsiId            Int
-  adminSatker                AdminSatker                  @relation(fields: [adminSatkerId], references: [adminSatkerId], onDelete: Cascade, onUpdate: Cascade)
-  adminSatkerId              Int                          @unique
+  adminProvinsi              AdminProvinsi?               @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: SetNull, onUpdate: Cascade)
+  adminProvinsiId            Int?
+  adminSatker                AdminSatker?                 @relation(fields: [adminSatkerId], references: [adminSatkerId], onDelete: SetNull, onUpdate: Cascade)
+  adminSatkerId              Int?                         @unique
   provinsi                   Provinsi                     @relation(fields: [povinsiId], references: [provinsiId], onDelete: Cascade, onUpdate: Cascade)
   povinsiId                  Int
   kabupatenKota              KabupatenKota                @relation(fields: [kabupatenKotaId], references: [kabupatenKotaId], onDelete: Cascade, onUpdate: Cascade)
@@ -194,6 +194,8 @@ model KapasitasSatkerTahunAjaran {
   tahunAjaran   TahunAjaran @relation(fields: [tahunAjaranId], references: [tahunAjaranId], onDelete: Cascade, onUpdate: Cascade)
   tahunAjaranId Int
   kapasitas     Int?
+
+  @@unique([satkerId, tahunAjaranId])
 }
 
 model PembimbingLapangan {
@@ -219,14 +221,14 @@ model IzinBimbinganSkripsi {
 }
 
 model BimbinganMagang {
-  bimbinganId            Int                         @id @default(autoincrement())
-  tanggal                DateTime
-  status                 String
-  tempat                 String?
-  dosenPembimbingMagang  DosenPembimbingMagang       @relation(fields: [dosenId], references: [dosenId], onDelete: Cascade, onUpdate: Cascade)
-  dosenId                Int
-  createdAt              DateTime                    @default(now())
-  updatedAt              DateTime                    @updatedAt
+  bimbinganId               Int                         @id @default(autoincrement())
+  tanggal                   DateTime
+  status                    String
+  tempat                    String?
+  dosenPembimbingMagang     DosenPembimbingMagang       @relation(fields: [dosenId], references: [dosenId], onDelete: Cascade, onUpdate: Cascade)
+  dosenId                   Int
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
   PesertaBimbinganMahasiswa PesertaBimbinganMahasiswa[]
 }
 
@@ -242,7 +244,7 @@ model PesertaBimbinganMahasiswa {
 
 model TipeKegiatan {
   tipeKegiatanId Int              @id @default(autoincrement())
-  nama           String           
+  nama           String
   mahasiswa      Mahasiswa        @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
   mahasiswaId    Int
   createdAt      DateTime         @default(now())

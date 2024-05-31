@@ -93,8 +93,8 @@ erDiagram
     String email
     String alamat
     Boolean internalBPS
-    Int adminProvinsiId FK
-    Int adminSatkerId FK
+    Int adminProvinsiId FK "nullable"
+    Int adminSatkerId FK "nullable"
     Int povinsiId FK
     Int kabupatenKotaId FK
 }

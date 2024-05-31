@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -20,6 +20,9 @@ import { PemilihanPenempatanController } from './pemilihan-penempatan/pemilihan-
 import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pembimbing-magang.module';
 import { PresensiModule } from './presensi/presensi.module';
 import { AdminProvinsiModule } from './admin-provinsi/admin-provinsi.module';
+import { TahunAjaranModule } from './tahun-ajaran/tahun-ajaran.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ProvinsiModule } from './provinsi/provinsi.module';
 
 @Module({
   imports: [
@@ -42,9 +45,15 @@ import { AdminProvinsiModule } from './admin-provinsi/admin-provinsi.module';
     KegiatanHarianModule,
     KegiatanBulananModule,
     PresensiModule,
-    AdminProvinsiModule
+    AdminProvinsiModule,
+    TahunAjaranModule,
+    ProvinsiModule
   ],
   controllers: [AppController, PemilihanPenempatanController],
-  providers: [AppService, PrismaService, PemilihanPenempatanService],
+  providers: [
+    AppService,
+    PrismaService,
+    PemilihanPenempatanService,
+  ],
 })
 export class AppModule{}

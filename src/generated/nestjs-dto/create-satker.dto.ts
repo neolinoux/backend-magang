@@ -1,12 +1,27 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { AdminSatker } from "./adminSatker.entity";
-import { KabupatenKota } from "./kabupatenKota.entity";
-import { Provinsi } from "./provinsi.entity";
+import { Type } from "class-transformer";
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
+import { CreateKapasitasSatkerTahunAjaranDto } from "./create-kapasitasSatkerTahunAjaran.dto";
 
+class kabupatenKota {
+  @IsString()
+  namaKabupatenKota: string;
 
+  @IsString()
+  kodeKabupatenKota: string;
+}
 
+class provinsi {
+  @IsString()
+  kodeProvinsi: string;
+}
 
+class adminSatker {
+  @IsString()
+  email: string;
 
+  @IsString()
+  password: string;
+}
 
 export class CreateSatkerDto {
   @IsNotEmpty()
@@ -14,7 +29,7 @@ export class CreateSatkerDto {
   nama: string;
   
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
@@ -25,20 +40,17 @@ export class CreateSatkerDto {
   @IsString()
   kodeSatker: string;
 
-  @IsNotEmpty()
-  kabupatenKota: {
-    namaKabupatenKota: string;
-    kodeKabupatenKota: string;
-  };
+  @ValidateNested({ each: true })
+  @Type(() => kabupatenKota)
+  kabupatenKota: kabupatenKota;
 
-  provinsi: {
-    kodeProvinsi: string;
-  };
+  @ValidateNested({ each: true })
+  @Type(() => provinsi)
+  provinsi: provinsi;
 
-  adminSatker: {
-    email: string;
-    password: string;
-  };
+  @ValidateNested({ each: true })
+  @Type(() => adminSatker)
+  adminSatker: adminSatker;
 
   @IsNotEmpty()
   @IsBoolean()

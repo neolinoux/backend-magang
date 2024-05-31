@@ -7,12 +7,13 @@ import {PembimbingLapangan} from './pembimbingLapangan.entity'
 import {DosenPembimbingMagang} from './dosenPembimbingMagang.entity'
 import {UserRoles} from './userRoles.entity'
 import {UserPermissions} from './userPermissions.entity'
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from 'class-validator'
 
 
 export class User {
   userId: number ;
-  email: string ;
-  password: string ;
+  email: string;
+  password: string;
   tahunAjaran?: TahunAjaran ;
   tahunAjaranId: number ;
   createdAt: Date ;

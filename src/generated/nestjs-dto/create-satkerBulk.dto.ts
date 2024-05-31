@@ -1,12 +1,4 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { AdminSatker } from "./adminSatker.entity";
-import { KabupatenKota } from "./kabupatenKota.entity";
-import { Provinsi } from "./provinsi.entity";
-
-
-
-
-
 
 export class CreateSatkerBulkDto {
   @IsNotEmpty()
@@ -25,9 +17,8 @@ export class CreateSatkerBulkDto {
   @IsString()
   kodeSatker: string;
 
-  @IsNotEmpty()
   kabupatenKota: {
-    create: {
+      create: {
       nama: string;
       kodeKabupatenKota: string;
       provinsi: {
