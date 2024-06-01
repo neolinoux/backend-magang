@@ -5,6 +5,7 @@ import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiata
 import { TipeKegiatan } from 'src/generated/nestjs-dto/tipeKegiatan.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTipeKegiatanDto } from 'src/generated/nestjs-dto/create-tipeKegiatan.dto';
+import { UpdateTipeKegiatanDto } from 'src/generated/nestjs-dto/update-tipeKegiatan.dto';
 
 @ApiTags('Kegiatan Harian')
 @ApiBearerAuth()
@@ -24,11 +25,24 @@ export class KegiatanHarianController {
   }
 
   @Post('tipe-kegiatan/:mahasiswaId')
-  create(
+  createTipeKegiatan(
     @Body() tipeKegiatan: CreateTipeKegiatanDto,
     @Param('mahasiswaId') mahasiswaId: number
   ) {
     return this.kegiatanHarianService.createTipeKegiatan(tipeKegiatan, +mahasiswaId);
+  }
+
+  @Put('tipe-kegiatan/:tipeKegiatanId')
+  updateTipeKegiatan(
+    @Param('tipeKegiatanId') tipeKegiatanId: number,
+    @Body() tipeKegiatan: UpdateTipeKegiatanDto
+  ) {
+    return this.kegiatanHarianService.updateTipeKegiatan(+tipeKegiatanId, tipeKegiatan);
+  }
+
+  @Delete('tipe-kegiatan/:tipeKegiatanId')
+  removeTipeKegiatan(@Param('tipeKegiatanId') tipeKegiatanId: number) {
+    return this.kegiatanHarianService.removeTipeKegiatan(+tipeKegiatanId);
   }
 
   // CATATAN KEGIATAN HARIAN

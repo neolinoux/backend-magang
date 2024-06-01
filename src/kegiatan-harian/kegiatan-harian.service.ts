@@ -5,6 +5,7 @@ import { CreateTipeKegiatanDto } from 'src/generated/nestjs-dto/create-tipeKegia
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { parse } from 'path';
+import { UpdateTipeKegiatanDto } from 'src/generated/nestjs-dto/update-tipeKegiatan.dto';
 
 @Injectable()
 export class KegiatanHarianService {
@@ -44,6 +45,37 @@ export class KegiatanHarianService {
     return {
       status: 'success',
       message: 'Tipe Kegiatan Berhasil Diambil',
+      data: tipeKegiatan
+    }
+  }
+
+  async updateTipeKegiatan(tipeKegiatanId: number, tipeKegiatan: UpdateTipeKegiatanDto) {
+    const data = await this.prismaService.tipeKegiatan.update({
+      where: {
+        tipeKegiatanId: tipeKegiatanId
+      },
+      data: {
+        nama: tipeKegiatan.nama
+      }
+    });
+
+    return {
+      status: 'success',
+      message: 'Tipe Kegiatan Berhasil Diupdate',
+      data: data
+    }
+  }
+
+  async removeTipeKegiatan(tipeKegiatanId: number) {
+    const tipeKegiatan = await this.prismaService.tipeKegiatan.delete({
+      where: {
+        tipeKegiatanId: tipeKegiatanId
+      }
+    });
+
+    return {
+      status: 'success',
+      message: 'Tipe Kegiatan Berhasil Dihapus',
       data: tipeKegiatan
     }
   }
