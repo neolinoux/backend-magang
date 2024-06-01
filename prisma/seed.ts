@@ -1,10 +1,7 @@
-import { faker } from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Roles as RolesEnum } from '../src/enum/roles.enum';
 import { Permissions as PermissionsEnum } from '../src/enum/permissions.enum';
-import { TahunAjaran } from '../src/generated/nestjs-dto/tahunAjaran.entity';
-import { TahunAjaranDosen } from '../src/generated/nestjs-dto/tahunAjaranDosen.entity';
 
 const prisma = new PrismaClient();
 

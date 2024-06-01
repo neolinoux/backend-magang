@@ -24,12 +24,36 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Private REST API Sistem Informasi Manajemen Magang Mahasiswa
 
 ## Installation
 
 ```bash
 $ npm install
+```
+
+## Migrate Database Model
+Create file ```.env``` dan sesuaikan variabel ```DATABASE_URL```
+```bash
+// Contoh
+DATABASE_URL="postgresql://postgres:root@localhost:5432/magang-stis?schema=public"
+```
+Migrate
+```bash
+$ npx prisma generate
+
+$ npx prisma migrate dev
+```
+
+Data yang otomatis ter-seed
+1. Tahun Ajaran
+2. Roles
+3. Permissions
+4. User Admin
+5. Provinsi
+```
+username  : admin@admin.com
+password  : makanenak
 ```
 
 ## Running the app
@@ -57,18 +81,4 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
 
