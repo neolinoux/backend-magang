@@ -1,13 +1,21 @@
-import { User } from "./user.entity";
-
-
-
-
-
+import { Type } from "class-transformer";
+import { UpdateUserDto } from "./update-user.dto";
+import { IsOptional, IsString, ValidateNested } from "class-validator";
 
 export class UpdateDosenPembimbingMagangDto {
+  @IsString()
+  @IsOptional()
   nip?: string;
-nama?: string;
+
+  @IsString()
+  @IsOptional()
+  nama?: string;
+
+  @IsString()
+  @IsOptional()
   prodi?: string;
-  user: User;
+
+  @ValidateNested({ each: true })
+  @Type(() => UpdateUserDto)
+  user: UpdateUserDto;
 }

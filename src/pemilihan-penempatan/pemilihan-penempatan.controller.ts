@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { PemilihanPenempatanService } from './pemilihan-penempatan.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Satker } from 'src/generated/nestjs-dto/satker.entity';
 
 @ApiTags('Pemilihan Penempatan')
 @ApiBearerAuth()
@@ -22,41 +23,31 @@ export class PemilihanPenempatanController {
   @Put(':pilihanId')
   async confirmPemilihanPenempatan(
     @Param('pilihanId') pilihanId: number,
-    @Body() pilihanFinal: [
-      satkerId: number,
-    ]
+    @Body() pilihanFinal: Satker
   ) {
     return this.pemilihanPenempatanService.confirmPemilihanPenempatan(pilihanId, pilihanFinal);
-  }
-
-  @Put('/e/:mahasiswaId')
-  async pindahPemilihanPenempatan(
-    @Param('mahasiswaId') mahasiswaId: number,
-    @Body() pilihan: [
-      satkerId1: number,
-      satkerId2: number,
-      satkerId3: number,
-    ]
-  ) {
-    return this.pemilihanPenempatanService.pindahPemilihanPenempatan(mahasiswaId, pilihan);
   }
 
   @Post(':mahasiswaId')
   async createPemilihanPenempatan(
     @Param('mahasiswaId') mahasiswaId: number,
-    @Body() pilihan: [
-      satkerId1: number,
-      satkerId2: number,
-      satkerId3: number,
-    ]
+    @Body() pilihan: Satker[]
   ) {
-    return this.pemilihanPenempatanService.createPemilihanPenempatan(mahasiswaId, pilihan);
+    return this.pemilihanPenempatanService.createPemilihanPenempatan(+mahasiswaId, pilihan);
+  }
+
+  @Put('/e/:pilihanId')
+  async pindahPemilihanPenempatan(
+    @Param('pilihanId') pilihanId: number,
+    @Body() pilihan: Satker
+  ) {
+    return this.pemilihanPenempatanService.pindahPemilihanPenempatan(pilihanId, pilihan);
   }
 
   @Delete(':pilihanId')
   async deletePemilihanPenempatan(
     @Param('pilihanId') pilihanId: number
   ) {
-    return this.pemilihanPenempatanService.deletePemilihanPenempatan(pilihanId);
+    return this.pemilihanPenempatanService.deletePemilihanPenempatan(+pilihanId);
   }
 }

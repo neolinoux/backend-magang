@@ -55,11 +55,16 @@ export class PembimbingLapanganService {
                 })).tahunAjaranId
               },
             },
+            userRoles: {
+              create: {
+                roleId: 4,
+              },
+            },
           },
         },
         satker: {
           connect: {
-            satkerId: createPembimbingLapangan.satker.satkerId,
+            kodeSatker: createPembimbingLapangan.satker.kodeSatker,
           },
         },
       },
@@ -76,86 +81,38 @@ export class PembimbingLapanganService {
     pemlapId: number,
     updatePembimbingLapangan: UpdatePembimbingLapanganDto
   ) {
-    try {
-      await this.prisma.pembimbingLapangan.findFirstOrThrow({
-        where: {
-          pemlapId: pemlapId,
-        },
-      });
+    const data = await this.prisma.pembimbingLapangan.update({
+      where: {
+        pemlapId: pemlapId,
+      },
+      data: {
+        nip: updatePembimbingLapangan.nip || undefined,
+        nama: updatePembimbingLapangan.nama || undefined,
+        user: {
+          update: {
+            email: updatePembimbingLapangan.email || undefined,
+          },
+        }
+      },
+    });
 
-      // jika passwordnya di update lakukan hashing
-      let hashedPassword = '';
-      if (updatePembimbingLapangan.user.password) {
-        hashedPassword = await bcrypt.hash(updatePembimbingLapangan.user.password, 10);
-        updatePembimbingLapangan.user.password = hashedPassword;
-      }
-
-      const data  = await this.prisma.pembimbingLapangan.update({
-        where: {
-          pemlapId: pemlapId,
-        },
-        data: {
-          nip: updatePembimbingLapangan.nip,
-          nama: updatePembimbingLapangan.nama,
-          user: {
-            update: {
-              email: updatePembimbingLapangan.user.email,
-              password: hashedPassword,
-            },
-          }
-        },
-        select: {
-          userId: true,
-          nip: true,
-          nama: true,
-          user: true,
-        },
-      });
-
-      return {
-        status: 'success',
-        message: 'Data Pembimbing Lapangan Berhasil Diubah',
-        data: data,
-      };
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Data Pembimbing Lapangan Gagal Diubah',
-        error: error,
-      };
-    }
+    return {
+      status: 'success',
+      message: 'Data Pembimbing Lapangan Berhasil Diubah',
+      data: data,
+    };
   }
 
   async remove(pemlapId: number) {
-    try {
-      await this.prisma.pembimbingLapangan.findFirstOrThrow({
-        where: {
-          pemlapId: pemlapId,
-        },
-        select: {
-          userId: true,
-          nip: true,
-          nama: true,
-          user: true,
-        },
-      });
-  
-      await this.prisma.pembimbingLapangan.delete({
-        where: {
-          pemlapId: pemlapId,
-        },
-      });
-  
-      return {
-        status: 'success',
-        message: 'Data Pembimbing Lapangan Berhasil Dihapus'
-      };
-    } catch (error) {
-      return {
-        status: 'error',
-        message: 'Data Pembimbing Lapangan Gagal Dihapus',
-        error: error,
-      };
-    }
+    await this.prisma.pembimbingLapangan.delete({
+      where: {
+        pemlapId: pemlapId,
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Pembimbing Lapangan Berhasil Dihapus'
+    };
   }
 }

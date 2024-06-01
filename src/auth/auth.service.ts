@@ -19,7 +19,7 @@ export class AuthService {
     password: string,
     token: string
   ) {
-    const user = await this.prisma.user.findFirstOrThrow({
+    const user = await this.prisma.user.findFirst({
       select: {
         userId: true,
         email: true,
@@ -36,12 +36,15 @@ export class AuthService {
         },
       },
       where: {
-        email: email
+        email: email,
+        tahunAjaran: {
+          isActive: true
+        }
       },
     });
 
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     //if there is a token, add it to the invalidToken table

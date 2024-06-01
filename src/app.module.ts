@@ -23,6 +23,7 @@ import { AdminProvinsiModule } from './admin-provinsi/admin-provinsi.module';
 import { TahunAjaranModule } from './tahun-ajaran/tahun-ajaran.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ProvinsiModule } from './provinsi/provinsi.module';
+import { TimMagangModule } from './tim-magang/tim-magang.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { ProvinsiModule } from './provinsi/provinsi.module';
     PresensiModule,
     AdminProvinsiModule,
     TahunAjaranModule,
-    ProvinsiModule
+    ProvinsiModule,
+    TimMagangModule
   ],
   controllers: [AppController, PemilihanPenempatanController],
   providers: [

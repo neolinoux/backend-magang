@@ -1,9 +1,6 @@
-
-
-
-
-
+import { IsBoolean, IsNumber } from "class-validator";
 
 export class UpdateTahunAjaranDto {
-  tahun?: string;
+  @IsNumber()
+  tahunAjaranId: number;
 }

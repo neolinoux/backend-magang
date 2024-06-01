@@ -8,6 +8,7 @@ class provinsi {
 
 class kabupatenKota {
   @IsString()
+  @IsOptional()
   nama: string;
   
   @IsString()
@@ -19,6 +20,7 @@ class kapasitasSatkerTahunAjaran {
   kapasitas: number;
 
   @IsNumber()
+  @IsOptional()
   kapasitasId: number;
 }
 

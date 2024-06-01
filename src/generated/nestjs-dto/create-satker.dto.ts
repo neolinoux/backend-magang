@@ -55,4 +55,8 @@ export class CreateSatkerDto {
   @IsNotEmpty()
   @IsBoolean()
   internalBPS: boolean;
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateKapasitasSatkerTahunAjaranDto)
+  kapasitasSatker: CreateKapasitasSatkerTahunAjaranDto;
 }

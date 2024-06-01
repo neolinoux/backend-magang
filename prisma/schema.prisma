@@ -127,6 +127,7 @@ model Mahasiswa {
   presensi               Presensi[]
   tipeKegiatan           TipeKegiatan[]
   izinPresensi           IzinPresensi[]
+  pilihanSatker          PilihanSatker[]
   kegiatanHarian         KegiatanHarian[]
   rekapKegiatanBulanan   RekapKegiatanBulanan[]
   izinBimbinganSkripsi   IzinBimbinganSkripsi[]
@@ -164,7 +165,8 @@ model AdminSatker {
   adminSatkerId Int     @id @default(autoincrement())
   user          User    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   userId        Int     @unique
-  satker        Satker?
+  satker        Satker? @relation(fields: [satkerId], references: [satkerId], onDelete: SetNull, onUpdate: Cascade)
+  satkerId      Int?    @unique
 }
 
 model Satker {
@@ -176,13 +178,13 @@ model Satker {
   internalBPS                Boolean                      @default(true)
   adminProvinsi              AdminProvinsi?               @relation(fields: [adminProvinsiId], references: [adminProvinsiId], onDelete: SetNull, onUpdate: Cascade)
   adminProvinsiId            Int?
-  adminSatker                AdminSatker?                 @relation(fields: [adminSatkerId], references: [adminSatkerId], onDelete: SetNull, onUpdate: Cascade)
-  adminSatkerId              Int?                         @unique
+  adminSatker                AdminSatker?
   provinsi                   Provinsi                     @relation(fields: [povinsiId], references: [provinsiId], onDelete: Cascade, onUpdate: Cascade)
   povinsiId                  Int
   kabupatenKota              KabupatenKota                @relation(fields: [kabupatenKotaId], references: [kabupatenKotaId], onDelete: Cascade, onUpdate: Cascade)
   kabupatenKotaId            Int                          @unique
   mahasiswa                  Mahasiswa[]
+  pilihanSatker              PilihanSatker[]
   pembimbingLapangan         PembimbingLapangan[]
   kapasitasSatkerTahunAjaran KapasitasSatkerTahunAjaran[]
 }
@@ -193,7 +195,7 @@ model KapasitasSatkerTahunAjaran {
   satkerId      Int
   tahunAjaran   TahunAjaran @relation(fields: [tahunAjaranId], references: [tahunAjaranId], onDelete: Cascade, onUpdate: Cascade)
   tahunAjaranId Int
-  kapasitas     Int?
+  kapasitas     Int?        @default(0)
 
   @@unique([satkerId, tahunAjaranId])
 }
@@ -316,10 +318,15 @@ model InvalidToken {
 }
 
 model PilihanSatker {
-  pilihanSatkerId Int      @id @default(autoincrement())
+  pilihanSatkerId Int       @id @default(autoincrement())
+  mahasiswa       Mahasiswa @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
   mahasiswaId     Int
+  satker          Satker    @relation(fields: [satkerId], references: [satkerId], onDelete: Cascade, onUpdate: Cascade)
   satkerId        Int
-  status          String   @default("Menunggu")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status          String    @default("Menunggu")
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([mahasiswaId, satkerId])
 }

@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { CreateSatkerBulkDto } from 'src/generated/nestjs-dto/create-satkerBulk.dto';
 import { CreateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaran.dto';
 import { CreateKapasitasSatkerTahunAjaranBulkDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaranBulk.dto';
+import { UpdateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/update-kapasitasSatkerTahunAjaran.dto';
+import { parse } from 'path';
 
 @Injectable()
 export class SatkerService {
@@ -62,7 +64,7 @@ export class SatkerService {
         nama: data[i].namaSatker.toString(),
         email: data[i].emailSatker.toString(),
         alamat: data[i].alamat.toString(),
-        kodeSatker: data[i].kodeKabupatenKota.toString(),
+        kodeSatker:  data[i].kodeProvinsi.toString()+data[i].kodeKabupatenKota.toString(),
         provinsi: {
           connect: {
             kodeProvinsi: data[i].kodeProvinsi.toString(),
@@ -108,15 +110,34 @@ export class SatkerService {
                       },
                     })).tahunAjaranId,
                   }
+                },
+                userRoles: {
+                  create: {
+                    roleId: 8,
+                  }
                 }
               }
             }
           }
         },
-        internalBPS: data[i].internalBPS.toString() === '1' ? true : false
+        internalBPS: data[i].internalBPS.toString() === '1' ? true : false,
+        kapasitasSatkerTahunAjaran: {
+          create: {
+            tahunAjaran: {
+              connect: {
+                tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
+                  where: {
+                    isActive: true,
+                  },
+                  select: {
+                    tahunAjaranId: true,
+                  },
+                })).tahunAjaranId,
+              },
+            },
+          },
+        },
       });
-
-      console.log(createSatkerDto[i]);
 
       satker.push(
         await this.prisma.satker.create({
@@ -166,7 +187,7 @@ export class SatkerService {
         nama: satker.nama,
         email: satker.email,
         alamat: satker.alamat,
-        kodeSatker: satker.kabupatenKota.kodeKabupatenKota,
+        kodeSatker: satker.provinsi.kodeProvinsi+satker.kabupatenKota.kodeKabupatenKota,
         provinsi: {
           connect: {
             kodeProvinsi: satker.provinsi.kodeProvinsi,
@@ -220,6 +241,22 @@ export class SatkerService {
           },
         },
         internalBPS: satker.internalBPS,
+        kapasitasSatkerTahunAjaran: {
+          create: {
+            tahunAjaran: {
+              connect: {
+                tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
+                  where: {
+                    isActive: true,
+                  },
+                  select: {
+                    tahunAjaranId: true,
+                  },
+                })).tahunAjaranId,
+              },
+            },
+          },
+        },
       },
     });
     
@@ -227,117 +264,6 @@ export class SatkerService {
       status: 'success',
       message: 'Data Satuan Kerja Berhasil Ditambahkan',
       data: satkerBaru,
-    }
-  }
-
-  async createBulkKapasitasSatker(data: any) {
-    let createKapasitasSatkerDto: CreateKapasitasSatkerTahunAjaranBulkDto[] = [];
-    let kapasitasSatker = [];
-    
-    for (let i = 0; i < data.length; i++) {
-      createKapasitasSatkerDto.push({
-        satker: {
-          connect: {
-            satkerId: (await this.prisma.satker.findFirst({
-              where: {
-                kodeSatker: data[i].kodeSatker.toString(),
-              },
-              select: {
-                satkerId: true,
-              },
-            })).satkerId,
-          },
-        },
-        tahunAjaran: {
-          connect: {
-            tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
-              where: {
-                isActive: true,
-              },
-              select: {
-                tahunAjaranId: true,
-              },
-            })).tahunAjaranId,
-          },
-        },
-        kapasitas: data[i].kapasitas,
-      });
-
-      kapasitasSatker.push(
-        await this.prisma.kapasitasSatkerTahunAjaran.create({
-          data: createKapasitasSatkerDto[i],
-          select: {
-            kapasitasId: true,
-            kapasitas: true,
-            satker: {
-              select: {
-                satkerId: true,
-                nama: true,
-                alamat: true,
-                email: true,
-                kabupatenKota: {
-                  select: {
-                    nama: true,
-                    provinsi: {
-                      select: {
-                        nama: true,
-                      },
-                    },
-                  },
-                },
-                kodeSatker: true,
-                kapasitasSatkerTahunAjaran: {
-                  select: {
-                    kapasitas: true,
-                    tahunAjaran: {
-                      select: {
-                        tahun: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        })
-      );
-    }
-
-    return {
-      status: 'success',
-      message: 'Kapasitas Satuan Kerja Berhasil Ditambahkan',
-      data: data
-    }
-  }
-
-  async createKapasitasSatker(kapasitasSatker: CreateKapasitasSatkerTahunAjaranDto) {
-    const createKapasitas = await this.prisma.kapasitasSatkerTahunAjaran.create({
-      data: {
-        kapasitas: kapasitasSatker.kapasitas,
-        satker: {
-          connect: {
-            satkerId: kapasitasSatker.satkerId,
-          },
-        },
-        tahunAjaran: {
-          connect: {
-            tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
-              where: {
-                isActive: true,
-              },
-              select: {
-                tahunAjaranId: true,
-              },
-            })).tahunAjaranId,
-          },
-        },
-      },
-    });
-
-    return {
-      status: 'success',
-      message: 'Kapasitas Satuan Kerja Berhasil Ditambahkan',
-      data: createKapasitas,
     }
   }
 
@@ -381,163 +307,115 @@ export class SatkerService {
   }
 
   async update(satkerId: number, satker: UpdateSatkerDto) {
-    try {
-      const cekSatker = await this.prisma.satker.findUnique({
-        where: {
-          satkerId: satkerId,
-        },
-      });
-  
-      if (!cekSatker) {
-        return {
-          status: 'error',
-          message: 'Data Satuan Kerja Tidak Ditemukan',
-        }
-      }
-  
-      const updateSatker = await this.prisma.satker.update({
-        where: {
-          satkerId: satkerId,
-        },
-        data: {
-          nama: satker.nama,
-          alamat: satker.alamat,
-          email: satker.email,
-          provinsi: {
-            connect: {
-              kodeProvinsi: satker.provinsi.kodeProvinsi,
-            },
-          },
-          kabupatenKota: {
-            connect: {
-              kodeKabupatenKota: satker.kabupatenKota.kodeKabupatenKota,
-            },
-          },
-          kapasitasSatkerTahunAjaran: {
-            update: {
-              data: {
-                kapasitas: satker.kapasitasSatkerTahunAjaran.kapasitas,
-              },
-              where: {
-                kapasitasId: (await this.prisma.kapasitasSatkerTahunAjaran.findFirst({
-                  where: {
-                    satkerId: satkerId,
-                    tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
-                      where: {
-                        isActive: true,
-                      },
-                      select: {
-                        tahunAjaranId: true,
-                      },
-                    })).tahunAjaranId,
-                  },
-                  select: {
-                    kapasitasId: true,
-                  },
-                })).kapasitasId
-              },
-            },
+    const updateSatker = await this.prisma.satker.update({
+      where: {
+        satkerId: parseInt(satkerId.toString()),
+      },
+      data: {
+        nama: satker.nama,
+        alamat: satker.alamat,
+        email: satker.email,
+        provinsi: {
+          connect: {
+            kodeProvinsi: satker.provinsi.kodeProvinsi,
           },
         },
-        select: {
-          satkerId: true,
-          nama: true,
-          alamat: true,
-          email: true,
-          kabupatenKota: {
-            select: {
-              nama: true,
-              provinsi: {
-                select: {
-                  nama: true,
+        kabupatenKota: {
+          connect: {
+            kodeKabupatenKota: satker.kabupatenKota.kodeKabupatenKota,
+          },
+        },
+        kapasitasSatkerTahunAjaran: {
+          update: {
+            data: {
+              kapasitas: satker.kapasitasSatkerTahunAjaran.kapasitas,
+            },
+            where: {
+              kapasitasId: (await this.prisma.kapasitasSatkerTahunAjaran.findFirst({
+                where: {
+                  satkerId: parseInt(satkerId.toString()),
+                  tahunAjaranId: (await this.prisma.tahunAjaran.findFirst({
+                    where: {
+                      isActive: true,
+                    },
+                    select: {
+                      tahunAjaranId: true,
+                    },
+                  })).tahunAjaranId,
                 },
-              },
+                select: {
+                  kapasitasId: true,
+                },
+              })).kapasitasId
             },
           },
-          kodeSatker: true,
-          kapasitasSatkerTahunAjaran: {
-            select: {
-              kapasitas: true,
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
+        },
+      },
+      select: {
+        satkerId: true,
+        nama: true,
+        alamat: true,
+        email: true,
+        kabupatenKota: {
+          select: {
+            nama: true,
+            provinsi: {
+              select: {
+                nama: true,
               },
             },
           },
         },
-      });
-  
-      return {
-        status: 'success',
-        message: 'Data Satuan Kerja Berhasil Diubah',
-        data: updateSatker,
-      }
-    } catch (error) {
-      throw new HttpException({
-        status: 'error',
-        message: 'Data Satuan Kerja Gagal Diubah',
-        error: error,
-      }, HttpStatus.BAD_REQUEST, {
-        cause: error,
-      });
+        kodeSatker: true,
+        kapasitasSatkerTahunAjaran: {
+          select: {
+            kapasitas: true,
+            tahunAjaran: {
+              select: {
+                tahun: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Satuan Kerja Berhasil Diubah',
+      data: updateSatker,
+    }
+  }
+
+  async updateKapasitasSatker(kapasitasSatkerId: number, kapasitasSatker: UpdateKapasitasSatkerTahunAjaranDto) {
+    const updateKapasitas = await this.prisma.kapasitasSatkerTahunAjaran.update({
+      where: {
+        kapasitasId: parseInt(kapasitasSatkerId.toString()),
+      },
+      data: {
+        kapasitas: kapasitasSatker.kapasitas,
+
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Kapasitas Satuan Kerja Berhasil Diubah',
+      data: updateKapasitas,
     }
   }
 
   async remove(satkerId: number) {
-    try {
-      const cekSatker = await this.prisma.satker.findFirstOrThrow({
-        where: {
-          satkerId: satkerId,
-        },
-      });
-  
-      const deleteSatker = await this.prisma.satker.delete({
-        where: {
-          satkerId: satkerId,
-        },
-        select: {
-          satkerId: true,
-          nama: true,
-          alamat: true,
-          email: true,
-          kabupatenKota: {
-            select: {
-              nama: true,
-              provinsi: {
-                select: {
-                  nama: true,
-                },
-              },
-            },
-          },
-          kodeSatker: true,
-          kapasitasSatkerTahunAjaran: {
-            select: {
-              kapasitas: true,
-              tahunAjaran: {
-                select: {
-                  tahun: true,
-                },
-              },
-            },
-          },
-        },
-      });
-  
-      return {
-        status: 'success',
-        message: 'Data Satuan Kerja Berhasil Dihapus',
-        data: deleteSatker,
-      }
-    } catch (error) {
-      throw new HttpException({
-        status: 'error',
-        message: 'Data Satuan Kerja Gagal Dihapus',
-        error: error,
-      }, HttpStatus.BAD_REQUEST, {
-        cause: error,
-      });
+    const deleteSatker = await this.prisma.satker.delete({
+      where: {
+        satkerId: satkerId,
+      },
+    });
+
+    return {
+      status: 'success',
+      message: 'Data Satuan Kerja Berhasil Dihapus',
+      data: deleteSatker,
     }
   }
 }

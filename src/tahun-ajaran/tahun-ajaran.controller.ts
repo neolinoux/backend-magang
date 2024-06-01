@@ -1,8 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Put } from '@nestjs/common';
 import { TahunAjaranService } from './tahun-ajaran.service';
-import { CreateTahunAjaranDto } from './dto/create-tahun-ajaran.dto';
-import { UpdateTahunAjaranDto } from './dto/update-tahun-ajaran.dto';
+import { CreateTahunAjaranDto } from 'src/generated/nestjs-dto/create-tahunAjaran.dto';
+import { UpdateTahunAjaranDto } from 'src/generated/nestjs-dto/update-tahunAjaran.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@ApiTags('Tahun Ajaran')
 @Controller('tahun-ajaran')
 export class TahunAjaranController {
   constructor(private readonly tahunAjaranService: TahunAjaranService) {}
@@ -13,22 +18,23 @@ export class TahunAjaranController {
   }
 
   @Get()
-  findAll() {
-    return this.tahunAjaranService.findAll();
+  findAll(
+    @Query() params: {
+      tahun: string;
+    }
+  ) {
+    return this.tahunAjaranService.findAllBy(params);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tahunAjaranService.findOne(+id);
+  @Put('set-active/:tahunAjaranId')
+  update(
+    @Param('tahunAjaranId') tahunAjaranId: number
+  ) {
+    return this.tahunAjaranService.update(+tahunAjaranId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTahunAjaranDto: UpdateTahunAjaranDto) {
-    return this.tahunAjaranService.update(+id, updateTahunAjaranDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tahunAjaranService.remove(+id);
+  @Delete(':tahunAjaranId')
+  remove(@Param('tahunAjaranId') tahunAjaranId: number) {
+    return this.tahunAjaranService.remove(+tahunAjaranId);
   }
 }

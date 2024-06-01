@@ -27,6 +27,11 @@ export class AdminProvinsiService {
                   }
                 })).tahunAjaranId
               }
+            },
+            userRoles: {
+              create: {
+                roleId: 7
+              }
             }
           }
         },

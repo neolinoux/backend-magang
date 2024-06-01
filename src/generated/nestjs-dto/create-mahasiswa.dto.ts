@@ -35,6 +35,11 @@ export class CreateMahasiswaDto {
           tahunAjaranId: number;
         };
       };
+      userRoles: {
+        create: {
+          roleId: number;
+        };
+      };
     }
   };
 }

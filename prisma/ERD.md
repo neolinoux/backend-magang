@@ -85,6 +85,7 @@ erDiagram
 "AdminSatker" {
     Int adminSatkerId PK
     Int userId FK
+    Int satkerId FK "nullable"
 }
 "Satker" {
     Int satkerId PK
@@ -94,7 +95,6 @@ erDiagram
     String alamat
     Boolean internalBPS
     Int adminProvinsiId FK "nullable"
-    Int adminSatkerId FK "nullable"
     Int povinsiId FK
     Int kabupatenKotaId FK
 }
@@ -198,9 +198,10 @@ erDiagram
 }
 "PilihanSatker" {
     Int pilihanSatkerId PK
-    Int mahasiswaId
-    Int satkerId
+    Int mahasiswaId FK
+    Int satkerId FK
     String status
+    Boolean isActive
     DateTime createdAt
     DateTime updatedAt
 }
@@ -220,8 +221,8 @@ erDiagram
 "AdminProvinsi" |o--|| "Provinsi" : provinsi
 "KabupatenKota" }o--|| "Provinsi" : provinsi
 "AdminSatker" |o--|| "User" : user
+"AdminSatker" |o--|| "Satker" : satker
 "Satker" }o--|| "AdminProvinsi" : adminProvinsi
-"Satker" |o--|| "AdminSatker" : adminSatker
 "Satker" }o--|| "Provinsi" : provinsi
 "Satker" |o--|| "KabupatenKota" : kabupatenKota
 "KapasitasSatkerTahunAjaran" }o--|| "Satker" : satker
@@ -238,6 +239,8 @@ erDiagram
 "RekapKegiatanBulanan" }o--|| "Mahasiswa" : mahasiswa
 "Presensi" }o--|| "Mahasiswa" : mahasiswa
 "IzinPresensi" }o--|| "Mahasiswa" : mahasiswa
+"PilihanSatker" }o--|| "Mahasiswa" : mahasiswa
+"PilihanSatker" }o--|| "Satker" : satker
 ```
 
 ### `TahunAjaran`
@@ -345,6 +348,7 @@ erDiagram
 **Properties**
   - `adminSatkerId`: 
   - `userId`: 
+  - `satkerId`: 
 
 ### `Satker`
 
@@ -356,7 +360,6 @@ erDiagram
   - `alamat`: 
   - `internalBPS`: 
   - `adminProvinsiId`: 
-  - `adminSatkerId`: 
   - `povinsiId`: 
   - `kabupatenKotaId`: 
 
@@ -487,5 +490,6 @@ erDiagram
   - `mahasiswaId`: 
   - `satkerId`: 
   - `status`: 
+  - `isActive`: 
   - `createdAt`: 
   - `updatedAt`: 

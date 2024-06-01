@@ -1,9 +1,12 @@
-import { IsNumber } from "class-validator";
+import { IsNumber, IsOptional } from "class-validator";
+import { TahunAjaran } from "./tahunAjaran.entity";
 
 export class CreateKapasitasSatkerTahunAjaranDto {
-  @IsNumber()
   satkerId: number;
 
   @IsNumber()
+  @IsOptional()
   kapasitas?: number;
+
+  tahunAjaran: TahunAjaran;
 }

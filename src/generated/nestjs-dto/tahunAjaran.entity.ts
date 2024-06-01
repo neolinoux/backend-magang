@@ -5,8 +5,8 @@ import {KapasitasSatkerTahunAjaran} from './kapasitasSatkerTahunAjaran.entity'
 
 export class TahunAjaran {
   tahunAjaranId: number ;
-tahun: string ;
-isActive: boolean ;
-user?: User[] ;
-kapasitasSatkerTahunAjaran?: KapasitasSatkerTahunAjaran[] ;
+  tahun: string ;
+  isActive: boolean ;
+  user?: User[] ;
+  kapasitasSatkerTahunAjaran?: KapasitasSatkerTahunAjaran[] ;
 }

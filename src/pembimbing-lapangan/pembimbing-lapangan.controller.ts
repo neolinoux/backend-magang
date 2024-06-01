@@ -31,7 +31,7 @@ export class PembimbingLapanganController {
     @Param('pemlapId') pemlapId: number,
     @Body() updatePembimbingLapangan: UpdatePembimbingLapanganDto
   ) {
-    return this.pembimbingLapanganService.update(pemlapId, updatePembimbingLapangan);
+    return this.pembimbingLapanganService.update(+pemlapId, updatePembimbingLapangan);
   }
 
   @Delete(':pemlapId')

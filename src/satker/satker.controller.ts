@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { SatkerService } from './satker.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
 import { UpdateSatkerDto } from 'src/generated/nestjs-dto/update-satker.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as XLSX from 'xlsx';
-import { CreateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaran.dto';
+import { UpdateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/update-kapasitasSatkerTahunAjaran.dto';
 
 @ApiTags('Satker')
 @ApiBearerAuth()
@@ -52,30 +52,6 @@ export class SatkerController {
     return this.satkerService.create(satker);
   }
 
-  @Post('kapasitas-satker/bulk')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
-  createBulkKapasitasSatker(
-    @UploadedFile() file: Express.Multer.File
-  ) {
-    if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      throw new Error('File harus berformat xlsx');
-    }
-
-    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(worksheet);
-
-    return this.satkerService.createBulkKapasitasSatker(data);
-  }
-
-  @Post('kapasitas-satker')
-  createKapasitasSatker(
-    @Body() kapasitasSatker: CreateKapasitasSatkerTahunAjaranDto
-  ) {
-    return this.satkerService.createKapasitasSatker(kapasitasSatker);
-  }
-
   @Get('kapasitas-satker')
   async findAllKapasitasSatkerBy(
     @Query() params: {
@@ -98,10 +74,18 @@ export class SatkerController {
     return this.satkerService.update(satkerId, satker);
   }
 
+  @Put('kapasitas-satker/:kapasitasSatkerId')
+  updateKapasitasSatker(
+    @Param('kapasitasSatkerId') kapasitasSatkerId: number,
+    @Body() kapasitasSatker: UpdateKapasitasSatkerTahunAjaranDto
+  ) {
+    return this.satkerService.updateKapasitasSatker(+kapasitasSatkerId, kapasitasSatker);
+  }
+
   @Delete(':satkerId')
   remove(
     @Param('satkerId') satkerId: number
   ) {
-    return this.satkerService.remove(satkerId);
+    return this.satkerService.remove(+satkerId);
   }
 }

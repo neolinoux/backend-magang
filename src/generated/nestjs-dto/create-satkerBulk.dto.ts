@@ -52,6 +52,21 @@ export class CreateSatkerBulkDto {
               tahunAjaranId: number;
             }
           }
+          userRoles: {
+            create: {
+              roleId: number;
+            }
+          }
+        },
+      }
+    }
+  };
+
+  kapasitasSatkerTahunAjaran: {
+    create: {
+      tahunAjaran: {
+        connect: {
+          tahunAjaranId: number;
         }
       }
     }

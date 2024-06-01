@@ -1,6 +1,6 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { UpdateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/update-dosenPembimbingMagang.dto';
 import { CreateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/create-dosenPembimbingMagang.dto';
 
@@ -77,6 +77,11 @@ export class DosenPembimbingMagangService {
                 })).tahun,
               }
             },
+            userRoles: {
+              create: {
+                roleId: 3,
+              },
+            },
           },
         },
       },
@@ -95,6 +100,9 @@ export class DosenPembimbingMagangService {
         dosenId: dosenId,
       },
       data: {
+        nip: updateDosenPembimbingMagang.nip,
+        nama: updateDosenPembimbingMagang.nama,
+        prodi: updateDosenPembimbingMagang.prodi,
         user: {
           update: {
             email: updateDosenPembimbingMagang.user.email,

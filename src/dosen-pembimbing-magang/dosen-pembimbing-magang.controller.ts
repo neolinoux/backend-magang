@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { CreateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/create-dosenPembimbingMagang.dto';
 import { UpdateDosenPembimbingMagangDto } from 'src/generated/nestjs-dto/update-dosenPembimbingMagang.dto';
+import { Mahasiswa } from 'src/generated/nestjs-dto/mahasiswa.entity';
 
 @ApiTags('Dosen Pembimbing Magang')
 @ApiBearerAuth()
@@ -36,7 +37,7 @@ export class DosenPembimbingMagangController {
   ) {
     return this.dosenPembimbingMagangService.create(createDosenPembimbingMagang);
   }
-  
+
   @Put(':dosenId')
   async update(
     @Param('dosenId') dosenId: number,
