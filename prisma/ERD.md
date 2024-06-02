@@ -139,6 +139,7 @@ erDiagram
 "TipeKegiatan" {
     Int tipeKegiatanId PK
     String nama
+    String satuan
     Int mahasiswaId FK
     DateTime createdAt
     DateTime updatedAt
@@ -148,8 +149,7 @@ erDiagram
     DateTime tanggal
     String deskripsi
     Int volume
-    String satuan
-    Int durasi
+    Float durasi
     String pemberiTugas
     Int statusPenyelesaian
     Int mahasiswaId FK
@@ -159,15 +159,23 @@ erDiagram
 }
 "RekapKegiatanBulanan" {
     Int rekapId PK
-    String periode
+    DateTime tanggalAwal
+    DateTime tanggalAkhir
+    Boolean isFinal
+    Int mahasiswaId FK
+    DateTime createdAt
+    DateTime updatedAt
+}
+"RekapKegiatanBulananTipeKegiatan" {
+    Int rekapTipeId PK
     String uraian
-    String satuan
     Int target
     Int realisasi
-    Int persentase
+    Float persentase
     Int tingkatKualitas "nullable"
     String keterangan "nullable"
-    Int mahasiswaId FK
+    Int rekapId FK
+    Int tipeKegiatanId FK
     DateTime createdAt
     DateTime updatedAt
 }
@@ -175,7 +183,7 @@ erDiagram
     Int presensiId PK
     DateTime tanggal
     DateTime waktuDatang
-    DateTime waktuPulang
+    DateTime waktuPulang "nullable"
     String status
     Int mahasiswaId FK
     DateTime createdAt
@@ -237,6 +245,8 @@ erDiagram
 "KegiatanHarian" }o--|| "Mahasiswa" : mahasiswa
 "KegiatanHarian" }o--|| "TipeKegiatan" : tipeKegiatan
 "RekapKegiatanBulanan" }o--|| "Mahasiswa" : mahasiswa
+"RekapKegiatanBulananTipeKegiatan" }o--|| "RekapKegiatanBulanan" : rekapKegiatan
+"RekapKegiatanBulananTipeKegiatan" }o--|| "TipeKegiatan" : tipeKegiatan
 "Presensi" }o--|| "Mahasiswa" : mahasiswa
 "IzinPresensi" }o--|| "Mahasiswa" : mahasiswa
 "PilihanSatker" }o--|| "Mahasiswa" : mahasiswa
@@ -416,6 +426,7 @@ erDiagram
 **Properties**
   - `tipeKegiatanId`: 
   - `nama`: 
+  - `satuan`: 
   - `mahasiswaId`: 
   - `createdAt`: 
   - `updatedAt`: 
@@ -427,7 +438,6 @@ erDiagram
   - `tanggal`: 
   - `deskripsi`: 
   - `volume`: 
-  - `satuan`: 
   - `durasi`: 
   - `pemberiTugas`: 
   - `statusPenyelesaian`: 
@@ -440,15 +450,25 @@ erDiagram
 
 **Properties**
   - `rekapId`: 
-  - `periode`: 
+  - `tanggalAwal`: 
+  - `tanggalAkhir`: 
+  - `isFinal`: 
+  - `mahasiswaId`: 
+  - `createdAt`: 
+  - `updatedAt`: 
+
+### `RekapKegiatanBulananTipeKegiatan`
+
+**Properties**
+  - `rekapTipeId`: 
   - `uraian`: 
-  - `satuan`: 
   - `target`: 
   - `realisasi`: 
   - `persentase`: 
   - `tingkatKualitas`: 
   - `keterangan`: 
-  - `mahasiswaId`: 
+  - `rekapId`: 
+  - `tipeKegiatanId`: 
   - `createdAt`: 
   - `updatedAt`: 
 

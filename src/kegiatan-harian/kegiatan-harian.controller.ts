@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, Put } fr
 import { KegiatanHarianService } from './kegiatan-harian.service';
 import { CreateKegiatanHarianDto } from 'src/generated/nestjs-dto/create-kegiatanHarian.dto';
 import { UpdateKegiatanHarianDto } from 'src/generated/nestjs-dto/update-kegiatanHarian.dto';
-import { TipeKegiatan } from 'src/generated/nestjs-dto/tipeKegiatan.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTipeKegiatanDto } from 'src/generated/nestjs-dto/create-tipeKegiatan.dto';
 import { UpdateTipeKegiatanDto } from 'src/generated/nestjs-dto/update-tipeKegiatan.dto';

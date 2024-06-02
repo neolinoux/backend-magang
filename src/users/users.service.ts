@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { da } from '@faker-js/faker';
 
 @Injectable()
 export class UsersService{
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+  ) { }
 
   async user(userId: number) {
     const user = await this.prisma.user.findUnique({
@@ -45,12 +46,6 @@ export class UsersService{
       password: string
     }
   ) {
-    const tes = await this.prisma.user.findUniqueOrThrow({
-      where: {
-        userId: userId,
-      },
-    });
-
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const user = await this.prisma.user.update({

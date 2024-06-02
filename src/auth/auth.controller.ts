@@ -57,8 +57,8 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   async getCurrentUser(@Request() req) {
     return this.authService.me(req.headers['authorization']);
   }

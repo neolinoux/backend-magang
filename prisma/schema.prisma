@@ -245,13 +245,17 @@ model PesertaBimbinganMahasiswa {
 }
 
 model TipeKegiatan {
-  tipeKegiatanId Int              @id @default(autoincrement())
-  nama           String
-  mahasiswa      Mahasiswa        @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
-  mahasiswaId    Int
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  kegiatanHarian KegiatanHarian[]
+  tipeKegiatanId                   Int                                @id @default(autoincrement())
+  nama                             String
+  satuan                           String
+  mahasiswa                        Mahasiswa                          @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
+  mahasiswaId                      Int
+  createdAt                        DateTime                           @default(now())
+  updatedAt                        DateTime                           @updatedAt
+  kegiatanHarian                   KegiatanHarian[]
+  RekapKegiatanBulananTipeKegiatan RekapKegiatanBulananTipeKegiatan[]
+
+  @@unique([nama, satuan, mahasiswaId])
 }
 
 model KegiatanHarian {
@@ -259,8 +263,7 @@ model KegiatanHarian {
   tanggal            DateTime
   deskripsi          String
   volume             Int           @default(0)
-  satuan             String
-  durasi             Int           @default(0)
+  durasi             Float         @default(0)
   pemberiTugas       String
   statusPenyelesaian Int           @default(0)
   mahasiswa          Mahasiswa     @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
@@ -272,31 +275,45 @@ model KegiatanHarian {
 }
 
 model RekapKegiatanBulanan {
-  rekapId         Int       @id @default(autoincrement())
-  periode         String
+  rekapId                          Int                                @id @default(autoincrement())
+  tanggalAwal                      DateTime
+  tanggalAkhir                     DateTime
+  isFinal                          Boolean                            @default(false)
+  mahasiswa                        Mahasiswa                          @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
+  mahasiswaId                      Int
+  createdAt                        DateTime                           @default(now())
+  updatedAt                        DateTime                           @updatedAt
+  RekapKegiatanBulananTipeKegiatan RekapKegiatanBulananTipeKegiatan[]
+}
+
+model RekapKegiatanBulananTipeKegiatan {
+  rekapTipeId     Int                  @id @default(autoincrement())
   uraian          String
-  satuan          String
-  target          Int       @default(0)
-  realisasi       Int       @default(0)
-  persentase      Int       @default(0)
-  tingkatKualitas Int?
+  target          Int                  @default(0)
+  realisasi       Int                  @default(0)
+  persentase      Float                  @default(0)
+  tingkatKualitas Int?                 @default(0)
   keterangan      String?
-  mahasiswa       Mahasiswa @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
-  mahasiswaId     Int
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  rekapKegiatan   RekapKegiatanBulanan @relation(fields: [rekapId], references: [rekapId], onDelete: Cascade, onUpdate: Cascade)
+  rekapId         Int
+  tipeKegiatan    TipeKegiatan         @relation(fields: [tipeKegiatanId], references: [tipeKegiatanId], onDelete: Cascade, onUpdate: Cascade)
+  tipeKegiatanId  Int
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 }
 
 model Presensi {
   presensiId  Int       @id @default(autoincrement())
   tanggal     DateTime
   waktuDatang DateTime
-  waktuPulang DateTime
-  status      String
+  waktuPulang DateTime?
+  status      String    @default("Tidak Hadir")
   mahasiswa   Mahasiswa @relation(fields: [mahasiswaId], references: [mahasiswaId], onDelete: Cascade, onUpdate: Cascade)
   mahasiswaId Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@unique([tanggal, mahasiswaId])
 }
 
 model IzinPresensi {

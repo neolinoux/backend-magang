@@ -21,9 +21,9 @@ import { DosenPembimbingMagangModule } from './dosen-pembimbing-magang/dosen-pem
 import { PresensiModule } from './presensi/presensi.module';
 import { AdminProvinsiModule } from './admin-provinsi/admin-provinsi.module';
 import { TahunAjaranModule } from './tahun-ajaran/tahun-ajaran.module';
-import { APP_PIPE } from '@nestjs/core';
 import { ProvinsiModule } from './provinsi/provinsi.module';
 import { TimMagangModule } from './tim-magang/tim-magang.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -49,13 +49,13 @@ import { TimMagangModule } from './tim-magang/tim-magang.module';
     AdminProvinsiModule,
     TahunAjaranModule,
     ProvinsiModule,
-    TimMagangModule
+    TimMagangModule,
+    CaslModule
   ],
-  controllers: [AppController, PemilihanPenempatanController],
+  controllers: [AppController],
   providers: [
     AppService,
     PrismaService,
-    PemilihanPenempatanService,
   ],
 })
 export class AppModule{}

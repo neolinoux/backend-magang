@@ -11,7 +11,7 @@ async function bootstrap() {
     .setTitle('API Magang')
     .setDescription('REST API untuk aplikasi Magang Mahasiswa Politeknik Statistika STIS')
     .setVersion('1.0')
-    .addTag('magang')
+    .addTag('Magang')
     .addBearerAuth()
     .build();
   

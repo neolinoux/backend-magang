@@ -1,12 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePembimbingLapanganDto } from 'src/generated/nestjs-dto/create-pembimbingLapangan.dto';
 import { UpdatePembimbingLapanganDto } from 'src/generated/nestjs-dto/update-pembimbingLapangan.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { REQUEST } from '@nestjs/core';
+import { accessibleBy } from '@casl/prisma';
 
 @Injectable()
 export class PembimbingLapanganService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
+    @Inject(REQUEST) private request: Request
+  ) { }
 
   async findAllPemlapBy(
     params: {
@@ -14,8 +23,17 @@ export class PembimbingLapanganService {
       tahunAjaran: string,
     }
   ) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('read', 'PembimbingLapangan')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk melihat data pembimbing lapangan');
+    }
+
     const data = await this.prisma.pembimbingLapangan.findMany({
       where: {
+        AND: [accessibleBy(ability).PembimbingLapangan],
         nip: params.nip,
         user: {
           tahunAjaran: {
@@ -33,6 +51,14 @@ export class PembimbingLapanganService {
   }
 
   async create(createPembimbingLapangan: CreatePembimbingLapanganDto) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('create', 'PembimbingLapangan')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menambahkan data pembimbing lapangan');
+    }
+
     const hashedPassword = await bcrypt.hash(createPembimbingLapangan.user.password, 10);
 
     const pembimbingLapanganBaru = await this.prisma.pembimbingLapangan.create({
@@ -81,6 +107,23 @@ export class PembimbingLapanganService {
     pemlapId: number,
     updatePembimbingLapangan: UpdatePembimbingLapanganDto
   ) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('update', 'PembimbingLapangan')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengubah data pembimbing lapangan');
+    }
+
+    await this.prisma.pembimbingLapangan.findFirstOrThrow({
+      where: {
+        pemlapId: pemlapId,
+        AND: [accessibleBy(ability).PembimbingLapangan],
+      },
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengubah data pembimbing lapangan ini');
+    });
+
     const data = await this.prisma.pembimbingLapangan.update({
       where: {
         pemlapId: pemlapId,
@@ -104,6 +147,23 @@ export class PembimbingLapanganService {
   }
 
   async remove(pemlapId: number) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('remove', 'PembimbingLapangan')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus data pembimbing lapangan');
+    }
+
+    await this.prisma.pembimbingLapangan.findFirstOrThrow({
+      where: {
+        pemlapId: pemlapId,
+        AND: [accessibleBy(ability).PembimbingLapangan],
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus data pembimbing lapangan ini');
+    });
+
     await this.prisma.pembimbingLapangan.delete({
       where: {
         pemlapId: pemlapId,

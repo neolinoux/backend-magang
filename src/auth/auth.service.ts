@@ -1,17 +1,24 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException
+  UnauthorizedException,
+  Request
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { REQUEST } from '@nestjs/core';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { accessibleBy } from '@casl/prisma';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private caslAbilityFactory: CaslAbilityFactory,
+    @Inject(REQUEST) private request: Request
   ) { }
 
   async login(
@@ -19,7 +26,7 @@ export class AuthService {
     password: string,
     token: string
   ) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findFirstOrThrow({
       select: {
         userId: true,
         email: true,
@@ -36,12 +43,20 @@ export class AuthService {
         },
       },
       where: {
-        email: email,
-        tahunAjaran: {
-          isActive: true
-        }
+        AND: [
+          {
+            email: email
+          },
+          {
+            tahunAjaran: {
+              isActive: true
+            }
+          }
+        ]
       },
-    });
+    }).catch(() => {
+      throw new NotFoundException('Invalid credentials');
+    })
 
     if (!(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
@@ -60,10 +75,14 @@ export class AuthService {
     const payload = {
       id: user.userId,
       role: user.userRoles[0].role.roleName,
+      roleId: user.userRoles[0].roleId,
     };
 
+    const tokenCreated = this.jwtService.sign(payload);
+
     return {
-      access_token: this.jwtService.sign(payload)
+      message: 'Login success',
+      token: tokenCreated
     }
   }
 
@@ -87,28 +106,28 @@ export class AuthService {
   }
 
   async me(token: string) {
-    const targetToken = token.split(' ')[1];
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload['roleId']);
 
-    if (!targetToken) {
-      throw await new UnauthorizedException('User not logged in');
-    }
+    // const targetToken = token.split(' ')[1];
 
-    const invalidToken = await this.prisma.invalidToken.findUnique({
-      where: {
-        token: targetToken
-      }
-    });
+    // if (!targetToken) {
+    //   throw await new UnauthorizedException('User not logged in');
+    // }
 
-    if (invalidToken) {
-      throw await new UnauthorizedException('User not logged in');
-    }
+    // const invalidToken = await this.prisma.invalidToken.findUnique({
+    //   where: {
+    //     token: targetToken
+    //   }
+    // });
 
-    const payload = this.jwtService.decode(targetToken);
+    // if (invalidToken) {
+    //   throw await new UnauthorizedException('User not logged in');
+    // }
 
-    return {
-      id: payload['id'],
-      email: payload['email'],
-      role: payload['role']
-    }
+    // const payload = this.jwtService.decode(targetToken);
+
+    return payload;
   }
 }

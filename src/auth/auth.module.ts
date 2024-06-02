@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 
 export const jwtSecret = 'rumahkacaantipeluru'
 
@@ -26,7 +27,8 @@ export const jwtSecret = 'rumahkacaantipeluru'
     AuthService,
     PrismaService,
     UsersService,
-    JwtStrategy
+    JwtStrategy,
+    CaslAbilityFactory
   ],
 })
 export class AuthModule {}

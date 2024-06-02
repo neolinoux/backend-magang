@@ -4,4 +4,8 @@ export class UpdateTipeKegiatanDto {
   @IsString()
   @IsOptional()
   nama?: string;
+
+  @IsString()
+  @IsOptional()
+  satuan?: string;
 }

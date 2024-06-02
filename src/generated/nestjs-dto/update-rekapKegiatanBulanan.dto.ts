@@ -1,13 +1,13 @@
-
-
-
-
-
+import { IsBoolean, IsOptional, ValidateNested } from "class-validator";
+import { UpdateRekapKegiatanBulananTipeKegiatan } from "./update-rekapKegiatanBulananTipeKegiatan.dto";
+import { Type } from "class-transformer";
 
 export class UpdateRekapKegiatanBulananDto {
-  periode?: string;
-uraian?: string;
-satuan?: string;
-tingkatKualitas?: number;
-keterangan?: string;
+  @ValidateNested({ each: true })
+  @Type(() => UpdateRekapKegiatanBulananTipeKegiatan)
+  rekapKegiatanBulananTipeKegiatan?: UpdateRekapKegiatanBulananTipeKegiatan[];
+
+  @IsBoolean()
+  @IsOptional()
+  isFinal?: boolean;
 }

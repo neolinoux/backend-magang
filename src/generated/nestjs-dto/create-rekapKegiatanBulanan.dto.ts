@@ -1,13 +1,14 @@
-
-
-
-
-
+import { IsDateString, IsNotEmpty } from "class-validator";
+import { UpdateRekapKegiatanBulananTipeKegiatan } from "./update-rekapKegiatanBulananTipeKegiatan.dto";
 
 export class CreateRekapKegiatanBulananDto {
-  periode: string;
-uraian: string;
-satuan: string;
-tingkatKualitas?: number;
-keterangan?: string;
+  @IsDateString()
+  @IsNotEmpty()
+  tanggalAwal: string;
+
+  @IsNotEmpty()
+  @IsDateString()
+  tanggalAkhir: string;
+
+  rekapKegiatanBulananTipeKegiatan: CreateRekapKegiatanBulananDto[];
 }

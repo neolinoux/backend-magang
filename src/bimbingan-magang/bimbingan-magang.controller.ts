@@ -4,6 +4,7 @@ import { CreateBimbinganMagangDto } from 'src/generated/nestjs-dto/create-bimbin
 import { UpdateBimbinganMagangDto } from 'src/generated/nestjs-dto/update-bimbinganMagang.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { CreateBimbinganMagangDosenDto } from 'src/generated/nestjs-dto/create-BimbinganMagangDosen.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -19,22 +20,22 @@ export class BimbinganMagangController {
     @Param('mahasiswaId') mahasiswaId: number,
     @Body() createBimbinganMagangDto: CreateBimbinganMagangDto
   ) {
-    return this.bimbinganMagangService.createByMahasiswa(mahasiswaId, createBimbinganMagangDto);
+    return this.bimbinganMagangService.createByMahasiswa(+mahasiswaId, createBimbinganMagangDto);
   }
 
   @Post('dosen-pembimbing/:dosenId')
   createByDosen(
     @Param('dosenId') dosenId: number,
-    @Body() createBimbinganMagangDto: CreateBimbinganMagangDto
+    @Body() createBimbinganMagangDosenDto: CreateBimbinganMagangDosenDto
   ) {
-    return this.bimbinganMagangService.createByDosenPembimbing(dosenId, createBimbinganMagangDto);
+    return this.bimbinganMagangService.createByDosenPembimbing(+dosenId, createBimbinganMagangDosenDto);
   }
 
   @Get()
-  findAllBimbinganMagangMahasiswaBy(
+  findAllBimbinganMagangBy(
     @Query() query: {
-      mahasiswaId: number;
-      dosenId: number;
+      nim: string;
+      nipDosen: string;
       tanggal: Date;
       status: string;
     }
@@ -42,18 +43,18 @@ export class BimbinganMagangController {
     return this.bimbinganMagangService.findAllBimbinganMagangBy(query);
   }
 
-  @Put(':bimbinganId')
+  @Put(':bimbinganMagangId')
   update(
-    @Param('bimbinganId') bimbinganId: number,
+    @Param('bimbinganMagangId') bimbinganMagangId: number,
     @Body() updateBimbinganMagangDto: UpdateBimbinganMagangDto,
   ) {
-    return this.bimbinganMagangService.update(bimbinganId, updateBimbinganMagangDto);
+    return this.bimbinganMagangService.update(+bimbinganMagangId, updateBimbinganMagangDto);
   }
 
-  @Put('confirm/:bimbinganId')
+  @Put('confirm/:bimbinganMagangId')
   confirm(
-    @Param('bimbinganId') bimbinganId: number
+    @Param('bimbinganMagangId') bimbinganMagangId: number
   ) {
-    return this.bimbinganMagangService.confirm(bimbinganId);
+    return this.bimbinganMagangService.confirm(bimbinganMagangId);
   }
 }

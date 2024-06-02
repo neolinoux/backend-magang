@@ -1,25 +1,41 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { CreateSatkerDto } from 'src/generated/nestjs-dto/create-satker.dto';
 import { UpdateSatkerDto } from 'src/generated/nestjs-dto/update-satker.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateSatkerBulkDto } from 'src/generated/nestjs-dto/create-satkerBulk.dto';
-import { CreateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaran.dto';
-import { CreateKapasitasSatkerTahunAjaranBulkDto } from 'src/generated/nestjs-dto/create-kapasitasSatkerTahunAjaranBulk.dto';
 import { UpdateKapasitasSatkerTahunAjaranDto } from 'src/generated/nestjs-dto/update-kapasitasSatkerTahunAjaran.dto';
+import { JwtService } from '@nestjs/jwt';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { REQUEST } from '@nestjs/core';
+import { accessibleBy } from '@casl/prisma';
 import { parse } from 'path';
 
 @Injectable()
 export class SatkerService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private caslAbilityFactory: CaslAbilityFactory,
+    @Inject(REQUEST) private request: Request
+  ) { }
 
   async findAllSatkerBy(params) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('read', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk melihat satker');
+    }
+
     if (params.internalBPS !== undefined) {
       params.internalBPS = params.internalBPS === 'true' || params.internalBPS === '1' ? true : false;
     }
 
     const daftarSatker = await this.prisma.satker.findMany({
       where: {
+        AND: [accessibleBy(ability).Satker],
         kodeSatker: {
           contains: params.kodeSatker,
         },
@@ -56,6 +72,14 @@ export class SatkerService {
   async createBulk(
     data: any
   ) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('create', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menambahkan satker');
+    }
+
     let createSatkerDto: CreateSatkerBulkDto[] = [];
     let satker = [];
 
@@ -181,7 +205,16 @@ export class SatkerService {
   }
 
   async create(satker: CreateSatkerDto) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('create', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menambahkan satker');
+    }
+
     let satkerBaru;
+    
     satkerBaru = await this.prisma.satker.create({
       data: {
         nama: satker.nama,
@@ -268,8 +301,17 @@ export class SatkerService {
   }
 
   async findAllKapasitasSatkerBy(params) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('read', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk melihat kapasitas satker');
+    }
+
     const kapasitasSatker = await this.prisma.kapasitasSatkerTahunAjaran.findMany({
       where: {
+        AND: [accessibleBy(ability).KapasitasSatkerTahunAjaran],
         satker: {
           kodeSatker: {
             contains: params.kodeSatker,
@@ -307,6 +349,23 @@ export class SatkerService {
   }
 
   async update(satkerId: number, satker: UpdateSatkerDto) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('update', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate satker');
+    }
+
+    await this.prisma.satker.findFirstOrThrow({
+      where: {
+        AND: [accessibleBy(ability).Satker],
+        satkerId: parseInt(satkerId.toString()),
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate satker ini');
+    });
+
     const updateSatker = await this.prisma.satker.update({
       where: {
         satkerId: parseInt(satkerId.toString()),
@@ -388,13 +447,29 @@ export class SatkerService {
   }
 
   async updateKapasitasSatker(kapasitasSatkerId: number, kapasitasSatker: UpdateKapasitasSatkerTahunAjaranDto) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('update', 'KapasitasSatkerTahunAjaran')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate kapasitas satker');
+    }
+
+    await this.prisma.kapasitasSatkerTahunAjaran.findFirstOrThrow({
+      where: {
+        AND: [accessibleBy(ability).KapasitasSatkerTahunAjaran],
+        kapasitasId: parseInt(kapasitasSatkerId.toString()),
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate kapasitas satker ini');
+    });
+
     const updateKapasitas = await this.prisma.kapasitasSatkerTahunAjaran.update({
       where: {
         kapasitasId: parseInt(kapasitasSatkerId.toString()),
       },
       data: {
         kapasitas: kapasitasSatker.kapasitas,
-
       },
     });
 
@@ -406,6 +481,23 @@ export class SatkerService {
   }
 
   async remove(satkerId: number) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('delete', 'Satker')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus satker');
+    }
+
+    await this.prisma.kapasitasSatkerTahunAjaran.findFirstOrThrow({
+      where: {
+        AND: [accessibleBy(ability).KapasitasSatkerTahunAjaran],
+        kapasitasId: parseInt(satkerId.toString()),
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus satker ini');
+    });
+
     const deleteSatker = await this.prisma.satker.delete({
       where: {
         satkerId: satkerId,

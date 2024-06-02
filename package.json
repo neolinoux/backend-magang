@@ -25,7 +25,7 @@
   "dependencies": {
     "@bull-board/api": "^4.11.0",
     "@bull-board/express": "^4.11.0",
-    "@casl/ability": "^6.7.0",
+    "@casl/ability": "^6.7.1",
     "@casl/prisma": "^1.4.1",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/bull": "^0.6.2",

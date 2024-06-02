@@ -1,23 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMahasiswaDto } from 'src/generated/nestjs-dto/create-mahasiswa.dto';
 import { UpdateMahasiswaDto } from 'src/generated/nestjs-dto/update-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
-import { UserRoles } from '../generated/nestjs-dto/userRoles.entity';
+import { JwtService } from '@nestjs/jwt';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { REQUEST } from '@nestjs/core';
+import { accessibleBy } from '@casl/prisma';
 
 @Injectable()
 export class MahasiswaService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
+    @Inject(REQUEST) private request: Request
   ) { }
 
   async findAll(params) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('read', 'Mahasiswa')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk melihat data mahasiswa');
+    }
+
     if (Object.keys(params).length === 0) {
       return this.prisma.mahasiswa.findMany();
     }
 
     return this.prisma.mahasiswa.findMany({
       where: {
+        AND: [accessibleBy(ability).Mahasiswa],
         nim: {
           contains: params.nim,
         },
@@ -56,6 +71,14 @@ export class MahasiswaService {
   async importExcel(
     data: any
   ) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('create', 'Mahasiswa')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menambahkan data mahasiswa');
+    }
+
     let createMahasiswaDto: CreateMahasiswaDto[] = [];
     let mahasiswa = []
 
@@ -126,6 +149,22 @@ export class MahasiswaService {
     mahasiswaId: number,
     updateMahasiswaDto: UpdateMahasiswaDto
   ) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('update', 'Mahasiswa')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengubah data mahasiswa');
+    }
+
+    await this.prisma.mahasiswa.findFirstOrThrow({
+      where: {
+        mahasiswaId: mahasiswaId,
+        AND: [accessibleBy(ability).Mahasiswa],
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengubah data mahasiswa');
+    });
 
     // cek dilakukan karna 3 field ini bersifat foreign key dan hanya bisa menerima perintah connect atau disconnect
     const cekDosenPembimbingMagang =

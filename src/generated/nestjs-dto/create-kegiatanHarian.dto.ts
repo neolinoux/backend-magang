@@ -14,10 +14,6 @@ export class CreateKegiatanHarianDto {
   @IsNumber()
   volume: number;
 
-  @IsString()
-  @IsNotEmpty()
-  satuan: string;
-
   @IsNumber()
   @IsNotEmpty()
   durasi: number;

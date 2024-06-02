@@ -8,35 +8,55 @@ import {
   Delete,
   Controller,
   Query,
+  Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateRekapKegiatanBulananDto } from 'src/generated/nestjs-dto/create-rekapKegiatanBulanan.dto';
 import { UpdateRekapKegiatanBulananDto } from 'src/generated/nestjs-dto/update-rekapKegiatanBulanan.dto';
+import { UpdateRekapKegiatanBulananTipeKegiatan } from 'src/generated/nestjs-dto/update-rekapKegiatanBulananTipeKegiatan.dto';
 
-@ApiTags('Kegiatan Bulanan')
 @ApiBearerAuth()
-@ApiTags('Bimbingan Magang')
+@ApiTags('Kegiatan Bulanan')
 @Controller('kegiatan-bulanan')
 export class KegiatanBulananController {
   constructor(private readonly kegiatanBulananService: KegiatanBulananService) {}
 
-  @Post()
-  create(@Body() createRekapKegiatanBulananDto: CreateRekapKegiatanBulananDto) {
-    return this.kegiatanBulananService.create(createRekapKegiatanBulananDto);
+  @Post(':mahasiswaId')
+  create(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() createRekapKegiatanBulananDto: CreateRekapKegiatanBulananDto
+  ) {
+    return this.kegiatanBulananService.create(+mahasiswaId, createRekapKegiatanBulananDto);
   }
 
   @Get()
-  findAll(@Query() query: any) {
-    return this.kegiatanBulananService.findAll(query);
+  findAll(
+    @Query() query: {
+      mahasiswaId?: number;
+      tanggalAwal?: string;
+      tanggalAkhir?: string;
+    }) {
+    return this.kegiatanBulananService.findAllRekapKegiatanBulananBy(query);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRekapKegiatanBulananDto: UpdateRekapKegiatanBulananDto) {
-    return this.kegiatanBulananService.update(+id, updateRekapKegiatanBulananDto);
+  @Put(':rekapId')
+  updateStatusRekapKegiatanBulanan(
+    @Param('rekapId') rekapId: number,
+    @Body() updateRekapKegiatanBulananDto: UpdateRekapKegiatanBulananDto
+  ) {
+    return this.kegiatanBulananService.updateStatusRekapKegiatanBulanan(+rekapId, updateRekapKegiatanBulananDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.kegiatanBulananService.remove(+id);
+  @Put('edit-detail/:rekapTipeKegiatanId')
+  updateDetailRekapKegiatan(
+    @Param('rekapTipeKegiatanId') rekapTipeKegiatanId: number,
+    @Body() updateRekapKegiatanBulananTipeKegiatan: UpdateRekapKegiatanBulananTipeKegiatan
+  ) {
+    return this.kegiatanBulananService.updateDetailRekapKegiatan(+rekapTipeKegiatanId, updateRekapKegiatanBulananTipeKegiatan);
+  }
+
+  @Delete(':rekapId')
+  remove(@Param('rekapId') rekapId: number) {
+    return this.kegiatanBulananService.remove(+rekapId);
   }
 }

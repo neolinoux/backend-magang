@@ -1,34 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { PresensiService } from './presensi.service';
-import { CreatePresensiDto } from './dto/create-presensi.dto';
-import { UpdatePresensiDto } from './dto/update-presensi.dto';
+import { CreatePresensiDto } from 'src/generated/nestjs-dto/create-presensi.dto';
+import { UpdatePresensiDto } from 'src/generated/nestjs-dto/update-presensi.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('presensi')
+@ApiTags('presensi')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class PresensiController {
   constructor(private readonly presensiService: PresensiService) {}
 
-  @Post()
-  create(@Body() createPresensiDto: CreatePresensiDto) {
-    return this.presensiService.create(createPresensiDto);
+  @Post('datang/:mahasiswaId')
+  presensiDatang(
+    @Param('mahasiswaId') mahasiswaId: number,
+    @Body() createPresensiDto: CreatePresensiDto
+  ) {
+    return this.presensiService.presensiDatang(+mahasiswaId, createPresensiDto);
+  }
+
+  @Put('pulang/:presensiId')
+  presensiPulang(
+    @Param('presensiId') presensiId: number,
+    @Body() updatePresensiDto: UpdatePresensiDto
+  ) {
+    return this.presensiService.presensiPulang(+presensiId, updatePresensiDto);
   }
 
   @Get()
-  findAll() {
-    return this.presensiService.findAll();
+  findAllPresensiBy(
+    @Query() params: {
+      tanggal: string,
+      mahasiswaId: number,
+    },
+  ) {
+    return this.presensiService.findAllPresensiBy(params);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.presensiService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePresensiDto: UpdatePresensiDto) {
-    return this.presensiService.update(+id, updatePresensiDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.presensiService.remove(+id);
+  @Delete(':presensiId')
+  remove(@Param('presensiId') presensiId: number) {
+    return this.presensiService.remove(+presensiId);
   }
 }

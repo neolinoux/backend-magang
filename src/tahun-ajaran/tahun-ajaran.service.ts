@@ -1,13 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTahunAjaranDto } from 'src/generated/nestjs-dto/create-tahunAjaran.dto';
 import { UpdateTahunAjaranDto } from 'src/generated/nestjs-dto/update-tahunAjaran.dto';
+import { JwtService } from '@nestjs/jwt';
+import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
+import { REQUEST } from '@nestjs/core';
+import { accessibleBy } from '@casl/prisma';
 
 @Injectable()
 export class TahunAjaranService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private jwtService: JwtService,
+    private caslAbilityFactory: CaslAbilityFactory,
+    @Inject(REQUEST) private request: Request,
+  ) { }
 
   async create(createTahunAjaranDto: CreateTahunAjaranDto) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('create', 'TahunAjaran')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk membuat tahun ajaran');
+    }
+
     const tahunAjaran = await this.prismaService.tahunAjaran.create({
       data: {
         tahun: createTahunAjaranDto.tahun,
@@ -90,14 +107,20 @@ export class TahunAjaranService {
   }
 
   async findAllBy(params) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('read', 'TahunAjaran')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk melihat tahun ajaran');
+    }
+
     const tahunAjarans = await this.prismaService.tahunAjaran.findMany({
       where: {
+        AND: [accessibleBy(ability).TahunAjaran],
         tahun: {
           contains: params.tahun,
         },
-      },
-      orderBy: {
-        tahunAjaranId: 'asc',
       },
     });
 
@@ -109,6 +132,23 @@ export class TahunAjaranService {
   }
 
   async update(tahunAjaranId: number) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('update', 'TahunAjaran')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate tahun ajaran');
+    }
+
+    await this.prismaService.tahunAjaran.findFirstOrThrow({
+      where: {
+        tahunAjaranId: parseInt(tahunAjaranId.toString()),
+        AND: [accessibleBy(ability).TahunAjaran],
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk mengupdate tahun ajaran ini');
+    });
+
     const tahunAjaran = await this.prismaService.tahunAjaran.update({
       where: {
         tahunAjaranId: tahunAjaranId,
@@ -172,6 +212,23 @@ export class TahunAjaranService {
     
 
   async remove(tahunAjaranId: number) {
+    const injectedToken = this.request.headers['authorization'].split(' ')[1];
+    const payload = this.jwtService.decode(injectedToken);
+    const ability = this.caslAbilityFactory.createForUser(payload);
+
+    if (!ability.can('delete', 'TahunAjaran')) {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus tahun ajaran');
+    }
+
+    await this.prismaService.tahunAjaran.findFirstOrThrow({
+      where: {
+        tahunAjaranId: parseInt(tahunAjaranId.toString()),
+        AND: [accessibleBy(ability).TahunAjaran],
+      }
+    }).catch(() => {
+      throw new ForbiddenException('Anda tidak memiliki izin untuk menghapus tahun ajaran ini');
+    });
+
     const tahunAjaran = await this.prismaService.tahunAjaran.findFirst({
       where: {
         tahunAjaranId: tahunAjaranId,
